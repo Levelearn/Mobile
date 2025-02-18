@@ -23,7 +23,7 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainState extends State<Mainscreen> {
-  int navIndex = 1;
+  int navIndex = 2;
   late SharedPreferences pref;
   int idCourse = 0;
   late List<Widget> _screen;

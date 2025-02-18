@@ -4,33 +4,43 @@ import 'assessment.dart';
 import 'assignment.dart';
 
 class Chapter {
-  String _material;
-  Set<Assessment> _assessment;
-  Assignment _assignment;
+  int id;
+  String name;
+  String description;
+  int level;
+  int courseId;
+  double? progress = 0.0;
+  DateTime createdAt;
+  DateTime updatedAt;
 
-  Chapter (this._material, this._assessment, this._assignment);
+  Chapter ({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.level,
+    required this.courseId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.progress
+  });
 
-  String getMaterial(){
-    return this._material;
+  factory Chapter.fromJson(Map<String, dynamic> json) {
+    return Chapter(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      level: json['level'],
+      courseId: json['courseId'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+    );
   }
 
-  Set<Assessment> getAssessment() {
-    return this._assessment;
+  double? getProgress() {
+    return this.progress;
   }
 
-  Assignment getAssignment() {
-    return this._assignment;
-  }
-
-  void setMaterial(String material) {
-    this._material = material;
-  }
-
-  void setAssessment(Set<Assessment> assesment) {
-    this._assessment = assesment;
-  }
-
-  void setAssignment(Assignment assignment){
-    this._assignment = assignment;
+  void setProgress(double progress) {
+    this.progress = progress;
   }
 }
