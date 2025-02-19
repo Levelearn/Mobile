@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:app/main.dart';
+import 'package:app/model/learningmaterial.dart';
+import 'package:app/service/chapterService.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -13,7 +16,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/assessment.dart';
 
 class Chapterscreen extends StatefulWidget {
-  const Chapterscreen({super.key});
+  final int idChapter;
+  const Chapterscreen({super.key, required this.idChapter});
 
   @override
   State<Chapterscreen> createState() => _ChapterScreen();
@@ -26,50 +30,17 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   late final TabController _tabController;
   late ScrollController _scrollController;
   final MultiSelectController<String> _controller = MultiSelectController();
-  double progressValue = 0.0; // Track progress
+  double progressValue = 0.0;
   bool allQuestionsAnswered = false;
   bool tapped = false;
-  final typeQuestion = [
-    Assessment(
-        'pg',
-        'Di bawah ini, manakah yang bukan merupakan elemen utama dalam HCI?',
-        listAnswer: Set.of(['Manusia', 'Komputer', 'Jaringan', 'Interaksi']),
-        correctAnswer: ['Jaringan']
-    ),
-    Assessment(
-      'sa',
-      'Sebutkan tiga elemen utama dalam HCI!',
-    ),
-    Assessment(
-        'tf',
-        'HCI hanya berfokus pada desain antarmuka grafis (GUI) dan tidak mempertimbangkan faktor manusia seperti kognisi dan ergonomi.',
-        listAnswer: Set.of(['True', 'False']),
-        correctAnswer: ['false']
-    ),
-    Assessment(
-        'mc',
-        'Dalam HCI, apa yang menjadi tantangan utama dalam mendesain sistem interaktif? (Pilih dua)',
-        listAnswer: Set.of([
-          'Memastikan sistem memiliki fitur yang benar-benar dibutuhkan pengguna',
-          'Mengasumsikan bahwa semua pengguna berpikir seperti desainer',
-          'Mengembangkan sistem tanpa mempertimbangkan usability',
-          'Memastikan sistem mudah dipelajari dan digunakan'
-        ]),
-        correctAnswer: [
-          'Memastikan sistem memiliki fitur yang benar-benar dibutuhkan pengguna',
-          'Memastikan sistem mudah dipelajari dan digunakan'
-        ]
-    ),
-    Assessment(
-      'es',
-      'Jelaskan bagaimana pendekatan Human-Centered Design dalam HCI dapat meningkatkan pengalaman pengguna dalam menggunakan suatu sistem interaktif!',
-    ),
-  ];
+  Assessment? question;
+  LearningMaterial? material;
 
   @override
   void initState() {
+    getMaterial(widget.idChapter);
+    getAssessment(widget.idChapter);
     super.initState();
-    _loadProgress(); // Load saved progress
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
     _scrollController.addListener(_updateProgress);
@@ -79,44 +50,35 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   void dispose() {
     _tabController.dispose();
     _scrollController.dispose();
-    _saveProgress(); // Save progress before disposing
     super.dispose();
   }
 
   void _updateProgress() {
     double currentProgressValue = _scrollController.offset / _scrollController.position.maxScrollExtent;
 
-    // Fix: Replace switch-case with proper conditionals
     if (currentProgressValue < 0.0) {
       currentProgressValue = 0.0;
     } else if (currentProgressValue > 1.0) {
       currentProgressValue = 1.0;
     }
-    // Only increase progress, never decrease
-    // progressValue = currentProgressValue > progressValue ? currentProgressValue : progressValue;
+
     setState(() {
       progressValue = currentProgressValue;
     });
   }
 
-  void _saveProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('progressValue', progressValue);
-    await prefs.setBool('allQuestionsAnswered', allQuestionsAnswered);
-
-    if (file != null) await saveFile(file!);
+  void getMaterial(int id) async {
+    final resultMaterial = await ChapterService.getMaterialByChapterId(id);
+    setState(() {
+      material = resultMaterial;
+    });
   }
 
-  void _loadProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-
+  void getAssessment(int id) async {
+    final resultAssessment = await ChapterService.getAssessmentByChapterId(id);
     setState(() {
-      progressValue = prefs.getDouble('progressValue') ?? 0.0;
-      allQuestionsAnswered = prefs.getBool('allQuestionsAnswered') ?? false;
+      question = resultAssessment;
     });
-
-    // Load file separately (since it's async)
-    file = await loadFile();
   }
 
   Future<void> saveFile(PlatformFile file) async {
@@ -222,11 +184,19 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
   Widget _buildMaterialContent() {
-    return Padding(
+    return material != null ? Padding(
         padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
           controller: _scrollController,
-          child: _buildHTMLContent(),
+          child: _buildHTMLContent(material != null ? material!.content : '''There is no Material yet!'''),
+        )
+    ) : Center(
+        child: Column(
+          children: [
+            Image.asset('lib/assets/empty.png', width: 100, height: 100,),
+            SizedBox(height: 20,),
+            Text('Mohon maaf belum ada materi'),
+          ],
         )
     );
   }
@@ -263,135 +233,78 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     );
   }
 
-  Widget _buildHTMLContent() {
-    return HtmlWidget(
-        r'''<p>HCI adalah bidang studi yang mulai 
-      berkembang pada tahun 1980-an, tetapi 
-      konsep interaksi manusia dan mesin 
-      sudah ada sebelumnya dengan berbagai 
-      istilah seperti Man-Machine Interaction 
-      (MMI) pada 1970-an, Computer and Human 
-      Interaction (CHI), dan Human-Machine 
-      Interaction (HMI). HCI mempelajari 
-      cara manusia dan komputer bekerja 
-      bersama untuk menyelesaikan tugas 
-      tertentu. Fokus utama HCI adalah 
-      perancangan, evaluasi, dan implementasi 
-      sistem interaktif yang digunakan manusia. 
-      HCI juga berhubungan dengan usability 
-      (daya guna), yang berarti sistem harus 
-      mudah digunakan, dipelajari, dan memberikan 
-      keamanan bagi pengguna.</p>
-      <p>HCI terdiri dari tiga elemen utama, 
-      yaitu <strong>manusia, komputer, dan interaksi</strong></p>
-      <ul>
-        <li><strong>Manusia</strong> sebagai pengguna memiliki 
-        kebutuhan dan keterbatasan yang harus 
-        dipertimbangkan dalam desain sistem. </li>
-        <li><strong>Komputer </strong> mencakup 
-        perangkat keras dan lunak yang digunakan 
-        untuk berinteraksi dengan manusia.  </li>
-        <li><strong>Interaksi </strong>terjadi 
-        melalui antarmuka yang harus dirancang 
-        agar nyaman dan efisien. </li>
-      </ul>
-      <p>
-        Fokus utama HCI adalah perancangan dan 
-        evaluasi user interface (UI), yaitu bagian 
-        dari sistem komputer yang memungkinkan manusia 
-        berinteraksi dengan komputer. 
-      </p>
-      <p><img src="asset:lib/assets/alurHCI.png"></p>
-      <p>
-        UI harus dirancang dengan mempertimbangkan <strong>human factors</strong>, seperti kognisi dan ergonomi, agar pengguna dapat berinteraksi dengan nyaman dan efektif.
-      </p>
-      <p>
-        Dalam desain sistem interaktif, sering 
-        kali desainer atau programmer tidak memahami 
-        dengan tepat kebutuhan dan lingkungan kerja 
-        pengguna. Masalah lain yang sering terjadi 
-        adalah sistem komputer yang mengharuskan 
-        pengguna mengingat terlalu banyak informasi, 
-        kurang toleran terhadap kesalahan pengguna, 
-        serta tidak mempertimbangkan variasi 
-        pengguna yang berbeda-beda. Kesalahan 
-        utama dalam desain HCI adalah mengasumsikan 
-        bahwa <strong>semua pengguna itu sama</strong> 
-        dan bahwa <strong>pengguna memiliki cara berpikir 
-        yang sama dengan desainer</strong>. Untuk menciptakan 
-        sistem yang baik, penting untuk mempertanyakan 
-        desain yang buruk dan memastikan bahwa 
-        sistem memungkinkan pengguna menyelesaikan 
-        tugas dengan aman, efektif, efisien, dan 
-        menyenangkan.
-      </p>
-      <p>
-        Tujuan utama HCI adalah meningkatkan <strong>kualitas hidup pengguna</strong> dengan membuat sistem interaktif yang baik dan mudah digunakan. Sebuah sistem yang baik memiliki beberapa karakteristik <strong>user-friendly</strong>, seperti tampilan yang menarik, kemudahan penggunaan, cepat dipelajari, memberikan pengalaman positif, dan direkomendasikan oleh pengguna lain. Tujuan dalam rekayasa sistem meliputi beberapa aspek penting:
-      </p>
-      <ol>
-        <li><strong>Fungsionalitas yang sesuai</strong>, yaitu memastikan sistem memiliki fitur yang benar-benar dibutuhkan pengguna.</li>
-        <li><strong>Keandalan, ketersediaan, keamanan, dan integritas data</strong>, sehingga sistem dapat digunakan kapan saja tanpa risiko kehilangan atau pencurian data.</li>
-        <li><strong>Standardisasi, integrasi, konsistensi, dan portabilitas</strong>, yang memastikan antarmuka mudah dipahami dan data dapat digunakan di berbagai perangkat.</li>
-        <li><strong>Penjadwalan dan anggaran</strong>, agar proyek selesai tepat waktu dan sesuai dengan biaya yang telah direncanakan.</li>
-      </ol>
-      <p>
-        HCI adalah bidang multidisipliner yang dipengaruhi oleh berbagai bidang ilmu, termasuk:
-      </p>
-      <ul>
-        <li><strong>Psikologi dan ilmu kognitif </strong> untuk memahami persepsi dan pemrosesan informasi oleh manusia. </li>
-        <li><strong>Ergonomi </strong>untuk mempertimbangkan aspek fisik pengguna.</li>
-        <li><strong>Sosiologi </strong>untuk memahami interaksi sosial dalam penggunaan teknologi.</li>
-        <li><strong>Ilmu komputer dan teknik </strong>untuk mengembangkan sistem teknologi.</li>
-        <li><strong>Bisnis dan pemasaran </strong>untuk memahami kebutuhan pasar.</li>
-        <li><strong>Desain grafis </strong>untuk menciptakan antarmuka yang menarik dan fungsional.</li>
-      </ul>
-      <p>
-        HCI telah berkembang sejak 1960-an, dimulai dengan komputer mainframe dan interaksi berbasis teks. Pada 1970-an, muncul konsep Graphical User Interface (GUI) yang lebih visual dan intuitif. Pada 1990-an, perhatian lebih difokuskan pada usability dan pendekatan desain yang berpusat pada pengguna (user-centered design). Hingga kini, HCI terus berkembang dengan kemajuan teknologi seperti mobile computing, AI, dan interaksi berbasis sensor. Human-centered design adalah pendekatan dalam HCI yang menempatkan manusia sebagai fokus utama dalam pengembangan sistem. Prinsip utama dalam pendekatan ini meliputi memahami kebutuhan pengguna, melibatkan pengguna dalam proses desain, dan mengevaluasi sistem berdasarkan pengalaman pengguna.
-      </p>''');
+  Widget _buildHTMLContent(String material) {
+    return HtmlWidget(material);
   }
 
   Widget _buildAssessmentContent() {
-    return Column(
-      children: [
-        Expanded(
-            child: ListView.builder(
-              itemCount: typeQuestion.length,
-              itemBuilder: (context, count) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: _buildQuestion(count),
-                );
-              },
+    return question != null ?
+        question!.questions.isNotEmpty ? Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: question?.questions.length,
+                itemBuilder: (context, count) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: _buildQuestion(count),
+                  );
+                },
+              ),
             ),
-        ),
-        SizedBox(height: 10),
-        ElevatedButton(
-            onPressed:() {
-              setState(() {
-                tapped = true;
-                allQuestionsAnswered = typeQuestion.every((question) => question.getSelectedAnswer() != null || question.getSelectedMultiAnswer() != null);
-              });
-            },
-            style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
-            child: Text('Done', style: TextStyle(fontSize: 20, color: Colors.white),)
-        ),
-        allQuestionsAnswered && tapped?
-            Text('Bagus! Kamu sudah menjawab semuanya', style: TextStyle(color: Colors.green, fontSize: 13),)
-            : tapped ? Text('Kamu belum menjawab semuanya, Ayo cek kembali!', style: TextStyle(color: Colors.red, fontSize: 13)) : SizedBox()
-      ],
+            SizedBox(height: 10),
+            Padding(
+                padding: EdgeInsets.symmetric(vertical: 15.0),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                      onPressed:() {
+                        setState(() {
+                          tapped = true;
+                          allQuestionsAnswered = question!.questions.every((question) => question.selectedAnswer != '' || question.selectedMultAnswer.isNotEmpty);
+                          print(allQuestionsAnswered);
+                        });
+                      },
+                      style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
+                      child: Text('Done', style: TextStyle(fontSize: 20, color: Colors.white),)
+                  ),
+                  allQuestionsAnswered && tapped?
+                  Text('Bagus! Kamu sudah menjawab semuanya', style: TextStyle(color: Colors.green, fontSize: 13),)
+                      : tapped ? Text('Kamu belum menjawab semuanya, Ayo cek kembali!', style: TextStyle(color: Colors.red, fontSize: 13)) : SizedBox()
+                ],
+              ),
+            )
+          ],
+        ) : Center(
+            child: Column(
+              children: [
+                Image.asset('lib/assets/empty.png', width: 100, height: 100,),
+                SizedBox(height: 20,),
+                Text('Mohon maaf belum ada pertanyaan'),
+              ],
+            )
+        )
+        : Center(
+        child: Column(
+          children: [
+            Image.asset('lib/assets/empty.png', width: 100, height: 100,),
+            SizedBox(height: 20,),
+            Text('Mohon maaf belum ada pertanyaan'),
+          ],
+        )
     );
   }
 
   Widget _buildQuestion(int number) {
-    switch (typeQuestion[number].getQuestionType()) {
+    switch (question?.questions[number].type) {
       case 'pg' || 'tf':
         return Card(
           child: ListTile(
               leading: Text('${number + 1}', style: TextStyle(fontSize: 20),),
               isThreeLine: true,
-              title: Text(typeQuestion[number].getQuestion()),
-              subtitle: typeQuestion[number].getListAnswer()!.isNotEmpty
-                  ? _buildChoiceAnswer(typeQuestion[number])
+              title: Text(question!.questions[number].question),
+              subtitle: question!.questions[number].option.isNotEmpty
+                  ? _buildChoiceAnswer(question!.questions[number])
                   : null
           ),
         );
@@ -400,8 +313,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           child: ListTile(
             leading: Text('${number + 1}', style: TextStyle(fontSize: 20),),
             isThreeLine: true,
-            title: Text(typeQuestion[number].getQuestion()),
-            subtitle: _buildTextAnswer(typeQuestion[number]),
+            title: Text(question!.questions[number].question),
+            subtitle: _buildTextAnswer(question!.questions[number]),
           ),
         );
       case 'mc' :
@@ -409,8 +322,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           child: ListTile(
             leading: Text('${number + 1}', style: TextStyle(fontSize: 20),),
             isThreeLine: true,
-            title: Text(typeQuestion[number].getQuestion()),
-            subtitle: _buildMultiSelectAnswer(typeQuestion[number]),
+            title: Text(question!.questions[number].question),
+            subtitle: _buildMultiSelectAnswer(question!.questions[number]),
           ),
         );
       default:
@@ -425,17 +338,17 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
 
-  Widget _buildChoiceAnswer(Assessment question) {
+  Widget _buildChoiceAnswer(Question question) {
     return Column(
-      children: question.getListAnswer()!.map((answer) {
+      children: question.option.map((answer) {
         return RadioListTile<String>(
           title: Text(answer),
           value: answer,
-          groupValue: question.getSelectedAnswer(), // ✅ Group all radio buttons
+          groupValue: question.selectedAnswer, // ✅ Group all radio buttons
           onChanged: (String? value) {
             setState(() {
-              question.setSelectedAnswer(value);
-              print(question.getSelectedAnswer());// ✅ Update selected value
+              question.selectedAnswer = value!;
+              print(question.selectedAnswer);// ✅ Update selected value
             });
           },
         );
@@ -443,7 +356,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     );
   }
 
-  Widget _buildTextAnswer(Assessment question) {
+  Widget _buildTextAnswer(Question question) {
     return Column(
       children: [
         SizedBox(height: 13,),
@@ -453,7 +366,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           decoration: InputDecoration.collapsed(hintText: "Enter your answer here"),
           onChanged: (String answer) {
             setState(() {
-              question.setSelectedAnswer(answer);
+              question.selectedAnswer = answer;
             });
           },
         )
@@ -461,20 +374,20 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     );
   }
 
-  Widget _buildMultiSelectAnswer(Assessment question) {
+  Widget _buildMultiSelectAnswer(Question question) {
     return SizedBox(
         child: MultiSelectCheckList(
             controller: _controller,
-            items: List.generate(question.getListAnswer()!.length,
+            items: List.generate(question.option.length,
                     (index) =>
                     CheckListCard(
-                      value: question.getListAnswer()!.elementAt(index),
-                      title: Text(question.getListAnswer()!.elementAt(index)),
+                      value: question.option.elementAt(index),
+                      title: Text(question.option.elementAt(index)),
                       enabled: true,
                     )),
             onChange: (allSelectedItems, selectedItem) {
               setState(() {
-                question.setSelectedMultiAnswer(allSelectedItems);
+                question.selectedMultiAnswer = allSelectedItems;
               });
             }
         )

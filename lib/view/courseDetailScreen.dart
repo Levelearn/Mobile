@@ -148,7 +148,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
               height: 20,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color:Color(0xFFCDCDCD), // Background color for the progress bar
+                color:Color(0xFFCDCDCD),
               ),
               child: Stack(
                 children: [
@@ -157,11 +157,11 @@ class _CourseDetail extends State<CourseDetailScreen> {
                     height: 20,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      color: Colors.grey.shade400, // Background color
+                      color: Colors.grey.shade400,
                     ),
                   ),
                   Container(
-                    width: 300 * (progressAll / 3), // Adjust width dynamically
+                    width: 300 * (progressAll / 3),
                     height: 20,
                     decoration: BoxDecoration(
                       color: Color(0xFF1AAD21),
@@ -190,7 +190,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Chapterscreen(),
+              builder: (context) => Chapterscreen(idChapter: listChapter[index].id),
             ),
           );
 

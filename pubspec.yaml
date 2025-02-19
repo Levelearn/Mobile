@@ -75,6 +75,8 @@ flutter:
     - lib/assets/2nd.png
     - lib/assets/3rd.png
     - lib/assets/empty.png
+    - lib/assets/starempty.png
+    - lib/assets/starfilled.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
