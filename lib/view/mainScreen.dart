@@ -1,12 +1,10 @@
 import 'package:app/view/chapterScreen.dart';
 import 'package:app/view/courseDetailScreen.dart';
 import 'package:app/view/profileScreen.dart';
-import 'package:app/view/searchScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../service/courseService.dart';
 import 'friendsScreen.dart';
 import 'homeScreen.dart';
 import 'myCourseScreen.dart';

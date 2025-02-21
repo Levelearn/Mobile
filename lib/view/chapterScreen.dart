@@ -1,23 +1,36 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:app/main.dart';
+import 'package:app/model/chapterStatus.dart';
 import 'package:app/model/learningmaterial.dart';
+import 'package:app/model/userCourse.dart';
 import 'package:app/service/chapterService.dart';
+import 'package:app/service/userChapterService.dart';
+import 'package:app/view/courseDetailScreen.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../model/assessment.dart';
+import '../service/userCourseService.dart';
 
 class Chapterscreen extends StatefulWidget {
-  final int idChapter;
-  const Chapterscreen({super.key, required this.idChapter});
+  final ChapterStatus status;
+  final int chapterIndexInList;
+  final UserCourse uc;
+  final int chLength;
+  const Chapterscreen({
+    super.key,
+    required this.status,
+    required this.chapterIndexInList,
+    required this.uc,
+    required this.chLength,
+  });
 
   @override
   State<Chapterscreen> createState() => _ChapterScreen();
@@ -27,19 +40,35 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   FilePickerResult? result;
   PlatformFile? file;
   int navIndex = 1;
+  late ChapterStatus status;
+  late UserCourse uc;
+  int chLength = 0;
   late final TabController _tabController;
   late ScrollController _scrollController;
   final MultiSelectController<String> _controller = MultiSelectController();
   double progressValue = 0.0;
   bool allQuestionsAnswered = false;
+  bool assignmentDone = false;
+  bool showDialogMaterialOnce = false;
+  bool showDialogAssessmentOnce = false;
+  bool showDialogAssignmentOnce = false;
   bool tapped = false;
   Assessment? question;
   LearningMaterial? material;
 
   @override
   void initState() {
-    getMaterial(widget.idChapter);
-    getAssessment(widget.idChapter);
+    getMaterial(widget.status.chapterId);
+    getAssessment(widget.status.chapterId);
+    progressValue = widget.status.materialDone ? 1.0 : 0;
+    allQuestionsAnswered = widget.status.assessmentDone;
+    assignmentDone = widget.status.assignmentDone;
+    showDialogMaterialOnce = widget.status.materialDone;
+    showDialogAssessmentOnce = widget.status.assessmentDone;
+    showDialogAssignmentOnce = widget.status.assignmentDone;
+    status = widget.status;
+    uc = widget.uc;
+    chLength = widget.chLength;
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
@@ -63,8 +92,37 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     }
 
     setState(() {
-      progressValue = currentProgressValue;
+      progressValue = currentProgressValue <= progressValue ? progressValue : currentProgressValue;
+      if (progressValue >= 1.0 && !showDialogMaterialOnce) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Materi, Ayo lanjutkan ke bagian Assessment");
+        });
+        showDialogMaterialOnce = true;
+      }
+
+      if (status.assessmentDone && !showDialogAssessmentOnce) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Assessment, Ayo lanjutkan ke bagian Assignment");
+        });
+        showDialogAssessmentOnce = true;
+      }
+
+      if (status.assignmentDone && status.isCompleted && !showDialogAssignmentOnce) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Chapter ini, Ayo lanjutkan pelajari chapter yang lain");
+        });
+        showDialogAssignmentOnce = true;
+      }
     });
+
+    if (progressValue >= 1.0) {
+      status.materialDone = true;
+      updateStatus();
+    }
+  }
+
+  Future<void> updateStatus() async {
+    status = await UserChapterService.updateChapterStatus(status.id, status);
   }
 
   void getMaterial(int id) async {
@@ -81,33 +139,68 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     });
   }
 
-  Future<void> saveFile(PlatformFile file) async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> uploadFile(PlatformFile file) async {
+    final filename = '${DateTime.now().millisecondsSinceEpoch}_${status.userId}_${status.chapterId}.${file.extension}';
+    final path = 'uploads/$filename';
 
-    // Convert PlatformFile to a JSON string
-    Map<String, dynamic> fileData = {
-      'name': file.name,
-      'size': file.size,
-      'path': file.path, // Only available on mobile
-      'extension': file.extension,
-    };
+    Uint8List bytes;
+    if (file.bytes != null) {
+      bytes = file.bytes!;
+    } else {
+      bytes = await File(file.path!).readAsBytes();
+    }
 
-    await prefs.setString('selectedFile', jsonEncode(fileData));
+    try {
+      final response = await Supabase.instance.client.storage
+          .from('assigment') // Make sure bucket name is correct
+          .uploadBinary(path, bytes);
+
+      if (response != null) {
+        final publicUrl = getPublicUrl(path);
+        print('Public URL: $publicUrl');
+
+        setState(() {
+          status.submission = publicUrl;
+          status.isCompleted = true;
+          status.assignmentDone = true;
+        });
+        updateStatus();
+      } else {
+        print('Upload failed: No response');
+      }
+    } catch (e) {
+      print('Upload error: $e');
+    }
   }
 
-  Future<PlatformFile?> loadFile() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? fileJson = prefs.getString('selectedFile');
+  String getPublicUrl(String filePath) {
+    return Supabase.instance.client.storage
+        .from('assigment')
+        .getPublicUrl(filePath);
+  }
 
-    if (fileJson == null) return null;
+  void updateUserCourse() async {
+    await UserCourseService.updateUserCourse(uc.id, uc);
+  }
 
-    final Map<String, dynamic> fileData = jsonDecode(fileJson);
-
-    return PlatformFile(
-      name: fileData['name'],
-      size: fileData['size'],
-      path: fileData['path'] ?? '', // Ensure path is not null
-      bytes: null, // Cannot save bytes in SharedPreferences
+  void showCompletionDialog(BuildContext context, message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Progress Completed!"),
+          content: Text("${message}"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -117,14 +210,12 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     return WillPopScope(
         onWillPop: () async {
           Navigator.pop(context, {
-            'progress': progressValue,
-            'allAnswered': allQuestionsAnswered,
-            'file': file,
-            }
-            );
-
+            'status': status.toJson(),
+            'index': widget.chapterIndexInList
+          }
+          );
           return true;
-          },
+        },
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -145,25 +236,14 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           ),
           body: Column(
             children: [
-              // Progress Bar
-              LinearPercentIndicator(
-                width: MediaQuery.of(context).size.width,
-                lineHeight: 15,
-                progressColor: Color(0xFF1AAD21),
-                backgroundColor: Color(0xFFDDC8FF),
-                percent: progressValue,
-                center: Text('${(100 * progressValue).toInt()}'),
-              ),
-
               TabBar(
                 controller: _tabController,
                 tabs: const <Widget>[
-                  Tab(child: Text('Material'),),
-                  Tab(child: Text('Assessment'),),
-                  Tab(child: Text('Assignment'),),
+                  Tab(child: Text('Material', style: TextStyle(fontSize: 12),),),
+                  Tab(child: Text('Assessment', style: TextStyle(fontSize: 12)),),
+                  Tab(child: Text('Assignment', style: TextStyle(fontSize: 12)),),
                 ],
               ),
-
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
@@ -225,7 +305,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           Icon(Icons.lock, size: 50, color: Colors.grey),
           SizedBox(height: 10),
           Text(
-            "Kerjakan terlebih dahulu Assessment!",
+            "Kerjakan Assessment terlebih dahulu Assessment!",
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ],
@@ -264,6 +344,14 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                           allQuestionsAnswered = question!.questions.every((question) => question.selectedAnswer != '' || question.selectedMultAnswer.isNotEmpty);
                           print(allQuestionsAnswered);
                         });
+                        if(allQuestionsAnswered && tapped) {
+                          for (var q in question!.questions) {
+                            question!.answers.add(q.selectedAnswer);
+                          }
+                          status.assessmentDone = true;
+                          status.assessmentAnswer = question!.answers;
+                        }
+                        updateStatus();
                       },
                       style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
                       child: Text('Done', style: TextStyle(fontSize: 20, color: Colors.white),)
@@ -302,7 +390,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           child: ListTile(
               leading: Text('${number + 1}', style: TextStyle(fontSize: 20),),
               isThreeLine: true,
-              title: Text(question!.questions[number].question),
+              title: Text(question!.questions[number].question, style: TextStyle(fontSize: 12)),
               subtitle: question!.questions[number].option.isNotEmpty
                   ? _buildChoiceAnswer(question!.questions[number])
                   : null
@@ -340,19 +428,19 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Widget _buildChoiceAnswer(Question question) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: question.option.map((answer) {
         return RadioListTile<String>(
-          title: Text(answer),
+          title: Text(answer, style: TextStyle(fontSize: 12)),
           value: answer,
-          groupValue: question.selectedAnswer, // ✅ Group all radio buttons
+          groupValue: question.selectedAnswer,
           onChanged: (String? value) {
             setState(() {
               question.selectedAnswer = value!;
-              print(question.selectedAnswer);// ✅ Update selected value
             });
           },
         );
-      }).toList(), // ✅ Convert to List<Widget>
+      }).toList(),
     );
   }
 
@@ -443,22 +531,83 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                   ),
                 )
               ),
-              ElevatedButton.icon(
-                  onPressed:() async {
-                    result = await FilePicker.platform.pickFiles();
-                    if (result == null)
-                      return;
-                    else {
+              file == null ? ElevatedButton.icon(
+                  onPressed:()  async {
+                    result = await FilePicker.platform.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png']
+                    );
+                    if (result == null) return; // User canceled file selection
+
+                    final fileSizeInMB = result!.files.first.size / (1024 * 1024); // Convert bytes to MB
+
+                    if (fileSizeInMB > 5) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('File size must be 5MB or less')),
+                      );
+                    } else {
                       setState(() {
                         file = result?.files.first;
-                        saveFile(file!);
                       });
                     }
                   },
                   style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
                   icon: Icon(Icons.insert_drive_file_sharp, size: 20, color: Colors.white,),
                   label: Text('Pick File', style: TextStyle(fontSize: 20, color: Colors.white),)
-              ),
+              ) : Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed:() {
+                      setState(() {
+                        file = null;
+                      });
+                    },
+                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
+                    icon: Icon(Icons.delete, size: 20, color: Colors.white,),
+                    label: Text('Delete', style: TextStyle(fontSize: 10, color: Colors.white),)
+                  ),
+                  ElevatedButton.icon(
+                    onPressed:() async {
+                      result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png']
+                      );
+                      if (result == null) return; // User canceled file selection
+
+                      final fileSizeInMB = result!.files.first.size / (1024 * 1024); // Convert bytes to MB
+
+                      if (fileSizeInMB > 5) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('File size must be 5MB or less')),
+                        );
+                      } else {
+                        setState(() {
+                          file = result?.files.first;
+                        });
+                      }
+                    },
+                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
+                    icon: Icon(Icons.insert_drive_file_sharp, size: 20, color: Colors.white,),
+                    label: Text('Change File', style: TextStyle(fontSize: 10, color: Colors.white),),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed:() async {
+                      uploadFile(file!);
+                      uc.progress = (uc.currentChapter / chLength).toInt();
+                      updateUserCourse();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CourseDetailScreen(id: status.id),
+                        ),
+                      );
+                    },
+                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.purple[900])),
+                    icon: Icon(Icons.done, size: 20, color: Colors.white,),
+                    label: Text('Submit', style: TextStyle(fontSize: 10, color: Colors.white),),
+                  ),
+                ],
+              )
             ],
           ),
         )

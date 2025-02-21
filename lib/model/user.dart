@@ -4,12 +4,13 @@ class User {
   final String password;
   final String name;
   final String role;
-  final String studentId;
-  final int points;
-  final int totalCourses;
-  final int badges;
-  final String? instructorId;
-  final int? instructorCourses;
+  String? studentId;
+  int? points;
+  int? totalCourses;
+  int? badges;
+  String? instructorId;
+  int? instructorCourses;
+  String? image;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -20,12 +21,13 @@ class User {
     required this.password,
     required this.name,
     required this.role,
-    required this.studentId,
-    required this.points,
-    required this.totalCourses,
-    required this.badges,
+    this.studentId,
+    this.points,
+    this.totalCourses,
+    this.badges,
     this.instructorId,
     this.instructorCourses,
+    this.image,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -43,6 +45,7 @@ class User {
       badges: json['badges'],
       instructorId: json['instructorId'],
       instructorCourses: json['instructorCourses'],
+      image: json['image'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

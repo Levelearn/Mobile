@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../model/course.dart';
 
 class CourseService {
-  static const String baseUrl = 'http://172.27.69.141:3000/api';
+  static const String baseUrl = 'http://192.168.247.187:3000/api';
   static Future<List<Course>> getEnrolledCourse(int id) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/user/$id/courses'));
@@ -66,7 +66,6 @@ class CourseService {
                 courseId: result['courseId'],
                 createdAt: DateTime.parse(result['createdAt']),
                 updatedAt: DateTime.parse(result['updatedAt']),
-                progress: 50
             )
         )
       );

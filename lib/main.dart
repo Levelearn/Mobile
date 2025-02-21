@@ -2,6 +2,7 @@ import 'package:app/view/loginScreen.dart';
 import 'package:app/view/mainScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 
 
@@ -12,6 +13,10 @@ const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final bool isLoggedIn = await checkLoginStatus();
+  await Supabase.initialize(
+      url: "https://kfxaanhuccwjokmkdtho.supabase.co",
+      anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmeGFhbmh1Y2N3am9rbWtkdGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAwNDE1MDEsImV4cCI6MjA1NTYxNzUwMX0.icFBLGnPC8eqbxnGuovKNnJ5Frvm_SnFrPDsoFlfNEA"
+  );
   runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 

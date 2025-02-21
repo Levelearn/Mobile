@@ -1,17 +1,20 @@
 import 'package:app/model/chapter.dart';
 import 'package:app/main.dart';
+import 'package:app/model/chapterStatus.dart';
 import 'package:app/service/courseService.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:app/service/userChapterService.dart';
+import 'package:app/service/userCourseService.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/course.dart';
+import '../model/userCourse.dart';
 import 'chapterScreen.dart';
 
 const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 class CourseDetailScreen extends StatefulWidget {
-  final int id; // Add course parameter
+  final int id;
 
   const CourseDetailScreen({super.key, required this.id});
 
@@ -22,17 +25,16 @@ class CourseDetailScreen extends StatefulWidget {
 class _CourseDetail extends State<CourseDetailScreen> {
   Course? courseDetail;
   List<Chapter> listChapter = [];
-  double progressValue = 5.0;
-  double progressAll = 0.0;
-  int listQuestion = 0;
-  bool allQuestionsAnswered = false;
-  PlatformFile? selectedFile;
   late SharedPreferences pref;
   int idCourse = 0;
+  int idUser = 0;
+  bool isLoading = true;
+  UserCourse? uc;
 
   @override
   void initState() {
     getCourseDetail();
+    getUserFromSharedPreference();
     super.initState();
   }
 
@@ -49,18 +51,50 @@ class _CourseDetail extends State<CourseDetailScreen> {
     getChapter(idCourse);
   }
 
+  void getUserCourse() async {
+    uc = await UserCourseService.getUserCourse(idUser, idCourse);
+  }
+
+  void updateUserCourse() async {
+    await UserCourseService.updateUserCourse(uc!.id, uc!);
+  }
+
   void getChapter(int id) async {
-    final result = await CourseService.getChapterByCourse(id);
     setState(() {
-      listChapter = result;
+      isLoading = true; // Start loading
     });
+
+    final result = await CourseService.getChapterByCourse(id);
+    final updatedList = await getStatusChapter(result);
+
+    setState(() {
+      listChapter = updatedList;
+      isLoading = false; // Stop loading
+    });
+  }
+
+  Future<List<Chapter>> getStatusChapter(List<Chapter> list) async {
+    await Future.forEach(list, (Chapter chapter) async {
+      chapter.status = await UserChapterService.getChapterStatus(idUser, chapter.id);
+    });
+    return list;
+  }
+
+  void getUserFromSharedPreference() async{
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idUser = prefs.getInt('userId') ?? 0;
+    });
+    if (idUser != 0 && idCourse != 0) {
+      getUserCourse();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return idCourse != 0 && courseDetail != null ? Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(300.0),
+        preferredSize: Size.fromHeight(320.0),
         child: Container(
           decoration: BoxDecoration(
             color: purple,
@@ -91,13 +125,21 @@ class _CourseDetail extends State<CourseDetailScreen> {
               SizedBox(height: 10,),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.0),
-                child: Text('${courseDetail?.description}', textAlign: TextAlign.justify, style: TextStyle(color: Colors.white, fontSize: 13), maxLines: 8,),
+                child: Text('${courseDetail?.description}', textAlign: TextAlign.justify, style: TextStyle(color: Colors.white, fontSize: 10), maxLines: 8,),
               )
             ],
           ),
         )
       ),
-      body:Padding(padding: EdgeInsets.symmetric(vertical: 20),
+      body: isLoading ? Column(
+        mainAxisSize: MainAxisSize.min, // Align center vertically
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 10), // Space between progress bar and text
+          Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ) : Padding(padding: EdgeInsets.symmetric(vertical: 20),
         child: ListView.builder(
           itemCount: listChapter.length,
           itemBuilder: (context, count) {
@@ -143,64 +185,43 @@ class _CourseDetail extends State<CourseDetailScreen> {
           children: [
             Text(listChapter[index].description, style: TextStyle( fontSize: 13, color: Colors.white),),
             SizedBox(height: 5,),
-            Container(
-              width: double.infinity,
-              height: 20,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color:Color(0xFFCDCDCD),
-              ),
-              child: Stack(
+            Row(
                 children: [
-                  Container(
-                    width: 300,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.grey.shade400,
-                    ),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: listChapter[index].status!.materialDone ? Image.asset('lib/assets/starfilled.png', width: 25, height: 25,) : Image.asset('lib/assets/starempty.png', width: 25, height: 25,),
                   ),
-                  Container(
-                    width: 300 * (progressAll / 3),
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF1AAD21),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: purple, width: 3)
-                    ),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: listChapter[index].status!.assessmentDone ? Image.asset('lib/assets/starfilled.png', width: 25, height: 25,) : Image.asset('lib/assets/starempty.png', width: 25, height: 25,),
                   ),
-                  Positioned(
-                    left: (300 * (progressAll / 3)) / 2 - 15,
-                    child: Text(
-                      "${((progressAll / 3) * 100).toInt()}%",
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white, // Contrast with progress bar
-                      ),
-                    ),
-                  ),
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: listChapter[index].status!.assignmentDone ? Image.asset('lib/assets/starfilled.png', width: 25, height: 25,) : Image.asset('lib/assets/starempty.png', width: 25, height: 25,),
+                  )
                 ],
-              ),
             ),
           ],
         ),
         isThreeLine: true,
         onTap: () async {
+          uc?.currentChapter = uc!.currentChapter < listChapter[index].level ? listChapter[index].level : uc!.currentChapter;
+          updateUserCourse();
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Chapterscreen(idChapter: listChapter[index].id),
+              builder: (context) => Chapterscreen(
+                status: listChapter[index].status!,
+                chapterIndexInList: index,
+                uc: uc!,
+                chLength: listChapter.length,
+              ),
             ),
           );
 
           if (result != null) {
             setState(() {
-              progressValue = result['progress'];
-              allQuestionsAnswered = result['allAnswered'];
-              selectedFile = result['file'];
-
-              progressAll = progressValue + (allQuestionsAnswered ? 1 : 0) + (selectedFile != null ? 1 : 0);
+              listChapter[result['index']].status = ChapterStatus.fromJson(result['status']);
             });
           }
         },

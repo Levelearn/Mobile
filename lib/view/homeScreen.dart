@@ -45,14 +45,18 @@ class _HomeState extends State<Homescreen> {
 
 
   List<User> sortUserbyPoint(List<User> list) {
-    list.sort((a, b) => b.points.compareTo(a.points));
+    list.sort((a, b) => b.points!.compareTo(a.points!));
     return list;
+  }
+
+  List<User> studentRole(List<User> list) {
+    return list.where((user) => user.role == 'STUDENT').toList();
   }
 
   void getAllUser() async {
     final result = await UserService.getAllUser();
     setState(() {
-      list = sortUserbyPoint(result);
+      list = sortUserbyPoint(studentRole(result));
     });
   }
 
@@ -110,10 +114,10 @@ class _HomeState extends State<Homescreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Leaderboard Hari Ini', style: TextStyle(color: purple, fontSize: 25, fontWeight: FontWeight.w800)),
+            Text('Leaderboard Hari Ini', style: TextStyle(color: purple, fontSize: 20, fontWeight: FontWeight.w800)),
             Column(
               children: list.isNotEmpty ?
-              List.generate(3, (index) =>
+              List.generate(list.length > 3 ? 3 : list.length, (index) =>
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -141,14 +145,14 @@ class _HomeState extends State<Homescreen> {
                               2 => 'lib/assets/3rd.png',
                               _ => ''
                             }
-                        ),
+                        , height: 50, width: 50,),
                         title: Text(
                           list[index].username,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                         subtitle: Text(
-                          list[index].studentId,
-                          style: TextStyle(fontSize: 13, color: Colors.black),
+                          list[index].studentId!,
+                          style: TextStyle(fontSize: 8, color: Colors.black),
                         ),
                         trailing: Text(
                           '${list[index].points} Point',
@@ -192,8 +196,8 @@ class _HomeState extends State<Homescreen> {
           Positioned(
               bottom: 30,
               right: -45,
-              width: 250,
-              height: 250,
+              width: 200,
+              height: 200,
               child: Transform.scale(
                   scaleX: -1,
                   child: Image.asset('lib/assets/rocket.png')
@@ -204,13 +208,13 @@ class _HomeState extends State<Homescreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.all(15.0),
+                padding: EdgeInsets.all(10.0),
                 child:
                 Text('Jelajahi Lagi', style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900)),
               ),
               Container(
                 width: double.infinity,// Adjust size as needed
-                height: 170,
+                height: 150,
                 margin: EdgeInsets.only(bottom: 10.0, right: 15.0, left: 15.0),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -229,7 +233,7 @@ class _HomeState extends State<Homescreen> {
                         children: [
                           Container(
                             width: 100,// Adjust size as needed
-                            height: 100,
+                            height: 80,
                             decoration: BoxDecoration(
                               color: purple,
                               shape: BoxShape.rectangle,
@@ -242,7 +246,7 @@ class _HomeState extends State<Homescreen> {
                             margin: EdgeInsets.all(10.0),
                           ),
                           SizedBox(height: 10),
-                          Text(allCourses[count].codeCourse, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white), maxLines: 2,)
+                          Text(allCourses[count].codeCourse, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white), maxLines: 2,)
                         ],
                       ),
                     );
@@ -262,8 +266,8 @@ class _HomeState extends State<Homescreen> {
           Positioned(
               top: 30,
               right: 30,
-              width: 80,
-              height: 80,
+              width: 60,
+              height: 60,
               child: Image.asset('lib/assets/check.png')
           ),
           SizedBox(
@@ -280,14 +284,14 @@ class _HomeState extends State<Homescreen> {
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 100,
-                        height: 100,
+                        width: 80,
+                        height: 80,
                         child: Stack(
                           children: <Widget>[
                             Center(
                               child: Container(
-                                width: 100,
-                                height: 100,
+                                width: 70,
+                                height: 70,
                                 child: new CircularProgressIndicator(
                                   strokeWidth: 10,
                                   value: progress,
@@ -295,18 +299,18 @@ class _HomeState extends State<Homescreen> {
                                 ),
                               ),
                             ),
-                            Center(child: Text('${(progress * 100).toInt()}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),)),
+                            Center(child: Text('${(progress * 100).toInt()}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
                           ],
                         ),
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 15),
-                        width: 215,
+                        width: 180,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text('Interaksi Manusia Komputer', style: TextStyle(color: purple, fontSize: 20, fontWeight: FontWeight.bold)),
-                            Text('Sudah ${(progress * 100).toInt()}%! Lanjutkan Pengerjaan Course', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.w500)),
+                            Text('Interaksi Manusia Komputer', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
+                            Text('Sudah ${(progress * 100).toInt()}%! Lanjutkan Pengerjaan Course', style: TextStyle(color: purple, fontSize: 12, fontWeight: FontWeight.w500)),
                           ],
                         ),
                       )

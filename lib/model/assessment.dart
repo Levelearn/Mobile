@@ -3,7 +3,7 @@ class Assessment {
   final int id;
   final int chapterId;
   final String instruction;
-  final int orderNumber;
+  final String type;
   final List<Question> questions;
   final List<String> answers;
   final DateTime createdAt;
@@ -13,7 +13,7 @@ class Assessment {
     required this.id,
     required this.chapterId,
     required this.instruction,
-    required this.orderNumber,
+    required this.type,
     required this.questions,
     required this.answers,
     required this.createdAt,
@@ -25,7 +25,7 @@ class Assessment {
       id: json['id'],
       chapterId: json['chapterId'],
       instruction: json['instruction'],
-      orderNumber: json['orderNumber'],
+      type: json['type'],
       questions: json['questions'],
       answers: json['answers'],
       createdAt: DateTime.parse(json['createdAt']),

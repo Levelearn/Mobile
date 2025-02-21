@@ -4,7 +4,7 @@ import '../model/assessment.dart';
 import '../model/learningmaterial.dart';
 
 class ChapterService {
-  static const String baseUrl = 'http://172.27.69.224:3000/api';
+  static const String baseUrl = 'http://192.168.247.187:3000/api';
 
   static Future<LearningMaterial> getMaterialByChapterId(int id) async {
     try {
@@ -49,7 +49,7 @@ class ChapterService {
         id: assessmentJson['id'],
         chapterId: assessmentJson['chapterId'],
         instruction: assessmentJson['instruction'],
-        orderNumber: assessmentJson['orderNumber'],
+        type: assessmentJson['type'],
         questions: questions,
         answers: decodedAnswers,
         createdAt: DateTime.parse(assessmentJson['createdAt']),
@@ -61,5 +61,4 @@ class ChapterService {
       throw Exception("Error fetching assessment: ${e.toString()}");
     }
   }
-
 }

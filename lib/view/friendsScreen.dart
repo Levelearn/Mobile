@@ -19,14 +19,18 @@ class _FriendsScreen extends State<FriendsScreen> {
   List<User> user = [];
 
   List<User> sortUserbyPoint(List<User> list) {
-    list.sort((a, b) => b.points.compareTo(a.points));
+    list.sort((a, b) => b.points!.compareTo(a.points!));
     return list;
+  }
+
+  List<User> studentRole(List<User> list) {
+    return list.where((user) => user.role == 'STUDENT').toList();
   }
 
   void getAllUser() async {
     final result = await UserService.getAllUser();
     setState(() {
-      user = sortUserbyPoint(result);
+      user = sortUserbyPoint(studentRole(result));
     });
   }
 
@@ -111,7 +115,7 @@ class _FriendsScreen extends State<FriendsScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           subtitle: Text(
-            user.studentId,
+            user.studentId!,
             style: TextStyle(fontSize: 13, color: Colors.black),
           ),
           trailing: Text(
@@ -139,7 +143,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 backgroundImage: NetworkImage(url),
                 child: Icon(Icons.person, size: 20,),
               ),
-              Text(list.isNotEmpty ? list[1].username : '', style: TextStyle(color: Colors.white),),
+              Text(list.isNotEmpty && list.length >= 2? list[1].username : '', style: TextStyle(color: Colors.white),),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -147,7 +151,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 ),
                 child: Padding(
                     padding: EdgeInsets.all(10),
-                  child: Text('${list.isNotEmpty ? list[1].points : 0} pts', style: TextStyle(fontSize: 12),),
+                  child: Text('${list.isNotEmpty && list.length >= 2 ? list[1].points : 0} pts', style: TextStyle(fontSize: 12),),
                 ),
               ),
               SizedBox(
@@ -207,7 +211,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 backgroundImage: NetworkImage(url),
                 child: Icon(Icons.person, size: 20,),
               ),
-              Text(list.isNotEmpty ? list[2].username : '', style: TextStyle(color: Colors.white),),
+              Text(list.isNotEmpty && list.length >= 3 ? list[2].username : '', style: TextStyle(color: Colors.white),),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -215,7 +219,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text('${list.isNotEmpty? list[2].points : 0} pts', style: TextStyle(fontSize: 12),),
+                  child: Text('${list.isNotEmpty && list.length >= 3 ? list[2].points : 0} pts', style: TextStyle(fontSize: 12),),
                 ),
               ),
               SizedBox(

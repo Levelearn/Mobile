@@ -1,17 +1,18 @@
 import 'package:app/model/assessment.dart';
+import 'package:app/model/chapterStatus.dart';
 
 import 'assessment.dart';
 import 'assignment.dart';
 
 class Chapter {
-  int id;
-  String name;
-  String description;
-  int level;
-  int courseId;
-  double? progress = 0.0;
-  DateTime createdAt;
-  DateTime updatedAt;
+  final int id;
+  final String name;
+  final String description;
+  final int level;
+  final int courseId;
+  ChapterStatus? status;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   Chapter ({
     required this.id,
@@ -21,7 +22,7 @@ class Chapter {
     required this.courseId,
     required this.createdAt,
     required this.updatedAt,
-    this.progress
+    this.status,
   });
 
   factory Chapter.fromJson(Map<String, dynamic> json) {
@@ -36,11 +37,11 @@ class Chapter {
     );
   }
 
-  double? getProgress() {
-    return this.progress;
+  ChapterStatus? getProgress() {
+    return this.status;
   }
 
-  void setProgress(double progress) {
-    this.progress = progress;
+  void setProgress(ChapterStatus status) {
+    this.status = status;
   }
 }
