@@ -1,7 +1,7 @@
+import 'package:app/view/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-import 'package:login/login_screen.dart';
-import 'package:login/profile_screen.dart';
+import 'login_screen.dart';
 
 class UpdateProfile extends StatefulWidget {
   const UpdateProfile({super.key});
