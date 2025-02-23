@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/course.dart';
-import '../service/courseService.dart';
-import '../service/userService.dart';
-import 'courseDetailScreen.dart';
+import '../service/course_service.dart';
+import '../service/user_service.dart';
+import 'course_detail_screen.dart';
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);

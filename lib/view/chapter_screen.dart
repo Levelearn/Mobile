@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:app/main.dart';
-import 'package:app/model/chapterStatus.dart';
-import 'package:app/model/learningmaterial.dart';
-import 'package:app/model/userCourse.dart';
-import 'package:app/service/chapterService.dart';
-import 'package:app/service/userChapterService.dart';
-import 'package:app/view/courseDetailScreen.dart';
+import 'package:app/model/chapter_status.dart';
+import 'package:app/model/learning_material.dart';
+import 'package:app/model/user_course.dart';
+import 'package:app/service/chapter_service.dart';
+import 'package:app/service/user_chapter_service.dart';
+import 'package:app/view/course_detail_screen.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../model/assessment.dart';
-import '../service/userCourseService.dart';
+import '../service/user_course_service.dart';
 
 class Chapterscreen extends StatefulWidget {
   final ChapterStatus status;
@@ -143,35 +143,24 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     final filename = '${DateTime.now().millisecondsSinceEpoch}_${status.userId}_${status.chapterId}.${file.extension}';
     final path = 'uploads/$filename';
 
-    Uint8List bytes;
-    if (file.bytes != null) {
-      bytes = file.bytes!;
-    } else {
-      bytes = await File(file.path!).readAsBytes();
-    }
+    Uint8List bytes = file.bytes ?? await File(file.path!).readAsBytes();
 
     try {
-      final response = await Supabase.instance.client.storage
-          .from('assigment') // Make sure bucket name is correct
-          .uploadBinary(path, bytes);
+      await Supabase.instance.client.storage.from('assigment').uploadBinary(path, bytes);
+      final publicUrl = getPublicUrl(path);
+      print('Public URL: $publicUrl');
 
-      if (response != null) {
-        final publicUrl = getPublicUrl(path);
-        print('Public URL: $publicUrl');
-
-        setState(() {
-          status.submission = publicUrl;
-          status.isCompleted = true;
-          status.assignmentDone = true;
-        });
-        updateStatus();
-      } else {
-        print('Upload failed: No response');
-      }
+      setState(() {
+        status.submission = publicUrl;
+        status.isCompleted = true;
+        status.assignmentDone = true;
+      });
+      await updateStatus();
     } catch (e) {
       print('Upload error: $e');
     }
   }
+
 
   String getPublicUrl(String filePath) {
     return Supabase.instance.client.storage
@@ -593,7 +582,11 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                   ElevatedButton.icon(
                     onPressed:() async {
                       uploadFile(file!);
-                      uc.progress = (uc.currentChapter / chLength).toInt();
+                      print(uc.currentChapter);
+                      print(chLength);
+                      print(uc.currentChapter / chLength);
+                      uc.progress = ((uc.currentChapter / chLength) * 100).toInt();
+                      print(uc.progress);
                       updateUserCourse();
                       Navigator.push(
                         context,

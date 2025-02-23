@@ -1,8 +1,4 @@
-import 'package:app/model/assessment.dart';
-import 'package:app/model/chapterStatus.dart';
-
-import 'assessment.dart';
-import 'assignment.dart';
+import 'package:app/model/chapter_status.dart';
 
 class Chapter {
   final int id;

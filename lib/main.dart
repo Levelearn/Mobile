@@ -1,10 +1,8 @@
-import 'package:app/view/loginScreen.dart';
-import 'package:app/view/mainScreen.dart';
+import 'package:app/view/login_screen.dart';
+import 'package:app/view/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);

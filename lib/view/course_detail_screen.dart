@@ -1,15 +1,15 @@
 import 'package:app/model/chapter.dart';
 import 'package:app/main.dart';
-import 'package:app/model/chapterStatus.dart';
-import 'package:app/service/courseService.dart';
-import 'package:app/service/userChapterService.dart';
-import 'package:app/service/userCourseService.dart';
+import 'package:app/model/chapter_status.dart';
+import 'package:app/service/course_service.dart';
+import 'package:app/service/user_chapter_service.dart';
+import 'package:app/service/user_course_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/course.dart';
-import '../model/userCourse.dart';
-import 'chapterScreen.dart';
+import '../model/user_course.dart';
+import 'chapter_screen.dart';
 
 const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
@@ -206,6 +206,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
         isThreeLine: true,
         onTap: () async {
           uc?.currentChapter = uc!.currentChapter < listChapter[index].level ? listChapter[index].level : uc!.currentChapter;
+          print(uc?.currentChapter);
           updateUserCourse();
           final result = await Navigator.push(
             context,

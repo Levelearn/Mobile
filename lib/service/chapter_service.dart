@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model/assessment.dart';
-import '../model/learningmaterial.dart';
+import '../model/learning_material.dart';
 
 class ChapterService {
   static const String baseUrl = 'http://192.168.247.187:3000/api';

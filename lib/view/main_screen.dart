@@ -1,13 +1,13 @@
-import 'package:app/view/chapterScreen.dart';
-import 'package:app/view/courseDetailScreen.dart';
-import 'package:app/view/profileScreen.dart';
+import 'package:app/view/chapter_screen.dart';
+import 'package:app/view/course_detail_screen.dart';
+import 'package:app/view/profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'friendsScreen.dart';
-import 'homeScreen.dart';
-import 'myCourseScreen.dart';
+import 'friends_screen.dart';
+import 'home_screen.dart';
+import 'mycourse_screen.dart';
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);
@@ -21,7 +21,7 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainState extends State<Mainscreen> {
-  int navIndex = 2;
+  int navIndex = 1;
   late SharedPreferences pref;
   int idCourse = 0;
   late List<Widget> _screen;
@@ -41,7 +41,7 @@ class _MainState extends State<Mainscreen> {
       const MycourseScreen(),
       CourseDetailScreen(id: idCourse,),
       const FriendsScreen(),
-      const Profilescreen()
+      const ProfileScreen()
     ];
   }
 
