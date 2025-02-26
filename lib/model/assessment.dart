@@ -3,9 +3,8 @@ class Assessment {
   final int id;
   final int chapterId;
   final String instruction;
-  final String type;
   final List<Question> questions;
-  final List<String> answers;
+  List<String>? answers;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -13,7 +12,6 @@ class Assessment {
     required this.id,
     required this.chapterId,
     required this.instruction,
-    required this.type,
     required this.questions,
     required this.answers,
     required this.createdAt,
@@ -25,7 +23,6 @@ class Assessment {
       id: json['id'],
       chapterId: json['chapterId'],
       instruction: json['instruction'],
-      type: json['type'],
       questions: json['questions'],
       answers: json['answers'],
       createdAt: DateTime.parse(json['createdAt']),
@@ -37,23 +34,21 @@ class Assessment {
 class Question {
   String question;
   List<String> option;
-
-  String _type = 'pg';
+  String correctedAnswer;
+  String type;
   String _selectedAnswer = '';
   List<String> _selectedMultiAnswer = [];
 
   Question({
     required this.question,
     required this.option,
+    required this.correctedAnswer,
+    required this.type
   });
 
   String get selectedAnswer => _selectedAnswer;
-  String get type => _type;
   List<String> get selectedMultAnswer => _selectedMultiAnswer;
 
-  set type(String value) {
-    _type = value;
-  }
   set selectedAnswer(String value) {
     _selectedAnswer = value;
   }

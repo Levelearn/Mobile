@@ -1,7 +1,10 @@
+import 'package:app/service/user_service.dart';
 import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/user.dart';
 import 'login_screen.dart';
 
 const _purpleHex = '#441F7F';
@@ -18,10 +21,56 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileState extends State<ProfileScreen> {
+  late SharedPreferences prefs;
+  User? user;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    getUserData();
+    super.initState();
+  }
+
+  Future<void> getUserData() async {
+    prefs = await SharedPreferences.getInstance();
+    final idUser = prefs.getInt('userId');
+    if (idUser != null) {
+      User fetchedUser = await UserService.getUserById(idUser);
+      setState(() {
+        user = fetchedUser;
+        isLoading = false;
+      });
+    }
+  }
+
+  void logout() {
+    prefs.remove('userId');
+    prefs.remove('name');
+    prefs.remove('role');
+    prefs.remove('token');
+  }
+
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    return Scaffold(
+    return isLoading ? Scaffold(
+      body: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 10), // Space between progress bar and text
+                Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          )
+      )
+    ) : Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: (){}, icon: Icon(LineAwesomeIcons.angle_left_solid)),
         title: Text("Profile", style: Theme.of(context).textTheme.headlineMedium),
@@ -38,7 +87,7 @@ class _ProfileState extends State<ProfileScreen> {
                     width: 120,
                     height: 120,
                     child: ClipRRect(
-                      // borderRadius: BorderRadius.circular(100), child: const Image(image: AssetImage())
+                        borderRadius: BorderRadius.circular(100), child: Image.network(user!.image!)
                     ),
                   ),
                   Positioned(
@@ -106,6 +155,7 @@ class _ProfileState extends State<ProfileScreen> {
                 textColor: Colors.red,
                 endIcon: false,
                 onPress: () {
+                  logout();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(

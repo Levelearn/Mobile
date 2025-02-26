@@ -1,13 +1,28 @@
 class Assignment {
-  String _file;
+  final int id;
+  final int chapterId;
+  final String instruction;
+  String? fileUrl;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  Assignment (this._file);
+  Assignment ({
+    required this.id,
+    required this.chapterId,
+    required this.instruction,
+    this.fileUrl,
+    required this.updatedAt,
+    required this.createdAt
+  });
 
-  String getFile(){
-    return this._file;
-  }
-
-  void setFile(String file) {
-    this._file = file;
+  factory Assignment.fromJson(Map<String, dynamic> json) {
+    return Assignment(
+      id: json['id'],
+      chapterId: json['chapterId'],
+      instruction: json['instruction'],
+      fileUrl: json['fileUrl'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+    );
   }
 }

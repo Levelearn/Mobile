@@ -1,5 +1,8 @@
+import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/course.dart';
@@ -25,6 +28,11 @@ class _HomeState extends State<Homescreen> {
   List<User> list = [];
   String name = '';
   late SharedPreferences pref;
+  User? user;
+  bool isLoading = true;
+  Course? lastestCourse;
+  int rank = 0;
+  int idUser = 0;
 
   @override
   void initState() {
@@ -34,13 +42,27 @@ class _HomeState extends State<Homescreen> {
     getEnrolledCourse();
   }
 
-  void getEnrolledCourse() async{
+  Future<void> getEnrolledCourse() async{
     pref = await SharedPreferences.getInstance();
     int? id = pref.getInt('userId');
-    final result = await CourseService.getEnrolledCourse(id!);
-    setState(() {
-      allCourses = result;
-    });
+    if(id != null) {
+      final result = await CourseService.getEnrolledCourse(id);
+      final fetchedUser = await UserService.getUserById(id);
+      setState(() {
+        allCourses = result;
+        user = fetchedUser;
+        isLoading = false;
+      });
+      final idCourse = pref.getInt('lastestSelectedCourse') ?? 0;
+      for (var c in allCourses) {
+        if(c.id == idCourse){
+          setState(() {
+            lastestCourse = c;
+          });
+          break;
+        }
+      }
+    }
   }
 
 
@@ -58,10 +80,20 @@ class _HomeState extends State<Homescreen> {
     setState(() {
       list = sortUserbyPoint(studentRole(result));
     });
+    for (int i = 0; i < list.length; i++) {
+      if(list[i].id == idUser){
+        setState(() {
+          rank = i+1;
+        });
+        break;
+      }
+    }
   }
 
-  void getUserFromSharedPreference() async{
+  Future<void> getUserFromSharedPreference() async{
     final prefs = await SharedPreferences.getInstance();
+    final idUser = prefs.getInt('userId');
+    user = await UserService.getUserById(idUser!);
     setState(() {
       name = prefs.getString('name') ?? '';
     });
@@ -69,35 +101,34 @@ class _HomeState extends State<Homescreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 180,
-        backgroundColor: purple,
-        automaticallyImplyLeading: false,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15)
-            )
-        ),
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0), // Only left and right padding
+    return isLoading ? Scaffold(
+      body: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: Center(
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Ensures Column doesn't take extra space
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildProfile(),
-              _buildStatus()
+              CircularProgressIndicator(),
+              SizedBox(height: 10), // Space between progress bar and text
+              Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
-        ),
-      ),
+        )
+      )
+    ) : Scaffold(
       body: SingleChildScrollView(
         child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
+                SizedBox(height: 30,),
+                _buildProfile(),
+                _buildStats(),
                 _buildMyProgress(),
-                _buildExplore(),
+                _buildMore(),
                 _buildTodayLeaderboard(),
               ],
             )
@@ -163,7 +194,11 @@ class _HomeState extends State<Homescreen> {
                   )
               ) : [
                 Center(
-                  child: Text('Belum ada Pengguna'),
+                  child: Text(
+                      'Belum ada Pengguna',
+                      style: TextStyle(
+                          fontFamily: 'DIN_Next_Rounded'
+                      )),
                 )
               ],
             ),
@@ -173,104 +208,23 @@ class _HomeState extends State<Homescreen> {
     );
   }
 
-  Container _buildExplore() {
-    return Container(
-      width: double.infinity, // Adjust size as needed
-      height: 250,
-      decoration: BoxDecoration(
-        color: Colors.deepPurple[500],
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            offset: Offset(0, -1.7),
-            blurRadius: 8,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      margin: EdgeInsets.only(bottom: 16.0),
-      child: Stack(
-        children: [
-          Positioned(
-              bottom: 30,
-              right: -45,
-              width: 200,
-              height: 200,
-              child: Transform.scale(
-                  scaleX: -1,
-                  child: Image.asset('lib/assets/rocket.png')
-              )
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(10.0),
-                child:
-                Text('Jelajahi Lagi', style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900)),
-              ),
-              Container(
-                width: double.infinity,// Adjust size as needed
-                height: 150,
-                margin: EdgeInsets.only(bottom: 10.0, right: 15.0, left: 15.0),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: allCourses.length,
-                  itemBuilder: (context, count) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CourseDetailScreen(id: allCourses[count].id),
-                          ),
-                        );
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 100,// Adjust size as needed
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: purple,
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(15),
-                              image: DecorationImage(
-                                image: NetworkImage(url),
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                            margin: EdgeInsets.all(10.0),
-                          ),
-                          SizedBox(height: 10),
-                          Text(allCourses[count].codeCourse, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white), maxLines: 2,)
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
-        ],
-      )
-    );
-  }
-
   Widget _buildMyProgress() {
-    return Stack(
+    return lastestCourse == null ? SizedBox(
+      width: double.infinity,
+      height: 220,
+      child: Center(
+        child: Text('Kamu belum ada akses Course'),
+      ),
+    ) : Stack(
       children: [
-          Positioned(
-              top: 30,
-              right: 30,
-              width: 60,
-              height: 60,
-              child: Image.asset('lib/assets/check.png')
-          ),
-          SizedBox(
+        Positioned(
+            top: 30,
+            right: 30,
+            width: 60,
+            height: 60,
+            child: Image.asset('lib/assets/check.png')
+        ),
+        SizedBox(
           width: double.infinity,
           height: 220,
           child: Padding(
@@ -294,12 +248,12 @@ class _HomeState extends State<Homescreen> {
                                 height: 70,
                                 child: new CircularProgressIndicator(
                                   strokeWidth: 10,
-                                  value: progress,
+                                  value: lastestCourse!.progress! / 100,
                                   strokeCap: StrokeCap.round,
                                 ),
                               ),
                             ),
-                            Center(child: Text('${(progress * 100).toInt()}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
+                            Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
                           ],
                         ),
                       ),
@@ -309,8 +263,8 @@ class _HomeState extends State<Homescreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text('Interaksi Manusia Komputer', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text('Sudah ${(progress * 100).toInt()}%! Lanjutkan Pengerjaan Course', style: TextStyle(color: purple, fontSize: 12, fontWeight: FontWeight.w500)),
+                            Text(lastestCourse!.courseName, style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
+                            Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: TextStyle(color: purple, fontSize: 12, fontWeight: FontWeight.w500)),
                           ],
                         ),
                       )
@@ -325,86 +279,6 @@ class _HomeState extends State<Homescreen> {
     );
   }
 
-  Widget _buildStatus() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: Container(
-          width: double.infinity, // Adjust size as needed
-          height: 70,
-          decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(15)
-          ),
-          margin: EdgeInsets.only(bottom: 16.0),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min, // Ensures the column size fits the content (no extra space)
-                  children: [
-                    Text('Poin', style: TextStyle(color: purple, fontSize: 10)),
-                    Text('125K', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                // SizedBox(width: 20), // Optional space between columns
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0), // Adjust top and bottom padding
-                  child: VerticalDivider(
-                    color: Colors.black, // Line color
-                    thickness: 1, // Line thickness
-                    width: 20, // Space between the column and the line
-                  ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min, // Ensures the column size fits the content
-                  children: [
-                    Text('Poin', style: TextStyle(color: purple, fontSize: 10)),
-                    Text('125K', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                // SizedBox(width: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0), // Adjust top and bottom padding
-                  child: VerticalDivider(
-                    color: Colors.black, // Line color
-                    thickness: 1, // Line thickness
-                    width: 20, // Space between the column and the line
-                  ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min, // Ensures the column size fits the content
-                  children: [
-                    Text('Poin', style: TextStyle(color: purple, fontSize: 10)),
-                    Text('125K', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                // SizedBox(width: 20), // Optional space between columns
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0), // Adjust top and bottom padding
-                  child: VerticalDivider(
-                    color: Colors.black, // Line color
-                    thickness: 1, // Line thickness
-                    width: 20, // Space between the column and the line
-                  ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min, // Ensures the column size fits the content
-                  children: [
-                    Text('Poin', style: TextStyle(color: purple, fontSize: 10)),
-                    Text('125K', style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
-          )
-      ),
-    );
-  }
-
   Widget _buildProfile() {
     const title = 'Halo! Selamat Belajar';
     return Row(
@@ -413,8 +287,20 @@ class _HomeState extends State<Homescreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
           children: [
-            Text(title, style: TextStyle(color: Colors.white, fontSize: 15)),
-            Text(name, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+            Text(
+                title,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: GlobalVar.primaryColor,
+                    fontFamily: 'DIN_Next_Rounded'
+                )),
+            Text(
+                name,
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    color: GlobalVar.primaryColor,
+                    // fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'DIN_Next_Rounded'
+                )),
           ],
         ),
         Container(
@@ -425,14 +311,277 @@ class _HomeState extends State<Homescreen> {
             shape: BoxShape.circle, // Makes the container circular
           ),
           child: Center(
-            child: Icon(
-              Icons.person,
-              size: 30,
-              color: Colors.white, // Icon color
+            child: user != null ?
+                Image.network(user!.image!)
+                : Icon(Icons.person, size: 30, color: Colors.white, // Icon color
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStats() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)
+          ),
+          child: Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('lib/assets/pictures/dashboard.png'),
+                  fit: BoxFit.cover),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.start, // Rata kiri untuk row
+                    children: [
+                      _buildInfoColumn(
+                          LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges}', GlobalVar.accentColor),
+                      SizedBox(width: 24), // Jarak antar info
+                      _buildInfoColumn(
+                          LineAwesomeIcons.user_check_solid, 'Course', '${user?.totalCourses}', GlobalVar.accentColor),
+                      SizedBox(width: 24), // Jarak antar info
+                      _buildInfoColumn(
+                          LineAwesomeIcons.trophy_solid, 'Peringkat', '${rank} / ${list.length}', GlobalVar.accentColor),
+                    ],
+                  ),
+                  SizedBox(height: 24),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.start, // Menyusun elemen ke kiri
+                        crossAxisAlignment:
+                        CrossAxisAlignment.center, // Vertikal rata tengah
+                        children: [
+                          Icon(
+                            LineAwesomeIcons
+                                .gem_solid, // Icon yang ingin ditampilkan
+                            color: GlobalVar.accentColor, // Warna icon
+                            size: 24, // Ukuran icon
+                          ),
+                          SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Total Poin', // Teks yang ingin ditampilkan
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge!
+                                    .copyWith(
+                                  // fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily:
+                                  'DIN_Next_Rounded', // Ganti dengan font yang diinginkan
+                                ),
+                              ),
+                              Text('1200',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontFamily: 'DIN_Next_Rounded'))
+                            ],
+                          ) // Jarak antara icon dan text
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoColumn(
+      IconData icon, String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,  // Menyusun elemen ke kiri
+      crossAxisAlignment: CrossAxisAlignment.center,  // Vertikal rata tengah
+      children: [
+        Icon(
+          icon, // Icon yang ingin ditampilkan
+          color: color, // Warna icon
+          size: 24,  // Ukuran icon
+        ),
+        SizedBox(width: 4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label, // Teks yang ingin ditampilkan
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium!
+                  .copyWith(
+                // fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily:
+                'DIN_Next_Rounded', // Ganti dengan font yang diinginkan
+              ),
+            ),
+            Text(value,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontFamily: 'DIN_Next_Rounded'))
+          ],
+        )// Jarak antara icon dan text
+      ],
+    );
+  }
+
+  Widget _buildMore() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Explore Courses',
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium!
+                .copyWith(
+              fontWeight: FontWeight.bold,
+              color: GlobalVar.primaryColor,
+              fontFamily: 'DIN_Next_Rounded',
+            ),
+          ),
+          SizedBox(height: 16),
+          CarouselSlider.builder(
+            itemCount: allCourses.length,
+            itemBuilder: (context, index, realIndex) {
+              final course = allCourses[index];
+              return _courseCard(course);
+            },
+            options: CarouselOptions(
+              height: 200,
+              enlargeCenterPage: false,
+              autoPlay: false,
+              aspectRatio: 4 / 5,
+              viewportFraction: 0.6,
+              enableInfiniteScroll: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _courseCard(
+      Course course
+      ) {
+    return Container(
+      width: MediaQuery.of(context).size.width *
+          0.8, // Lebar card mengikuti lebar layar
+      height: 200,
+      margin: EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Gambar course
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                'lib/assets/pictures/imk-picture.jpg',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // Box informasi di bawah gambar
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: GlobalVar.primaryColor, // Background dengan warna primary
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    course.courseName,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Deskripsi dari mata kuliah ini',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Label di kanan atas
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: GlobalVar.secondaryColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                course.codeCourse,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

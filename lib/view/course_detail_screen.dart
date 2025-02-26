@@ -1,3 +1,4 @@
+import 'package:app/global_var.dart';
 import 'package:app/model/chapter.dart';
 import 'package:app/main.dart';
 import 'package:app/model/chapter_status.dart';
@@ -10,8 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/course.dart';
 import '../model/user_course.dart';
 import 'chapter_screen.dart';
-
-const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 class CourseDetailScreen extends StatefulWidget {
   final int id;
@@ -32,17 +31,16 @@ class _CourseDetail extends State<CourseDetailScreen> {
   UserCourse? uc;
 
   @override
-  void initState() {
-    getCourseDetail();
-    getUserFromSharedPreference();
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getCourseDetail(); // Re-fetch the course detail
+    getUserFromSharedPreference(); // Reload user data
   }
 
   void getCourseDetail() async {
     pref = await SharedPreferences.getInstance();
     setState(() {
       idCourse = pref.getInt('lastestSelectedCourse') ?? 0;
-      print(idCourse);
     });
     final  result = await CourseService.getCourse(idCourse);
     setState(() {
@@ -117,7 +115,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
                       stops: const [0, 0.8],
                     ),
                   ),
-                  child: Image.network(url, height: 150, fit: BoxFit.cover,),
+                  child: Image.network(GlobalVar.url, height: 150, fit: BoxFit.cover,),
                 ),
               ),
               SizedBox(height: 10,),
@@ -131,14 +129,21 @@ class _CourseDetail extends State<CourseDetailScreen> {
           ),
         )
       ),
-      body: isLoading ? Column(
-        mainAxisSize: MainAxisSize.min, // Align center vertically
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 10), // Space between progress bar and text
-          Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ],
+      body: isLoading ? SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 10), // Space between progress bar and text
+                Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          )
       ) : Padding(padding: EdgeInsets.symmetric(vertical: 20),
         child: ListView.builder(
           itemCount: listChapter.length,

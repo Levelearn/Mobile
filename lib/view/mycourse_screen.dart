@@ -1,6 +1,8 @@
 import 'package:app/service/course_service.dart';
+import 'package:app/service/user_course_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../global_var.dart';
 import '../model/course.dart';
 import 'course_detail_screen.dart';
 
@@ -20,10 +22,7 @@ class _CourseDetail extends State<MycourseScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isFocused = false;
   late SharedPreferences pref;
-
-  // List of all courses
   List<Course> allCourses = [];
-  // List of courses filtered based on search input
   List<Course> filteredCourses = [];
 
   @override
@@ -165,7 +164,7 @@ class _CourseDetail extends State<MycourseScreen> {
     return GestureDetector(
       onTap: () async {
         await pref.setInt('lastestSelectedCourse', course.id);
-        Navigator.push(
+            Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => CourseDetailScreen(id: course.id),

@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);
-const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -23,12 +23,13 @@ class Course {
 
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
-      id: json['id'],
-      codeCourse: json['code'],
-      courseName: json['name'],
-      description: json['description'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      id: json['course']['id'],
+      codeCourse: json['course']['code'],
+      courseName: json['course']['name'],
+      description: json['course']['description'],
+      createdAt: DateTime.parse(json['course']['createdAt']),
+      updatedAt: DateTime.parse(json['course']['updatedAt']),
+      progress: json['progress']
     );
   }
 

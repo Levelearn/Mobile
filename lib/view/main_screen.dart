@@ -21,10 +21,9 @@ class Mainscreen extends StatefulWidget {
 }
 
 class _MainState extends State<Mainscreen> {
-  int navIndex = 1;
+  int navIndex = 2;
   late SharedPreferences pref;
   int idCourse = 0;
-  late List<Widget> _screen;
 
   void getCourseDetail() async {
     pref = await SharedPreferences.getInstance();
@@ -36,22 +35,30 @@ class _MainState extends State<Mainscreen> {
   @override
   void initState() {
     super.initState();
-    _screen = [
-      const Homescreen(),
-      const MycourseScreen(),
-      CourseDetailScreen(id: idCourse,),
-      const FriendsScreen(),
-      const ProfileScreen()
-    ];
+    getCourseDetail();
+  }
+
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return const Homescreen();
+      case 1:
+        return const MycourseScreen();
+      case 2:
+        return CourseDetailScreen(id: idCourse);
+      case 3:
+        return const FriendsScreen();
+      case 4:
+        return const ProfileScreen();
+      default:
+        return const Homescreen();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        children: _screen,
-        index: navIndex,
-      ),
+      body: _buildPage(navIndex),
       bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: backgroundNavHex,

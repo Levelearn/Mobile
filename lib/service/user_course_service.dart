@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../global_var.dart';
 import '../model/user_course.dart';
 
 class UserCourseService {
-  static const String baseUrl = 'http://192.168.247.187:3000/api';
 
   static Future<UserCourse> getUserCourse(int idUser, int idCourse) async {
     try {
       late UserCourse status;
-      final response = await http.get(Uri.parse('$baseUrl/usercourse/$idUser/$idCourse'));
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/usercourse/$idUser/$idCourse'));
       final body = response.body;
       final result = jsonDecode(body);
       print(result);
@@ -32,7 +32,7 @@ class UserCourseService {
         "isCompleted": uc.isCompleted,
         "enrolledAt": uc.enrolledAt.toIso8601String()
       };
-      final responsePut = await http.put(Uri.parse('$baseUrl/usercourse/$id'), headers: {
+      final responsePut = await http.put(Uri.parse('${GlobalVar.baseUrl}/usercourse/$id'), headers: {
         'Content-type' : 'application/json; charset=utf-8',
         'Accept': 'application/json',
       }, body: jsonEncode(request));

@@ -1,3 +1,4 @@
+import 'package:app/global_var.dart';
 import 'package:app/service/user_service.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:flutter/material.dart';
@@ -47,12 +48,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    double fontSize = width * 0.035;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            SizedBox(
+              height: 16,
+            ),
             SizedBox(
               height: 400,
               child: Stack(
@@ -80,15 +85,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: BoxDecoration(
                               image: DecorationImage(
                                   image: AssetImage(
-                                      'assets/images/background-2.png'),
-                                  fit: BoxFit.fill)),
+                                      'lib/assets/vectors/welcome_primary.png'))),
                         )),
                   )
                 ],
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -97,9 +101,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         "Login",
                         style: TextStyle(
-                            color: Color.fromRGBO(49, 39, 79, 1),
+                            color: GlobalVar.primaryColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 30),
+                            fontSize: fontSize * 1.5,
+                            fontFamily: 'DIN_Next_Rounded'),
                       )),
                   SizedBox(
                     height: 30,
@@ -108,13 +113,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       duration: Duration(milliseconds: 1700),
                       child: Container(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(16),
                             color: Colors.white,
                             border: Border.all(
-                                color: Color.fromRGBO(196, 135, 198, .3)),
+                                color: const Color.fromRGBO(68, 31, 127, .3)),
                             boxShadow: [
                               BoxShadow(
-                                color: Color.fromRGBO(196, 135, 198, .3),
+                                color: Color.fromRGBO(68, 31, 127, .3),
                                 blurRadius: 20,
                                 offset: Offset(0, 10),
                               )
@@ -122,31 +127,44 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           children: <Widget>[
                             Container(
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                               decoration: BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(
                                           color: Color.fromRGBO(
-                                              196, 135, 198, .3)))),
+                                              68, 31, 127, .3)))),
                               child: TextField(
+                                style: TextStyle(
+                                    fontFamily: 'DIN_Next_Rounded'
+                                ),
                                 controller: emailController,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Username",
                                     hintStyle:
-                                    TextStyle(color: Colors.grey.shade700)),
+                                    TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontFamily: 'DIN_Next_Rounded',
+                                        fontSize: fontSize
+                                    )),
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                               child: TextField(
+                                style:
+                                TextStyle(fontFamily: 'DIN_Next_Rounded'),
                                 controller: passwordController,
                                 obscureText: true,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Password",
                                     hintStyle:
-                                    TextStyle(color: Colors.grey.shade700)),
+                                    TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontFamily: 'DIN_Next_Rounded',
+                                        fontSize: fontSize
+                                    )),
                               ),
                             )
                           ],
@@ -163,7 +181,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 "Forgot Password?",
                                 style: TextStyle(
-                                    color: Color.fromRGBO(196, 135, 198, 1)),
+                                    color: GlobalVar.primaryColor,
+                                    fontFamily: 'DIN_Next_Rounded',
+                                    fontSize: fontSize),
                               )))),
                   SizedBox(
                     height: 30,
@@ -171,14 +191,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   FadeInUp(
                       duration: Duration(milliseconds: 1900),
                       child: MaterialButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Mainscreen()),
-                          );
-                        },
-                        color: Color.fromRGBO(49, 39, 79, 1),
+                        onPressed: login,
+                        color: GlobalVar.primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
                         ),
@@ -186,11 +200,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Center(
                           child: isLoading ?
                           CircularProgressIndicator() :
-                          ElevatedButton(
-                            onPressed: login,
-                            child: Text(
-                              "Login",
-                              style: TextStyle(color: Colors.white),
+                          Text(
+                            "Login",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'DIN_Next_Rounded',
+                                fontSize: fontSize
                             ),
                           ),
                         ),

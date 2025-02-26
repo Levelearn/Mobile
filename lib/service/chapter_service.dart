@@ -1,14 +1,15 @@
 import 'dart:convert';
+import 'package:app/global_var.dart';
+import 'package:app/model/assignment.dart';
 import 'package:http/http.dart' as http;
 import '../model/assessment.dart';
 import '../model/learning_material.dart';
 
 class ChapterService {
-  static const String baseUrl = 'http://192.168.247.187:3000/api';
 
   static Future<LearningMaterial> getMaterialByChapterId(int id) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/chapter/$id/materials'));
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id/materials'));
       final body = response.body;
       final result = jsonDecode(body);
       final material = result[0]['materials'][0];
@@ -28,35 +29,56 @@ class ChapterService {
 
   static Future<Assessment> getAssessmentByChapterId(int id) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/chapter/$id/assessments'));
-      final List<dynamic> result = jsonDecode(response.body);
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id/assessments'));
+      final result = jsonDecode(response.body);
+      final decodeResult = result[0]['assessments'][0];
 
-      if (result.isEmpty || result[0]['assessments'].isEmpty) {
+      if (result.isEmpty) {
         throw Exception("No assessments found");
       }
 
-      final Map<String, dynamic> assessmentJson = result[0]['assessments'][0];
-      final List<dynamic> decodedQuestions = jsonDecode(assessmentJson['questions']);
-      List<Question> questions = decodedQuestions.map((q) => Question(
+      final List<dynamic> decodeQuestion = jsonDecode(decodeResult['questions']);
+      List<Question> questions = decodeQuestion.map((q) => Question(
         question: q['question'],
         option: List<String>.from(q['options']),
+        correctedAnswer: q['answer'],
+        type: q['type']
       )).toList();
 
-      // Decode the answers string into a list of strings.
-      final List<String> decodedAnswers = List<String>.from(jsonDecode(assessmentJson['answers']));
+      // Decode answers safely (null-safe handling)
+      final List<String>? decodedAnswers = decodeResult['answers'] != null
+          ? List<String>.from(jsonDecode(decodeResult['answers']))
+          : null;
 
       Assessment assessment = Assessment(
-        id: assessmentJson['id'],
-        chapterId: assessmentJson['chapterId'],
-        instruction: assessmentJson['instruction'],
-        type: assessmentJson['type'],
+        id: decodeResult['id'],
+        chapterId: decodeResult['chapterId'],
+        instruction: decodeResult['instruction'],
         questions: questions,
         answers: decodedAnswers,
-        createdAt: DateTime.parse(assessmentJson['createdAt']),
-        updatedAt: DateTime.parse(assessmentJson['updatedAt']),
+        createdAt: DateTime.parse(decodeResult['createdAt']),
+        updatedAt: DateTime.parse(decodeResult['updatedAt']),
       );
 
       return assessment;
+    } catch (e) {
+      throw Exception("Error fetching assessment: ${e.toString()}");
+    }
+  }
+
+  static Future<Assignment> getAssignmentByChapterId(int id) async {
+    try {
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id/assignments'));
+      final result = jsonDecode(response.body);
+      final decodeResult = result[0]['assignments'][0];
+
+      if (result.isEmpty) {
+        throw Exception("No assignment found");
+      }
+
+      Assignment assignment = Assignment.fromJson(decodeResult);
+
+      return assignment;
     } catch (e) {
       throw Exception("Error fetching assessment: ${e.toString()}");
     }

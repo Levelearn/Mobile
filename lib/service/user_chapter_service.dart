@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'package:app/model/chapter_status.dart';
 import 'package:http/http.dart' as http;
 
+import '../global_var.dart';
+
 class UserChapterService {
-  static const String baseUrl = 'http://192.168.247.187:3000/api';
 
   static Future<ChapterStatus> getChapterStatus(int idUser, int idChapter) async {
     try {
       late ChapterStatus status;
-      final response = await http.get(Uri.parse('$baseUrl/userchapter/$idUser/$idChapter'));
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/userchapter/$idUser/$idChapter'));
       final body = response.body;
       final result = jsonDecode(body);
       print(result);
@@ -42,7 +43,7 @@ class UserChapterService {
            "submission": "",
            "assessmentGrade": 0
          };
-         final responsePost = await http.post(Uri.parse('$baseUrl/userchapter'), headers: {
+         final responsePost = await http.post(Uri.parse('${GlobalVar.baseUrl}/userchapter'), headers: {
            'Content-type' : 'application/json; charset=utf-8',
            'Accept': 'application/json',
          }, body: jsonEncode(request));
@@ -88,7 +89,7 @@ class UserChapterService {
         "submission": user.submission,
         "assessmentGrade": user.assessmentGrade
       };
-      final responsePut = await http.put(Uri.parse('$baseUrl/userchapter/$id'), headers: {
+      final responsePut = await http.put(Uri.parse('${GlobalVar.baseUrl}/userchapter/$id'), headers: {
         'Content-type' : 'application/json; charset=utf-8',
         'Accept': 'application/json',
       }, body: jsonEncode(request));
