@@ -34,6 +34,7 @@ class _ProfileState extends State<ProfileScreen> {
     final idUser = prefs.getInt('userId');
     if (idUser != null) {
       Student fetchedUser = await UserService.getUserById(idUser);
+      print(user?.image);
       setState(() {
         user = fetchedUser;
         isLoading = false;
@@ -131,7 +132,7 @@ class _ProfileState extends State<ProfileScreen> {
                               height: 120,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(100),
-                                child: user?.image != '' || user?.image != null ? Image.network(user!.image!)
+                                child: user?.image != "" && user?.image != null ? Image.network(user!.image!)
                                     : Icon(Icons.person, size: 100, color: Colors.white,),
                               ),
                             ),
@@ -188,7 +189,7 @@ class _ProfileState extends State<ProfileScreen> {
                               _buildInfoColumn(LineAwesomeIcons.user_check_solid,
                                   'Course', '${user?.totalCourses}', GlobalVar.secondaryColor),
                               _buildInfoColumn(LineAwesomeIcons.trophy_solid,
-                                  'Peringkat', '5', GlobalVar.secondaryColor),
+                                  'Peringkat', '$rank', GlobalVar.secondaryColor),
                               _buildInfoColumn(LineAwesomeIcons.gem_solid,
                                   'Poin', '${user?.points}', GlobalVar.secondaryColor)
                             ],

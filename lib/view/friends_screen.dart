@@ -138,11 +138,13 @@ class _FriendsScreen extends State<FriendsScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              list.isNotEmpty && list.length >= 2 && list[1].image != "" && list[1].image != null ?
               CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(url),
-                child: Icon(Icons.person, size: 20,),
-              ),
+                  radius: 30,
+                  backgroundImage: NetworkImage(list[1].image!)) :
+              CircleAvatar(
+                  radius: 30,
+                  child: Icon(Icons.person, size: 20,)),
               Text(list.isNotEmpty && list.length >= 2? list[1].username : '', style: TextStyle(color: Colors.white),),
               Container(
                 decoration: BoxDecoration(
@@ -159,7 +161,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 width: 10,
               ),
               Container(
-                width: 100,
+                width: 75,
                 height: 120,
                 decoration: BoxDecoration(
                     color: Colors.blueGrey.shade400,
@@ -172,11 +174,13 @@ class _FriendsScreen extends State<FriendsScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              list.isNotEmpty && list[0].image != "" && list[0].image != null ?
               CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(url),
-                child: Icon(Icons.person, size: 20,),
-              ),
+                  radius: 30,
+                  backgroundImage: NetworkImage(list[0].image!)) :
+              CircleAvatar(
+                  radius: 30,
+                  child: Icon(Icons.person, size: 20,)),
               Text(list.isNotEmpty ? list[0].username : '', style: TextStyle(color: Colors.white),),
               Container(
                 decoration: BoxDecoration(
@@ -193,7 +197,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 width: 10,
               ),
               Container(
-                width: 100,
+                width: 75,
                 height: 150,
                 decoration: BoxDecoration(
                   color: Colors.amber.shade300,
@@ -206,11 +210,13 @@ class _FriendsScreen extends State<FriendsScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              list.isNotEmpty && list.length >= 3 && list[2].image != "" && list[2].image != null ?
               CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(url),
-                child: Icon(Icons.person, size: 20,),
-              ),
+                  radius: 30,
+                  backgroundImage: NetworkImage(list[2].image!)) :
+              CircleAvatar(
+                  radius: 30,
+                  child: Icon(Icons.person, size: 20,)),
               Text(list.isNotEmpty && list.length >= 3 ? list[2].username : '', style: TextStyle(color: Colors.white),),
               Container(
                 decoration: BoxDecoration(
@@ -227,7 +233,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 width: 10,
               ),
               Container(
-                width: 100,
+                width: 75,
                 height: 90,
                 decoration: BoxDecoration(
                   color: Colors.orange.shade400,

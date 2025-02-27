@@ -208,7 +208,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           borderSide: BorderSide(width: 2, color: Colors.green),
                         ),
                         label: Text("Username"),
-                        hintText: user?.username != null && user?.username != '' ? user!.name : "Username",
+                        hintText: user?.username != null && user?.username != '' ? user!.username : "Username",
                         prefixIcon: Icon(LineAwesomeIcons.user)
                     ),
                   ),

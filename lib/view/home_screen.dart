@@ -323,7 +323,7 @@ class _HomeState extends State<Homescreen> {
             color: Colors.blue, // Background color
           ),
           child: ClipOval(
-            child: user?.image != null
+            child: user?.image != null && user?.image != ""
                 ? Image.network(
               user!.image!,
               width: 50,
