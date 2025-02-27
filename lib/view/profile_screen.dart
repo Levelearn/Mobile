@@ -1,17 +1,13 @@
+import 'package:app/global_var.dart';
 import 'package:app/service/user_service.dart';
 import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 import '../model/user.dart';
 import 'login_screen.dart';
-
-const _purpleHex = '#441F7F';
-const _backgroundNavHex = '#F3EDF7';
-Color purple = Color(int.parse(_purpleHex.substring(1, 7), radix: 16) + 0xFF000000);
-Color backgroundNavHex = Color(int.parse(_backgroundNavHex.substring(1, 7), radix: 16) + 0xFF000000);
-const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,8 +18,10 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileState extends State<ProfileScreen> {
   late SharedPreferences prefs;
-  User? user;
+  Student? user;
   bool isLoading = true;
+  List<Student> list = [];
+  int rank = 0;
 
   @override
   void initState() {
@@ -35,12 +33,32 @@ class _ProfileState extends State<ProfileScreen> {
     prefs = await SharedPreferences.getInstance();
     final idUser = prefs.getInt('userId');
     if (idUser != null) {
-      User fetchedUser = await UserService.getUserById(idUser);
+      Student fetchedUser = await UserService.getUserById(idUser);
       setState(() {
         user = fetchedUser;
         isLoading = false;
       });
     }
+  }
+
+  void getAllUser() async {
+    final result = await UserService.getAllUser();
+    setState(() {
+      list = studentRole(result);
+    });
+    for (int i = 0; i < list.length; i++) {
+      if(list[i].id == user?.id){
+        setState(() {
+          rank = i+1;
+        });
+        print(rank);
+        break;
+      }
+    }
+  }
+
+  List<Student> studentRole(List<Student> list) {
+    return list.where((user) => user.role == 'STUDENT').toList();
   }
 
   void logout() {
@@ -49,6 +67,8 @@ class _ProfileState extends State<ProfileScreen> {
     prefs.remove('role');
     prefs.remove('token');
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,102 +92,195 @@ class _ProfileState extends State<ProfileScreen> {
       )
     ) : Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: (){}, icon: Icon(LineAwesomeIcons.angle_left_solid)),
-        title: Text("Profile", style: Theme.of(context).textTheme.headlineMedium),
+        backgroundColor: GlobalVar.primaryColor,
+        leading: IconButton(
+            onPressed: (){},
+            icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
+        title: Text(
+            "Profile",
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontFamily: 'DIN_Next_Rounded',
+                color: Colors.white
+            )),
         actions: [IconButton(onPressed: (){}, icon: Icon(isDark ? LineAwesomeIcons.sun : LineAwesomeIcons.moon))],
       ),
-      body:  SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Stack(
+      body:  Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage(
+                        'lib/assets/pictures/background-pattern.png'),
+                    fit: BoxFit.cover
+                )
+            ),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              // padding: const EdgeInsets.all(16),
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: 120,
-                    height: 120,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100), child: Image.network(user!.image!)
+                  Container(
+                    color: GlobalVar.primaryColor,
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            SizedBox(
+                              width: 120,
+                              height: 120,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: user?.image != '' || user?.image != null ? Image.network(user!.image!)
+                                    : Icon(Icons.person, size: 100, color: Colors.white,),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
+                                  );
+                                },
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: GlobalVar.secondaryColor),
+                                  child: const Icon(
+                                    LineAwesomeIcons.pencil_alt_solid,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              )
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(user!.name,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontFamily: 'DIN_Next_Rounded',
+                                color: Colors.white
+                            )),
+                        Text(user!.studentId!,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontFamily: 'DIN_Next_Rounded',
+                                color: GlobalVar.accentColor
+                            )),
+                        const SizedBox(height: 16),
+                        // const Divider(),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 32),
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 24,
+                            children: [
+                              _buildInfoColumn(LineAwesomeIcons.medal_solid,
+                                  'Lencana', '${user?.badges}', GlobalVar.secondaryColor),
+                              _buildInfoColumn(LineAwesomeIcons.user_check_solid,
+                                  'Course', '${user?.totalCourses}', GlobalVar.secondaryColor),
+                              _buildInfoColumn(LineAwesomeIcons.trophy_solid,
+                                  'Peringkat', '5', GlobalVar.secondaryColor),
+                              _buildInfoColumn(LineAwesomeIcons.gem_solid,
+                                  'Poin', '${user?.points}', GlobalVar.secondaryColor)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
                     ),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.deepPurpleAccent),
-                      child: const Icon(
-                        LineAwesomeIcons.pencil_alt_solid,
-                        color: Colors.black,
-                        size: 20,
-                      ),
-                    ),
-                  )
+                  SizedBox(
+                    height: 16,
+                  ),
+
+                  ProfileMenuWidget(
+                    title: "Update Profile",
+                    icon: LineAwesomeIcons.person_booth_solid,
+                    onPress: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
+                      );
+                    },
+                  ),
+
+                  ProfileMenuWidget(
+                    title: "Quick Access",
+                    icon: LineAwesomeIcons.accessible,
+                    onPress: () {},
+                  ),
+                  ProfileMenuWidget(
+                    title: "App Rating",
+                    icon: LineAwesomeIcons.star,
+                    onPress: () {},
+                  ),
+                  ProfileMenuWidget(
+                    title: "About App",
+                    icon: LineAwesomeIcons.info_circle_solid,
+                    onPress: () {},
+                  ),
+                  ProfileMenuWidget(
+                    title: "Logout",
+                    icon: LineAwesomeIcons.arrow_circle_left_solid,
+                    textColor: Colors.red,
+                    endIcon: false,
+                    onPress: () {
+                      logout();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LoginScreen()
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Text("Heading", style: Theme.of(context).textTheme.headlineMedium),
-              Text("SubHeading", style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  onPressed: (){},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple, side: BorderSide.none, shape: const StadiumBorder(),
-                  ),
-                  child: const Text("Edit Profile", style: TextStyle(color: Colors.black),),
-                ),
-              ),
-              const SizedBox(height: 30),
-              const Divider(),
-              const SizedBox(height: 10),
-
-              ProfileMenuWidget(
-                title: "Update Profile",
-                icon: LineAwesomeIcons.person_booth_solid,
-                onPress: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => UpdateProfile()),
-                  );
-                },
-              ),
-              ProfileMenuWidget(
-                title: "Quick Access",
-                icon: LineAwesomeIcons.accessible,
-                onPress: () {},
-              ),
-              ProfileMenuWidget(
-                title: "App Rating",
-                icon: LineAwesomeIcons.star,
-                onPress: () {},
-              ),
-              ProfileMenuWidget(
-                title: "About App",
-                icon: LineAwesomeIcons.info_circle_solid,
-                onPress: () {},
-              ),
-              ProfileMenuWidget(
-                title: "Logout",
-                icon: LineAwesomeIcons.arrow_circle_left_solid,
-                textColor: Colors.red,
-                endIcon: false,
-                onPress: () {
-                  logout();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => LoginScreen()
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+            ),
+          )
+        ],
       ),
+    );
+  }
+
+  Widget _buildInfoColumn(
+      IconData icon, String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+
+        SizedBox(width: 4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28,),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                // fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily:
+                'DIN_Next_Rounded',
+              ),
+            ),
+            Text(value,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: GlobalVar.primaryColor,
+                    fontFamily: 'DIN_Next_Rounded'))
+          ],
+        )
+      ],
     );
   }
 }
@@ -193,33 +306,39 @@ class ProfileMenuWidget extends StatelessWidget {
     var isDark = MediaQuery
         .of(context)
         .platformBrightness == Brightness.dark;
-    var iconColor = isDark ? Colors.deepPurple : Colors.deepPurpleAccent;
+    var iconColor = isDark ? GlobalVar.accentColor : GlobalVar.primaryColor;
 
-    return ListTile(
-        onTap: onPress,
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            color: iconColor.withOpacity(0.1),
-          ),
-          child: Icon(icon, color: iconColor),
-        ),
-        title: Text(title, style: Theme
-            .of(context)
-            .textTheme
-            .bodyMedium
-            ?.apply(color: textColor)),
-        trailing: endIcon ? Container(
-            width: 30,
-            height: 30,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+          onTap: onPress,
+          leading: Container(
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              color: Colors.grey.withOpacity(0.1),
+              color: iconColor.withOpacity(0.1),
             ),
-            child: const Icon(LineAwesomeIcons.angle_right_solid, size: 18.0,
-                color: Colors.grey)) : null
+            child: Icon(icon, color: iconColor),
+          ),
+          title: Text(title, style: Theme
+              .of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(
+            color: textColor,
+            fontFamily: 'DIN_Next_Rounded',
+          )),
+          trailing: endIcon ? Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Colors.grey.withOpacity(0.1),
+              ),
+              child: const Icon(LineAwesomeIcons.angle_right_solid, size: 18.0,
+                  color: Colors.grey)) : null
+      ),
     );
   }
 }

@@ -16,14 +16,14 @@ class FriendsScreen extends StatefulWidget {
 
 class _FriendsScreen extends State<FriendsScreen> {
 
-  List<User> user = [];
+  List<Student> user = [];
 
-  List<User> sortUserbyPoint(List<User> list) {
+  List<Student> sortUserbyPoint(List<Student> list) {
     list.sort((a, b) => b.points!.compareTo(a.points!));
     return list;
   }
 
-  List<User> studentRole(List<User> list) {
+  List<Student> studentRole(List<Student> list) {
     return list.where((user) => user.role == 'STUDENT').toList();
   }
 
@@ -81,7 +81,7 @@ class _FriendsScreen extends State<FriendsScreen> {
     );
   }
 
-  Widget _listFriendsItem(User user, int index) {
+  Widget _listFriendsItem(Student user, int index) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -127,7 +127,7 @@ class _FriendsScreen extends State<FriendsScreen> {
     );
   }
 
-  Widget _buildLeaderBoard(List<User> list) {
+  Widget _buildLeaderBoard(List<Student> list) {
     return Container(
       margin: EdgeInsets.all(13),
       height: 300,

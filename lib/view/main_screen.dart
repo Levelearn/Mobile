@@ -14,19 +14,19 @@ Color backgroundNavHex = Color(0xFFF3EDF7);
 const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 class Mainscreen extends StatefulWidget {
-  const Mainscreen({super.key});
+  final int navIndex;
+  const Mainscreen({super.key, this.navIndex = 0});
 
   @override
   State<Mainscreen> createState() => _MainState();
 }
 
 class _MainState extends State<Mainscreen> {
-  int navIndex = 2;
   late SharedPreferences pref;
   int idCourse = 0;
+  int navIndex = 0;
 
   void getCourseDetail() async {
-    pref = await SharedPreferences.getInstance();
     setState(() {
       idCourse = pref.getInt('getCourseDetail') ?? 0;
     });
@@ -34,9 +34,14 @@ class _MainState extends State<Mainscreen> {
 
   @override
   void initState() {
+    navIndex = widget.navIndex;
     super.initState();
     getCourseDetail();
   }
+
+  void _getSharedPreference() async {
+  pref = await SharedPreferences.getInstance();
+}
 
   Widget _buildPage(int index) {
     switch (index) {

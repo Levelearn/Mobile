@@ -1,8 +1,8 @@
-class User {
+class Student {
   final int id;
-  final String username;
-  final String password;
-  final String name;
+  String username;
+  String password;
+  String name;
   final String role;
   String? studentId;
   int? points;
@@ -15,7 +15,7 @@ class User {
   final DateTime updatedAt;
 
 
-  User ({
+  Student ({
     required this.id,
     required this.username,
     required this.password,
@@ -32,8 +32,8 @@ class User {
     required this.updatedAt,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory Student.fromJson(Map<String, dynamic> json) {
+    return Student(
       id: json['id'],
       username: json['username'],
       password: json['password'],

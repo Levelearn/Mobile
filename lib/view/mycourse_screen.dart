@@ -1,8 +1,6 @@
 import 'package:app/service/course_service.dart';
-import 'package:app/service/user_course_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../global_var.dart';
 import '../model/course.dart';
 import 'course_detail_screen.dart';
 

@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/course.dart';
 import '../service/course_service.dart';
 import '../service/user_service.dart';
-import 'course_detail_screen.dart';
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);
@@ -25,10 +24,10 @@ class _HomeState extends State<Homescreen> {
 
   List<Course> allCourses = [];
   double progress = 0.88;
-  List<User> list = [];
+  List<Student> list = [];
   String name = '';
   late SharedPreferences pref;
-  User? user;
+  Student? user;
   bool isLoading = true;
   Course? lastestCourse;
   int rank = 0;
@@ -37,8 +36,9 @@ class _HomeState extends State<Homescreen> {
   @override
   void initState() {
     super.initState();
-    getUserFromSharedPreference();
-    getAllUser();
+    getUserFromSharedPreference().then((_) {
+      getAllUser();
+    });
     getEnrolledCourse();
   }
 
@@ -66,38 +66,50 @@ class _HomeState extends State<Homescreen> {
   }
 
 
-  List<User> sortUserbyPoint(List<User> list) {
+  List<Student> sortUserbyPoint(List<Student> list) {
+    print(list);
     list.sort((a, b) => b.points!.compareTo(a.points!));
     return list;
   }
 
-  List<User> studentRole(List<User> list) {
+  List<Student> studentRole(List<Student> list) {
     return list.where((user) => user.role == 'STUDENT').toList();
   }
 
   void getAllUser() async {
     final result = await UserService.getAllUser();
+    print(result);
     setState(() {
       list = sortUserbyPoint(studentRole(result));
     });
+
+    if (idUser == 0) return;
+
     for (int i = 0; i < list.length; i++) {
-      if(list[i].id == idUser){
+      if (list[i].id == idUser) {
         setState(() {
-          rank = i+1;
+          rank = i + 1;
         });
+        print(rank);
         break;
       }
     }
   }
 
-  Future<void> getUserFromSharedPreference() async{
+
+  Future<void> getUserFromSharedPreference() async {
     final prefs = await SharedPreferences.getInstance();
-    final idUser = prefs.getInt('userId');
-    user = await UserService.getUserById(idUser!);
-    setState(() {
-      name = prefs.getString('name') ?? '';
-    });
+    final storedIdUser = prefs.getInt('userId');  // Retrieve id from SharedPreferences
+    if (storedIdUser != null) {
+      final fetchedUser = await UserService.getUserById(storedIdUser);
+      setState(() {
+        idUser = storedIdUser; // Now idUser is properly set
+        name = prefs.getString('name') ?? '';
+        user = fetchedUser;
+      });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -304,16 +316,26 @@ class _HomeState extends State<Homescreen> {
           ],
         ),
         Container(
-          width: 50, // Adjust size as needed
+          width: 50,
           height: 50,
           decoration: BoxDecoration(
+            shape: BoxShape.circle,
             color: Colors.blue, // Background color
-            shape: BoxShape.circle, // Makes the container circular
           ),
-          child: Center(
-            child: user != null ?
-                Image.network(user!.image!)
-                : Icon(Icons.person, size: 30, color: Colors.white, // Icon color
+          child: ClipOval(
+            child: user?.image != null
+                ? Image.network(
+              user!.image!,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover, // Ensures the image fills the container
+            )
+                : Center(
+              child: Icon(
+                Icons.person,
+                size: 30,
+                color: Colors.white,
+              ),
             ),
           ),
         ),

@@ -726,5 +726,4 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       ),
     );
   }
-
 }

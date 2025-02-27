@@ -25,16 +25,23 @@ class _LoginScreenState extends State<LoginScreen> {
       // Simpan token ke SharedPreferences
       Login credential = response['value'];
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      print(credential.id);
-      await prefs.setInt('userId', credential.id);
-      await prefs.setString('name', credential.name);
-      await prefs.setString('role', credential.role);
-      await prefs.setString('token', credential.token);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Mainscreen()),
-      );
+      if(credential.role == 'STUDENT') {
+        await prefs.setInt('userId', credential.id);
+        await prefs.setString('name', credential.name);
+        await prefs.setString('role', credential.role);
+        await prefs.setString('token', credential.token);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Mainscreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Mohon Login sebagai mahasiswa")),
+        );
+      }
+
     } else {
       // Tampilkan pesan error
       ScaffoldMessenger.of(context).showSnackBar(

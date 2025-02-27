@@ -1,17 +1,116 @@
+import 'package:app/model/user.dart';
+import 'package:app/view/main_screen.dart';
 import 'package:app/view/profile_screen.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
+import '../service/user_service.dart';
 import 'login_screen.dart';
 
 class UpdateProfile extends StatefulWidget {
-  const UpdateProfile({super.key});
+  final Student user;
+  const UpdateProfile({super.key, required this.user});
 
   @override
   State<UpdateProfile> createState() => _UpdateProfileState();
 }
 
 class _UpdateProfileState extends State<UpdateProfile> {
+  Student? user;
+  late SharedPreferences prefs;
+  PlatformFile? photo;
+  TextEditingController nameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool hasChanges = false;
+
+  @override
+  void initState() {
+    _loadPreferences();
+    user = widget.user;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void _loadPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  Future<void> uploadPhotoProfile(XFile file, String filename) async {
+    final path = 'profile/$filename';
+
+    Uint8List bytes = await file.readAsBytes();
+
+    try {
+      await Supabase.instance.client.storage.from('images').uploadBinary(path, bytes);
+      final publicUrl = getPublicUrl(path);
+      if (kDebugMode) {
+        print(publicUrl);
+      }
+      setState(() {
+        user?.image = publicUrl;
+      });
+      hasChanges = true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Upload error: $e');
+      }
+    }
+  }
+
+  String getPublicUrl(String filePath) {
+    return Supabase.instance.client.storage
+        .from('images')
+        .getPublicUrl(filePath);
+  }
+
+  Future<void> updateUser() async {
+    if (user == null) return; // Prevent null access
+
+    final result = await UserService.updateUser(user!);
+    setState(() {
+      user = result;
+    });
+
+    // Only update SharedPreferences if user data is not null
+    if (user != null) {
+      await prefs.setInt('userId', user!.id);
+      await prefs.setString('name', user!.name);
+      await prefs.setString('role', user!.role);
+    }
+    }
+
+  Future<XFile?> compressImage(PlatformFile file) async {
+    final tempDir = await getTemporaryDirectory();
+    final targetPath = path.join(tempDir.path, "compressed_${file.name}");
+
+    final compressedFile = await FlutterImageCompress.compressAndGetFile(
+      file.path!,
+      targetPath,
+      quality: 80,
+      format: CompressFormat.jpeg,
+    );
+
+    if (compressedFile != null) {
+      return XFile(compressedFile.path);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,22 +137,44 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     width: 120,
                     height: 120,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100), child: const Image(image: AssetImage("Profile Image")),
+                      borderRadius: BorderRadius.circular(100),
+                      child: user?.image != null || user?.image != '' ?
+                      Image.network(user!.image!) : Icon(Icons.person, size: 100, color: Colors.white,)
                     ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.deepPurple),
-                      child: const Icon(
-                        LineAwesomeIcons.camera_solid,
-                        color: Colors.black,
-                        size: 20,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['jpg', 'jpeg', 'png'],
+                        );
+
+                        if (result == null) return;
+
+                        final photo = result.files.first;
+                        final filename = '${photo.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo.extension}';
+                        final compressedXFile = await compressImage(photo);
+
+                        if (compressedXFile != null) {
+                          uploadPhotoProfile(compressedXFile, filename).then((_) {
+                            updateUser();
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.deepPurple),
+                        child: const Icon(
+                          LineAwesomeIcons.camera_solid,
+                          color: Colors.black,
+                          size: 20,
+                        ),
                       ),
-                    ),
+                    )
                   ),
                 ],
               ),
@@ -61,6 +182,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
               Form(child: Column(
                 children: [
                   TextFormField(
+                    controller: nameController,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
                         prefixIconColor: Colors.green,
@@ -69,11 +191,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           borderSide: BorderSide(width: 2 ,color: Colors.green),
                         ),
                         label: Text("Name"),
+                        hintText: user?.name != null && user?.name != '' ? user!.name : "Name",
                         prefixIcon: Icon(LineAwesomeIcons.person_booth_solid)
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
+                    controller: usernameController,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(100)),
@@ -84,11 +208,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           borderSide: BorderSide(width: 2, color: Colors.green),
                         ),
                         label: Text("Username"),
+                        hintText: user?.username != null && user?.username != '' ? user!.name : "Username",
                         prefixIcon: Icon(LineAwesomeIcons.user)
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
+                    controller: passwordController,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(100)),
@@ -106,19 +232,36 @@ class _UpdateProfileState extends State<UpdateProfile> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ProfileScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            side: BorderSide.none,
-                            shape: const StadiumBorder()
-                        ),
-                        child: Text("Save", style: TextStyle(color: Colors.black),)),
+                      onPressed: () async {
+                        String newName = nameController.text.trim();
+                        String newUsername = usernameController.text.trim();
+                        String newPassword = passwordController.text.trim();
+
+                        if (newName.isNotEmpty && newName != user?.name) {
+                          user?.name = newName;
+                          hasChanges = true;
+                        }
+                        if (newUsername.isNotEmpty && newUsername != user?.username) {
+                          user?.username = newUsername;
+                          hasChanges = true;
+                        }
+                        if (newPassword.isNotEmpty && newPassword != user?.password) {
+                          user?.password = newPassword;
+                          hasChanges = true;
+                        }
+
+                        if (hasChanges) {
+                          await updateUser();
+                          showSuccessDialog(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        side: BorderSide.none,
+                        shape: const StadiumBorder(),
+                      ),
+                      child: Text("Save", style: TextStyle(color: Colors.black)),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -134,7 +277,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           )
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async{
+                          await prefs.clear();
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -148,7 +292,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             shape: const StadiumBorder(),
                             side: BorderSide.none
                         ),
-                        child: const Text("Delete"),
+                        child: const Text("Logout"),
                       )
                     ],
                   )
@@ -158,6 +302,31 @@ class _UpdateProfileState extends State<UpdateProfile> {
           ),
         ),
       ),
+    );
+  }
+
+  void showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Successful Update"),
+          content: Text("Akunmu sudah diperbaharui"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Mainscreen(navIndex: 4)),
+                );
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
