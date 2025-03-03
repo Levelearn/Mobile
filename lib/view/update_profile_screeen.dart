@@ -1,3 +1,4 @@
+import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:file_picker/file_picker.dart';
@@ -30,6 +31,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool hasChanges = false;
+  FilePickerResult? result;
 
   @override
   void initState() {
@@ -272,22 +274,33 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () async {
+                            if (result == null) return;
+
+                              final photo = result?.files.first;
+                              final filename = '${photo?.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo?.extension}';
+                              final compressedXFile = await compressImage(photo!);
+
+                              if (compressedXFile != null) {
+                                uploadPhotoProfile(compressedXFile, filename).then((_) {
+                                  updateUser();
+                                });
+                              }
                             String newName = nameController.text.trim();
                             String newUsername = usernameController.text.trim();
                             String newPassword = passwordController.text.trim();
 
-                            if (newName.isNotEmpty && newName != user?.name) {
-                              user?.name = newName;
-                              hasChanges = true;
-                            }
-                            if (newUsername.isNotEmpty && newUsername != user?.username) {
-                              user?.username = newUsername;
-                              hasChanges = true;
-                            }
-                            if (newPassword.isNotEmpty && newPassword != user?.password) {
-                              user?.password = newPassword;
-                              hasChanges = true;
-                            }
+                                  if (newName.isNotEmpty && newName != user?.name) {
+                                    user?.name = newName;
+                                    hasChanges = true;
+                                  }
+                                  if (newUsername.isNotEmpty && newUsername != user?.username) {
+                                    user?.username = newUsername;
+                                    hasChanges = true;
+                                  }
+                                  if (newPassword.isNotEmpty && newPassword != user?.password) {
+                                    user?.password = newPassword;
+                                    hasChanges = true;
+                                  }
 
                             if (hasChanges) {
                               await updateUser();

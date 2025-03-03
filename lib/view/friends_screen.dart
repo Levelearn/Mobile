@@ -42,29 +42,44 @@ class _FriendsScreen extends State<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 450,
-        backgroundColor: purple,
-        automaticallyImplyLeading: false,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(15),
-            bottomRight: Radius.circular(15),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white, // Change this to your desired background color
+            image: DecorationImage(
+              image: AssetImage("lib/assets/learnbg.png"), // Background image
+              fit: BoxFit.cover,
+              opacity: 0.7
+            ),
           ),
         ),
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Papan Peringkat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 30),),
-              _buildLeaderBoard(user),
-            ],
+         Scaffold(
+           backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            toolbarHeight: 450,
+            backgroundColor: purple,
+            automaticallyImplyLeading: false,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+              ),
+            ),
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Papan Peringkat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 30),),
+                  _buildLeaderBoard(user),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-      body: _listFriends(), 
+          body: _listFriends(),
+        )
+      ],
     );
   }
 

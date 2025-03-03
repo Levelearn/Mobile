@@ -40,4 +40,5 @@ class Chapter {
   void setProgress(ChapterStatus status) {
     this.status = status;
   }
+
 }

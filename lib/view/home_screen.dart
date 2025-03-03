@@ -114,50 +114,72 @@ class _HomeState extends State<Homescreen> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading ? Scaffold(
-      body: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 10), // Space between progress bar and text
-              Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    return Stack(
+      children: [
+        // Background Image
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Container(
+            width: 200, // Adjust width as needed
+            height: 200, // Adjust height as needed
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("lib/assets/vectors/learn.png"),
               ),
-            ],
-          ),
-        )
-      )
-    ) : Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-              'lib/assets/pictures/background-pattern.png'), // Ganti dengan path gambar Anda
-            fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
+            ),
           ),
         ),
-        child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                SizedBox(height: 30,),
-                _buildProfile(),
-                _buildStats(),
-                _buildMyProgress(),
-                _buildMore(),
-                _buildTodayLeaderboard(),
-              ],
+        isLoading
+          ? Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text(
+                    "Mohon Tunggu",
+                    style:
+                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          )
+          : Scaffold(
+            body: SingleChildScrollView(
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                      'lib/assets/pictures/background-pattern.png'
+                    ), // Ganti dengan path gambar Anda
+                    fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 30,),
+                      _buildProfile(),
+                      _buildStats(),
+                      _buildMyProgress(),
+                      _buildMore(),
+                      _buildTodayLeaderboard(),
+                    ],
+                  )
+                )
+              ),
             )
           )
-        ),
-      ),
+      ],
     );
   }
+
 
   Widget _buildTodayLeaderboard(){
     return SizedBox(
@@ -192,13 +214,13 @@ class _HomeState extends State<Homescreen> {
                       ),
                       child: ListTile(
                         leading: Image.asset(
-                            switch (index) {
-                              0 => 'lib/assets/1st.png',
-                              1 => 'lib/assets/2nd.png',
-                              2 => 'lib/assets/3rd.png',
-                              _ => ''
-                            }
-                        , height: 50, width: 50,),
+                          switch (index) {
+                            0 => 'lib/assets/1st.png',
+                            1 => 'lib/assets/2nd.png',
+                            2 => 'lib/assets/3rd.png',
+                            _ => ''
+                          }
+                          , height: 50, width: 50,),
                         title: Text(
                           list[index].username,
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black),
@@ -255,11 +277,11 @@ class _HomeState extends State<Homescreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Progress Saya',
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: AppColors.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'DIN_Next_Rounded'
-                    )),
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    color: AppColors.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'DIN_Next_Rounded'
+                  )),
                 Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: Row(
@@ -389,7 +411,8 @@ class _HomeState extends State<Homescreen> {
             decoration: BoxDecoration(
               image: DecorationImage(
                   image: AssetImage('lib/assets/pictures/dashboard.png'),
-                  fit: BoxFit.cover),
+                  fit: BoxFit.cover,
+              ),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(

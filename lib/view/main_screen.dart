@@ -33,14 +33,15 @@ class _MainState extends State<Mainscreen> {
 
   @override
   void initState() {
-    navIndex = widget.navIndex;
     super.initState();
-    getCourseDetail();
+    navIndex = widget.navIndex;
+    _initPreferences();
   }
 
-  void _getSharedPreference() async {
-  pref = await SharedPreferences.getInstance();
-}
+  void _initPreferences() async {
+    pref = await SharedPreferences.getInstance();
+    getCourseDetail(); // Now pref is initialized before calling this
+  }
 
   Widget _buildPage(int index) {
     switch (index) {

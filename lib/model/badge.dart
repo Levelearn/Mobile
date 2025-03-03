@@ -1,5 +1,3 @@
-
-
 class BadgeModel {
   final String image;
   final String name;
