@@ -2,6 +2,8 @@
 
 This is a description
 
+![Levelearn](lib/assets/pictures/icon.png)
+
 ## Features
 
 * Feature 1: Testing.
