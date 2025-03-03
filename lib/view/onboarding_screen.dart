@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
@@ -116,7 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingPage extends StatelessWidget {
   final OnboardingModel model;
 
-  OnboardingPage({required this.model});
+  const OnboardingPage({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,5 @@
 import 'package:app/model/user.dart';
 import 'package:app/view/main_screen.dart';
-import 'package:app/view/profile_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

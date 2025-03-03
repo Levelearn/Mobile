@@ -270,10 +270,10 @@ class _HomeState extends State<Homescreen> {
                         child: Stack(
                           children: <Widget>[
                             Center(
-                              child: Container(
+                              child: SizedBox(
                                 width: 70,
                                 height: 70,
-                                child: new CircularProgressIndicator(
+                                child: CircularProgressIndicator(
                                   strokeWidth: 10,
                                   value: lastestCourse!.progress! / 100,
                                   strokeCap: StrokeCap.round,
@@ -409,7 +409,7 @@ class _HomeState extends State<Homescreen> {
                           LineAwesomeIcons.user_check_solid, 'Course', '${user?.totalCourses}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
-                          LineAwesomeIcons.trophy_solid, 'Peringkat', '${rank} / ${list.length}', AppColors.accentColor),
+                          LineAwesomeIcons.trophy_solid, 'Peringkat', '$rank / ${list.length}', AppColors.accentColor),
                     ],
                   ),
                   SizedBox(height: 24),

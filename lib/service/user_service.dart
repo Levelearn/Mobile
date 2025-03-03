@@ -37,8 +37,8 @@ class UserService {
   static Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       Map<String, dynamic> request = {
-        'username':'$username',
-        'password':'$password'
+        'username':username,
+        'password':password
       };
       final response = await http.post(Uri.parse('${GlobalVar.baseUrl}/login'), headers: {
         'Content-type' : 'application/json; charset=utf-8',

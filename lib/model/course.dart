@@ -34,7 +34,7 @@ class Course {
   }
 
   int? getProgress() {
-    return this.progress;
+    return progress;
   }
 
   void setProgress(int progress) {

@@ -1,7 +1,5 @@
-import 'package:app/view/chapter_screen.dart';
 import 'package:app/view/course_detail_screen.dart';
 import 'package:app/view/profile_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';

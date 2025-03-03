@@ -8,42 +8,42 @@ class MyCourse {
   MyCourse (this._imageUrl, this._surnameCourse, this._courseName, this._description, this._progress);
 
   String getImageUrl(){
-    return this._imageUrl;
+    return _imageUrl;
   }
 
   String getSurnameCourse() {
-    return this._surnameCourse;
+    return _surnameCourse;
   }
 
   String getCourseName() {
-    return this._courseName;
+    return _courseName;
   }
 
   String getDescription() {
-    return this._description;
+    return _description;
   }
 
   int getProgress() {
-    return this._progress;
+    return _progress;
   }
 
   void setImageUrl(String url) {
-    this._imageUrl = url;
+    _imageUrl = url;
   }
 
   void setSurnameCourse(String surnameCourse) {
-    this._surnameCourse = surnameCourse.toUpperCase();
+    _surnameCourse = surnameCourse.toUpperCase();
   }
 
   void setCourseName(String course){
-    this._courseName = course;
+    _courseName = course;
   }
 
   void setDescription(String desc) {
-    this._description = desc;
+    _description = desc;
   }
 
   void setProgress(int progress) {
-    this._progress = progress;
+    _progress = progress;
   }
 }
