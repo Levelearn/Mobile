@@ -1,5 +1,6 @@
 import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
+import 'package:app/view/course_detail_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -9,6 +10,7 @@ import '../model/course.dart';
 import '../service/course_service.dart';
 import '../service/user_service.dart';
 import '../utils/colors.dart';
+import 'main_screen.dart';
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);
@@ -79,7 +81,6 @@ class _HomeState extends State<Homescreen> {
 
   void getAllUser() async {
     final result = await UserService.getAllUser();
-    print(result);
     setState(() {
       list = sortUserbyPoint(studentRole(result));
     });
@@ -91,7 +92,6 @@ class _HomeState extends State<Homescreen> {
         setState(() {
           rank = i + 1;
         });
-        print(rank);
         break;
       }
     }
@@ -259,88 +259,97 @@ class _HomeState extends State<Homescreen> {
       child: Center(
         child: Text('Kamu belum ada akses Course'),
       ),
-    ) : Stack(
-      children: [
-        Positioned(
-            top: 30,
-            right: 30,
-            width: 60,
-            height: 60,
-            child: Image.asset('lib/assets/check.png')
-        ),
-        SizedBox(
-          width: double.infinity,
-          height: 220,
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Progress Saya',
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                    color: AppColors.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'DIN_Next_Rounded'
-                  )),
-                Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: Stack(
-                          children: <Widget>[
-                            Center(
-                              child: SizedBox(
-                                width: 70,
-                                height: 70,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 10,
-                                  value: lastestCourse!.progress! / 100,
-                                  strokeCap: StrokeCap.round,
+    ) : GestureDetector(
+      onTap: (){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => Mainscreen(navIndex: 2)),
+        );
+      },
+      child: Stack(
+        children: [
+          Positioned(
+              top: 30,
+              right: 30,
+              width: 60,
+              height: 60,
+              child: Image.asset('lib/assets/check.png')
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 220,
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Progress Saya',
+                      style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'DIN_Next_Rounded'
+                      )),
+                  Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: Stack(
+                            children: <Widget>[
+                              Center(
+                                child: SizedBox(
+                                  width: 70,
+                                  height: 70,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 10,
+                                    value: lastestCourse!.progress! / 100,
+                                    strokeCap: StrokeCap.round,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
-                          ],
+                              Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
+                            ],
+                          ),
                         ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 15),
-                        width: 180,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(lastestCourse!.courseName,
-                                style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                color: AppColors.primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'DIN_Next_Rounded'
-                            )),
-                            Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                color: AppColors.primaryColor,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'DIN_Next_Rounded'
-                            )),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+                        Container(
+                          margin: EdgeInsets.only(left: 15),
+                          width: 180,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(lastestCourse!.courseName,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                      color: AppColors.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'DIN_Next_Rounded'
+                                  )),
+                              Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'DIN_Next_Rounded'
+                              )),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 
@@ -467,7 +476,7 @@ class _HomeState extends State<Homescreen> {
                                   'DIN_Next_Rounded', // Ganti dengan font yang diinginkan
                                 ),
                               ),
-                              Text('1200',
+                              Text("${user?.points}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleLarge!
@@ -572,91 +581,100 @@ class _HomeState extends State<Homescreen> {
   Widget _courseCard(
       Course course
       ) {
-    return Container(
-      width: MediaQuery.of(context).size.width *
-          0.8, // Lebar card mengikuti lebar layar
-      height: 200,
-      margin: EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Gambar course
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'lib/assets/pictures/imk-picture.jpg',
-                fit: BoxFit.cover,
-              ),
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CourseDetailScreen(id: course.id)),
+        );
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width *
+            0.8, // Lebar card mengikuti lebar layar
+        height: 200,
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
             ),
-          ),
-          // Box informasi di bawah gambar
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor, // Background dengan warna primary
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(12),
-                  bottomRight: Radius.circular(12),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    course.courseName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Deskripsi dari mata kuliah ini',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Label di kanan atas
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Gambar course
+            Positioned.fill(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                course.codeCourse,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                child: Image.asset(
+                  'lib/assets/pictures/imk-picture.jpg',
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-          ),
-        ],
+            // Box informasi di bawah gambar
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor, // Background dengan warna primary
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.courseName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Deskripsi dari mata kuliah ini',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Label di kanan atas
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  course.codeCourse,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

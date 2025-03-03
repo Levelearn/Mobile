@@ -20,6 +20,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../model/assessment.dart';
 import '../model/user.dart';
 import '../service/user_course_service.dart';
+import 'congratulation_screen.dart';
 import 'custom_tab_indicator.dart';
 
 class Chapterscreen extends StatefulWidget {
@@ -210,26 +211,46 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Progress Completed!", style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-          content: Text(message, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+          title: Text(
+            "Progress Completed!",
+            style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+          ),
           actions: [
             TextButton(
               onPressed: () {
-
                 if (isAssignment) {
                   Future.delayed(Duration(milliseconds: 100), () {
                     if (context.mounted) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Mainscreen(navIndex: 2),
+                          builder: (context) => CongratulationsScreen(
+                            message: "You have successfully completed this assignment!",
+                            onContinue: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Mainscreen(navIndex: 2),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ); // Pop the parent page
+                      );
                     }
                   });
+                } else {
+                  Navigator.pop(context); // Hanya menutup dialog jika bukan assignment
                 }
               },
-              child: Text("OK", style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+              child: Text(
+                "OK",
+                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+              ),
             ),
           ],
         );
@@ -776,7 +797,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                       await uploadFile(file!);
                       Duration difference = status.timeStarted.difference(status.timeFinished);
                       user?.points = calculatePoint(difference.inMinutes);
-                      // print(user?.points);
+                      uc.currentChapter++ ;
                       uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
                       updateUserCourse();
 

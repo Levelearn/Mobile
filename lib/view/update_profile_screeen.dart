@@ -154,8 +154,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         height: 120,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: user?.image != null || user?.image != '' ?
-                          Image.network(user!.image!) : Icon(Icons.person, size: 100, color: Colors.white,)
+                          child: user?.image != "" && user?.image != null ? Image.network(user!.image!)
+                              : Icon(Icons.person, size: 100, color: Colors.grey,),
                         ),
                       ),
                       Positioned(

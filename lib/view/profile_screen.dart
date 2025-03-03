@@ -4,8 +4,6 @@ import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
 import '../model/badge.dart';
 import '../model/user.dart';
 import '../utils/colors.dart';
@@ -29,6 +27,7 @@ class _ProfileState extends State<ProfileScreen> {
   @override
   void initState() {
     getUserData();
+    getAllUser();
     super.initState();
   }
 
@@ -37,7 +36,6 @@ class _ProfileState extends State<ProfileScreen> {
     final idUser = prefs.getInt('userId');
     if (idUser != null) {
       Student fetchedUser = await UserService.getUserById(idUser);
-      print(user?.image);
       setState(() {
         user = fetchedUser;
         isLoading = false;
@@ -55,7 +53,6 @@ class _ProfileState extends State<ProfileScreen> {
         setState(() {
           rank = i+1;
         });
-        print(rank);
         break;
       }
     }
@@ -190,27 +187,6 @@ class _ProfileState extends State<ProfileScreen> {
           ) 
           : Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: GlobalVar.primaryColor,
-              leading: IconButton(
-                onPressed: (){
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Mainscreen()),
-                  );
-                },
-                icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)
-              ),
-              title: Text(
-                "Profile",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontFamily: 'DIN_Next_Rounded',
-                    color: Colors.white
-                )
-              ),
-              actions: [IconButton(onPressed: (){}, icon: Icon(isDark ? LineAwesomeIcons.sun : LineAwesomeIcons.moon))],
-            ),
             body: Stack(
               children: [
                 Container(
