@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.app-mergeDebugResources-41:/values-sw360dp-v13/values-sw360dp-v13.xml",
+            "outputFile": "com.example.app-mergeDebugResources-42:/values-sw360dp-v13/values-sw360dp-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\benha\\.gradle\\caches\\transforms-3\\047aa7ddff6241681155a5178fa0e58d\\transformed\\preference-1.2.1\\res\\values-sw360dp-v13\\values-sw360dp-v13.xml",
+                    "source": "C:\\Users\\User\\.gradle\\caches\\8.10\\transforms\\89120d04882e497dce91d2a420327379\\transformed\\preference-1.2.1\\res\\values-sw360dp-v13\\values-sw360dp-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

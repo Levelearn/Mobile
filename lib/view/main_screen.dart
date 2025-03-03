@@ -3,6 +3,7 @@ import 'package:app/view/course_detail_screen.dart';
 import 'package:app/view/profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'friends_screen.dart';
@@ -66,35 +67,44 @@ class _MainState extends State<Mainscreen> {
       body: _buildPage(navIndex),
       bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          backgroundColor: backgroundNavHex,
+          backgroundColor: Colors.white,
           onTap: (index){
             setState(() {
               navIndex = index;
             });
           },
           currentIndex: navIndex,
+          selectedLabelStyle: TextStyle(
+              fontFamily:
+              'DIN_Next_Rounded',
+              fontWeight: FontWeight.bold
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontFamily:
+            'DIN_Next_Rounded',
+          ),
           items: const [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home'
+              icon: Icon(LineAwesomeIcons.building),
+              label: 'Home',
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.search),
+                icon: Icon(LineAwesomeIcons.search_solid),
                 label: 'Search',
                 backgroundColor: Colors.black
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.book),
+                icon: Icon(LineAwesomeIcons.project_diagram_solid),
                 label: 'Course',
                 backgroundColor: Colors.black
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.people_alt_outlined),
+                icon: Icon(LineAwesomeIcons.user_friends_solid),
                 label: 'Friends',
                 backgroundColor: Colors.black
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.person),
+                icon: Icon(LineAwesomeIcons.person_booth_solid),
                 label: 'Profile',
                 backgroundColor: Colors.black
             )

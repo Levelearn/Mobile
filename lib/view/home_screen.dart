@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/course.dart';
 import '../service/course_service.dart';
 import '../service/user_service.dart';
+import '../utils/colors.dart';
 
 Color purple = Color(0xFF441F7F);
 Color backgroundNavHex = Color(0xFFF3EDF7);
@@ -132,8 +133,16 @@ class _HomeState extends State<Homescreen> {
       )
     ) : Scaffold(
       body: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              'lib/assets/pictures/background-pattern.png'), // Ganti dengan path gambar Anda
+            fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
+          ),
+        ),
         child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 SizedBox(height: 30,),
@@ -144,6 +153,7 @@ class _HomeState extends State<Homescreen> {
                 _buildTodayLeaderboard(),
               ],
             )
+          )
         ),
       ),
     );
@@ -240,11 +250,16 @@ class _HomeState extends State<Homescreen> {
           width: double.infinity,
           height: 220,
           child: Padding(
-            padding: EdgeInsets.all(30),
+            padding: EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Progress Saya', style: TextStyle(color: purple, fontSize: 25, fontWeight: FontWeight.w800)),
+                Text('Progress Saya',
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'DIN_Next_Rounded'
+                    )),
                 Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: Row(
@@ -274,9 +289,25 @@ class _HomeState extends State<Homescreen> {
                         width: 180,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(lastestCourse!.courseName, style: TextStyle(color: purple, fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: TextStyle(color: purple, fontSize: 12, fontWeight: FontWeight.w500)),
+                            Text(lastestCourse!.courseName,
+                                style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                color: AppColors.primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'DIN_Next_Rounded'
+                            )),
+                            Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                color: AppColors.primaryColor,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'DIN_Next_Rounded'
+                            )),
                           ],
                         ),
                       )
@@ -302,13 +333,13 @@ class _HomeState extends State<Homescreen> {
             Text(
                 title,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: GlobalVar.primaryColor,
+                    color: AppColors.primaryColor,
                     fontFamily: 'DIN_Next_Rounded'
                 )),
             Text(
                 name,
                 style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                    color: GlobalVar.primaryColor,
+                    color: AppColors.primaryColor,
                     // fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'DIN_Next_Rounded'
@@ -372,13 +403,13 @@ class _HomeState extends State<Homescreen> {
                     MainAxisAlignment.start, // Rata kiri untuk row
                     children: [
                       _buildInfoColumn(
-                          LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges}', GlobalVar.accentColor),
+                          LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
-                          LineAwesomeIcons.user_check_solid, 'Course', '${user?.totalCourses}', GlobalVar.accentColor),
+                          LineAwesomeIcons.user_check_solid, 'Course', '${user?.totalCourses}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
-                          LineAwesomeIcons.trophy_solid, 'Peringkat', '${rank} / ${list.length}', GlobalVar.accentColor),
+                          LineAwesomeIcons.trophy_solid, 'Peringkat', '${rank} / ${list.length}', AppColors.accentColor),
                     ],
                   ),
                   SizedBox(height: 24),
@@ -394,7 +425,7 @@ class _HomeState extends State<Homescreen> {
                           Icon(
                             LineAwesomeIcons
                                 .gem_solid, // Icon yang ingin ditampilkan
-                            color: GlobalVar.accentColor, // Warna icon
+                            color: AppColors.accentColor, // Warna icon
                             size: 24, // Ukuran icon
                           ),
                           SizedBox(width: 8),
@@ -490,7 +521,7 @@ class _HomeState extends State<Homescreen> {
                 .headlineMedium!
                 .copyWith(
               fontWeight: FontWeight.bold,
-              color: GlobalVar.primaryColor,
+              color: AppColors.primaryColor,
               fontFamily: 'DIN_Next_Rounded',
             ),
           ),
@@ -554,7 +585,7 @@ class _HomeState extends State<Homescreen> {
             child: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: GlobalVar.primaryColor, // Background dengan warna primary
+                color: AppColors.primaryColor, // Background dengan warna primary
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(12),
                   bottomRight: Radius.circular(12),
@@ -590,7 +621,7 @@ class _HomeState extends State<Homescreen> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: GlobalVar.secondaryColor,
+                color: AppColors.secondaryColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(

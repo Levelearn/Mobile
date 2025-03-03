@@ -1,48 +1,55 @@
-com.example.app-preference-1.2.1-0 C:\Users\benha\.gradle\caches\transforms-3\047aa7ddff6241681155a5178fa0e58d\transformed\preference-1.2.1\res
-com.example.app-jetified-lifecycle-livedata-core-ktx-2.7.0-1 C:\Users\benha\.gradle\caches\transforms-3\051f9dac57ad8cee60cc5a95eb8d9d7f\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
-com.example.app-jetified-datastore-preferences-release-2 C:\Users\benha\.gradle\caches\transforms-3\0cf0dfa47f40d2ebd3407bd47f3dd25e\transformed\jetified-datastore-preferences-release\res
-com.example.app-jetified-activity-ktx-1.8.1-3 C:\Users\benha\.gradle\caches\transforms-3\0efada588904821f11adf7ec39ee67b0\transformed\jetified-activity-ktx-1.8.1\res
-com.example.app-lifecycle-runtime-2.7.0-4 C:\Users\benha\.gradle\caches\transforms-3\12d0e8d71b0600cec5ba2edcf29e905c\transformed\lifecycle-runtime-2.7.0\res
-com.example.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-5 C:\Users\benha\.gradle\caches\transforms-3\2b2bf4b21be1acb6d8aafc6e5e4bedac\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
-com.example.app-coordinatorlayout-1.0.0-6 C:\Users\benha\.gradle\caches\transforms-3\334f77f688c510e4c631ba2daaab7ec9\transformed\coordinatorlayout-1.0.0\res
-com.example.app-core-runtime-2.2.0-7 C:\Users\benha\.gradle\caches\transforms-3\3cccf64d8e44a1ff0116ea6b8bd8d8e9\transformed\core-runtime-2.2.0\res
-com.example.app-jetified-profileinstaller-1.3.1-8 C:\Users\benha\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\res
-com.example.app-jetified-lifecycle-process-2.7.0-9 C:\Users\benha\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\res
-com.example.app-jetified-savedstate-1.2.1-10 C:\Users\benha\.gradle\caches\transforms-3\40a45e686cd0e99ac2a33b1453f47939\transformed\jetified-savedstate-1.2.1\res
-com.example.app-jetified-lifecycle-viewmodel-ktx-2.7.0-11 C:\Users\benha\.gradle\caches\transforms-3\4b65a3e10bc06490e1a05d1d300300eb\transformed\jetified-lifecycle-viewmodel-ktx-2.7.0\res
-com.example.app-jetified-core-1.0.0-12 C:\Users\benha\.gradle\caches\transforms-3\61fbac9cdc1a22c54aa04ec76334a907\transformed\jetified-core-1.0.0\res
-com.example.app-jetified-emoji2-views-helper-1.2.0-13 C:\Users\benha\.gradle\caches\transforms-3\62c83fdf4359cdd7e362bc5ed96214f1\transformed\jetified-emoji2-views-helper-1.2.0\res
-com.example.app-lifecycle-livedata-core-2.7.0-14 C:\Users\benha\.gradle\caches\transforms-3\6964f45bcdaad7c523c03595346078c4\transformed\lifecycle-livedata-core-2.7.0\res
-com.example.app-lifecycle-viewmodel-2.7.0-15 C:\Users\benha\.gradle\caches\transforms-3\7b5a837770709484bd30395a2788a4e5\transformed\lifecycle-viewmodel-2.7.0\res
-com.example.app-lifecycle-livedata-2.7.0-16 C:\Users\benha\.gradle\caches\transforms-3\82d8b2a7d9fca5e641d160069565b477\transformed\lifecycle-livedata-2.7.0\res
-com.example.app-jetified-lifecycle-runtime-ktx-2.7.0-17 C:\Users\benha\.gradle\caches\transforms-3\85a2d865d0e12a22249976e5601901a3\transformed\jetified-lifecycle-runtime-ktx-2.7.0\res
-com.example.app-jetified-window-1.2.0-18 C:\Users\benha\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\res
-com.example.app-core-1.13.1-19 C:\Users\benha\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\res
-com.example.app-jetified-window-java-1.2.0-20 C:\Users\benha\.gradle\caches\transforms-3\8a650b2c5ea333036303d473a939db42\transformed\jetified-window-java-1.2.0\res
-com.example.app-jetified-fragment-ktx-1.7.1-21 C:\Users\benha\.gradle\caches\transforms-3\8ab227ca6d562dab86394f7a2b42fe97\transformed\jetified-fragment-ktx-1.7.1\res
-com.example.app-jetified-core-ktx-1.13.1-22 C:\Users\benha\.gradle\caches\transforms-3\8b9f2b08a8ef59d66d7e2f702c5ee30e\transformed\jetified-core-ktx-1.13.1\res
-com.example.app-transition-1.4.1-23 C:\Users\benha\.gradle\caches\transforms-3\8e926d88adc6ec4405f4b01d4e9b1bad\transformed\transition-1.4.1\res
-com.example.app-recyclerview-1.0.0-24 C:\Users\benha\.gradle\caches\transforms-3\9005ab99f1717e9b0608d9f5ab54ff23\transformed\recyclerview-1.0.0\res
-com.example.app-jetified-activity-1.8.1-25 C:\Users\benha\.gradle\caches\transforms-3\90da4fa7ab29bed17775e89b3905b1f1\transformed\jetified-activity-1.8.1\res
-com.example.app-jetified-datastore-core-release-26 C:\Users\benha\.gradle\caches\transforms-3\9441e8b274faebbfe21cf8c8f463be95\transformed\jetified-datastore-core-release\res
-com.example.app-jetified-appcompat-resources-1.6.1-27 C:\Users\benha\.gradle\caches\transforms-3\9b797759c9b54ab0b27bb9b4753d9cda\transformed\jetified-appcompat-resources-1.6.1\res
-com.example.app-jetified-startup-runtime-1.1.1-28 C:\Users\benha\.gradle\caches\transforms-3\a1fd92b89d0c194f8fe8fdca4d20e2ee\transformed\jetified-startup-runtime-1.1.1\res
-com.example.app-slidingpanelayout-1.2.0-29 C:\Users\benha\.gradle\caches\transforms-3\a499fa3c34a38edcfdea6b351554e382\transformed\slidingpanelayout-1.2.0\res
-com.example.app-jetified-emoji2-1.2.0-30 C:\Users\benha\.gradle\caches\transforms-3\b54c8b34dc2cec64a7baaa02a8a7a5a3\transformed\jetified-emoji2-1.2.0\res
-com.example.app-jetified-annotation-experimental-1.4.0-31 C:\Users\benha\.gradle\caches\transforms-3\c4537ab9015740d05f09a422063523a5\transformed\jetified-annotation-experimental-1.4.0\res
-com.example.app-fragment-1.7.1-32 C:\Users\benha\.gradle\caches\transforms-3\ca4d40f38b71d4c621d36eba6fe2f4a4\transformed\fragment-1.7.1\res
-com.example.app-jetified-datastore-release-33 C:\Users\benha\.gradle\caches\transforms-3\e3611af684c8af9ba655b32249084f4e\transformed\jetified-datastore-release\res
-com.example.app-jetified-tracing-1.2.0-34 C:\Users\benha\.gradle\caches\transforms-3\e896b9ac412a8814559a776dc7b5a420\transformed\jetified-tracing-1.2.0\res
-com.example.app-jetified-savedstate-ktx-1.2.1-35 C:\Users\benha\.gradle\caches\transforms-3\eb30b97cf0c123a3aa78bfba9082ceea\transformed\jetified-savedstate-ktx-1.2.1\res
-com.example.app-appcompat-1.6.1-36 C:\Users\benha\.gradle\caches\transforms-3\f3e01c95a04b87be1a2f2ed87103c6d5\transformed\appcompat-1.6.1\res
-com.example.app-debug-37 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\android\app\src\debug\res
-com.example.app-main-38 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\android\app\src\main\res
-com.example.app-pngs-39 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\app\generated\res\pngs\debug
-com.example.app-resValues-40 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\app\generated\res\resValues\debug
-com.example.app-packageDebugResources-41 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\app\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.example.app-packageDebugResources-42 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\app\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.example.app-merged_res-43 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\app\intermediates\merged_res\debug
-com.example.app-packaged_res-44 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\file_picker\intermediates\packaged_res\debug
-com.example.app-packaged_res-45 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\flutter_plugin_android_lifecycle\intermediates\packaged_res\debug
-com.example.app-packaged_res-46 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\open_file_android\intermediates\packaged_res\debug
-com.example.app-packaged_res-47 C:\Users\benha\Documents\TA\Aplikasi\Flutter\app new 2\Mobile\build\shared_preferences_android\intermediates\packaged_res\debug
+com.example.app-jetified-datastore-release-0 C:\Users\User\.gradle\caches\8.10\transforms\07e7ea4f50d70b86bc75cdaa79fdd537\transformed\jetified-datastore-release\res
+com.example.app-recyclerview-1.0.0-1 C:\Users\User\.gradle\caches\8.10\transforms\081617344de976b9d6748b4a7254a7a7\transformed\recyclerview-1.0.0\res
+com.example.app-transition-1.4.1-2 C:\Users\User\.gradle\caches\8.10\transforms\10d052a0aaefaa3b0a1c6ebb5495e418\transformed\transition-1.4.1\res
+com.example.app-jetified-datastore-core-release-3 C:\Users\User\.gradle\caches\8.10\transforms\1c702251abc2d0d3d7c6a3dc3029409a\transformed\jetified-datastore-core-release\res
+com.example.app-browser-1.8.0-4 C:\Users\User\.gradle\caches\8.10\transforms\39a1dfe7c90221863b353cfdf5eaece8\transformed\browser-1.8.0\res
+com.example.app-core-1.13.1-5 C:\Users\User\.gradle\caches\8.10\transforms\3ac622b549f8133ebf0a32b46b02c78d\transformed\core-1.13.1\res
+com.example.app-jetified-emoji2-1.2.0-6 C:\Users\User\.gradle\caches\8.10\transforms\3b21c3ca571307df53285b5c5619eccf\transformed\jetified-emoji2-1.2.0\res
+com.example.app-coordinatorlayout-1.0.0-7 C:\Users\User\.gradle\caches\8.10\transforms\4101e7658437c3c543e823326fdff25a\transformed\coordinatorlayout-1.0.0\res
+com.example.app-jetified-emoji2-views-helper-1.2.0-8 C:\Users\User\.gradle\caches\8.10\transforms\4acc3c7cbbbe536a8eb4ca83d5be88a5\transformed\jetified-emoji2-views-helper-1.2.0\res
+com.example.app-jetified-core-1.0.0-9 C:\Users\User\.gradle\caches\8.10\transforms\4ef1a8733266fb62f3ca34d751c578df\transformed\jetified-core-1.0.0\res
+com.example.app-jetified-window-1.2.0-10 C:\Users\User\.gradle\caches\8.10\transforms\5185f64acc76a0ca86386cb64ccf0ad4\transformed\jetified-window-1.2.0\res
+com.example.app-jetified-fragment-ktx-1.7.1-11 C:\Users\User\.gradle\caches\8.10\transforms\587ad99ce91a4447b12819c57d0ac953\transformed\jetified-fragment-ktx-1.7.1\res
+com.example.app-lifecycle-viewmodel-2.7.0-12 C:\Users\User\.gradle\caches\8.10\transforms\6d191dff4e3f2e471bdd9a058206a686\transformed\lifecycle-viewmodel-2.7.0\res
+com.example.app-slidingpanelayout-1.2.0-13 C:\Users\User\.gradle\caches\8.10\transforms\7151aa22d04a5f3b2109846f1e33e657\transformed\slidingpanelayout-1.2.0\res
+com.example.app-preference-1.2.1-14 C:\Users\User\.gradle\caches\8.10\transforms\89120d04882e497dce91d2a420327379\transformed\preference-1.2.1\res
+com.example.app-jetified-lifecycle-process-2.7.0-15 C:\Users\User\.gradle\caches\8.10\transforms\8b854621acec257842d034aa4b905875\transformed\jetified-lifecycle-process-2.7.0\res
+com.example.app-fragment-1.7.1-16 C:\Users\User\.gradle\caches\8.10\transforms\8d46fb419c395318100d3b6451058ab8\transformed\fragment-1.7.1\res
+com.example.app-jetified-appcompat-resources-1.6.1-17 C:\Users\User\.gradle\caches\8.10\transforms\8e994b83f13ac379818f39514f06fa28\transformed\jetified-appcompat-resources-1.6.1\res
+com.example.app-jetified-lifecycle-viewmodel-ktx-2.7.0-18 C:\Users\User\.gradle\caches\8.10\transforms\8f4d78ad6065db65fa44527ca2a8b8fd\transformed\jetified-lifecycle-viewmodel-ktx-2.7.0\res
+com.example.app-jetified-lifecycle-runtime-ktx-2.7.0-19 C:\Users\User\.gradle\caches\8.10\transforms\a11a50b218d1dcdfd58449256f60b06b\transformed\jetified-lifecycle-runtime-ktx-2.7.0\res
+com.example.app-jetified-tracing-1.2.0-20 C:\Users\User\.gradle\caches\8.10\transforms\a4b3e253af0f619b6b2b2f876816fbcf\transformed\jetified-tracing-1.2.0\res
+com.example.app-jetified-savedstate-1.2.1-21 C:\Users\User\.gradle\caches\8.10\transforms\a5c1ca30dbbaf04cca1f2e937c246d47\transformed\jetified-savedstate-1.2.1\res
+com.example.app-jetified-lifecycle-livedata-core-ktx-2.7.0-22 C:\Users\User\.gradle\caches\8.10\transforms\b70f33e765e7ae8fb44ab846e3db8371\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
+com.example.app-lifecycle-livedata-2.7.0-23 C:\Users\User\.gradle\caches\8.10\transforms\bf2e8e3e037e90be6f840457bc5e7b81\transformed\lifecycle-livedata-2.7.0\res
+com.example.app-jetified-activity-ktx-1.8.1-24 C:\Users\User\.gradle\caches\8.10\transforms\c2e0332d94b5594f956568f48a472392\transformed\jetified-activity-ktx-1.8.1\res
+com.example.app-jetified-savedstate-ktx-1.2.1-25 C:\Users\User\.gradle\caches\8.10\transforms\c5e4232cdd755ea27f0424b034ada622\transformed\jetified-savedstate-ktx-1.2.1\res
+com.example.app-jetified-startup-runtime-1.1.1-26 C:\Users\User\.gradle\caches\8.10\transforms\c94b73a8985f172730f6385607d43bfe\transformed\jetified-startup-runtime-1.1.1\res
+com.example.app-jetified-core-ktx-1.13.1-27 C:\Users\User\.gradle\caches\8.10\transforms\cbc06d740d2997c80254ad04297eb50c\transformed\jetified-core-ktx-1.13.1\res
+com.example.app-jetified-datastore-preferences-release-28 C:\Users\User\.gradle\caches\8.10\transforms\d1c997ddd339c33b913499378dd6de90\transformed\jetified-datastore-preferences-release\res
+com.example.app-jetified-profileinstaller-1.3.1-29 C:\Users\User\.gradle\caches\8.10\transforms\d8deace834f7b3faa61f5b5de1c2bdf3\transformed\jetified-profileinstaller-1.3.1\res
+com.example.app-lifecycle-livedata-core-2.7.0-30 C:\Users\User\.gradle\caches\8.10\transforms\df1cb3f39367546336e5aa1d5e30bc49\transformed\lifecycle-livedata-core-2.7.0\res
+com.example.app-core-runtime-2.2.0-31 C:\Users\User\.gradle\caches\8.10\transforms\ec9882ffbda015f0957b655fc4c1628b\transformed\core-runtime-2.2.0\res
+com.example.app-jetified-window-java-1.2.0-32 C:\Users\User\.gradle\caches\8.10\transforms\f0c32f2ad0a012f53118686d18359c09\transformed\jetified-window-java-1.2.0\res
+com.example.app-lifecycle-runtime-2.7.0-33 C:\Users\User\.gradle\caches\8.10\transforms\f12d510af7a8320168953f95aea5c61a\transformed\lifecycle-runtime-2.7.0\res
+com.example.app-jetified-activity-1.8.1-34 C:\Users\User\.gradle\caches\8.10\transforms\f3041dc99d2b9800be487ab2e708d4e5\transformed\jetified-activity-1.8.1\res
+com.example.app-appcompat-1.6.1-35 C:\Users\User\.gradle\caches\8.10\transforms\f385154c7cd8abf6d1c2efa244103787\transformed\appcompat-1.6.1\res
+com.example.app-jetified-annotation-experimental-1.4.0-36 C:\Users\User\.gradle\caches\8.10\transforms\fae7c709e37b7977c4732bf49ff49e22\transformed\jetified-annotation-experimental-1.4.0\res
+com.example.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-37 C:\Users\User\.gradle\caches\8.10\transforms\ffe05123295fb65d6b99e1cfd28332b1\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
+com.example.app-debug-38 D:\New\Flutter\flutter-project\levelearn\Mobile\android\app\src\debug\res
+com.example.app-main-39 D:\New\Flutter\flutter-project\levelearn\Mobile\android\app\src\main\res
+com.example.app-pngs-40 D:\New\Flutter\flutter-project\levelearn\Mobile\build\app\generated\res\pngs\debug
+com.example.app-resValues-41 D:\New\Flutter\flutter-project\levelearn\Mobile\build\app\generated\res\resValues\debug
+com.example.app-packageDebugResources-42 D:\New\Flutter\flutter-project\levelearn\Mobile\build\app\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.example.app-packageDebugResources-43 D:\New\Flutter\flutter-project\levelearn\Mobile\build\app\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.example.app-merged_res-44 D:\New\Flutter\flutter-project\levelearn\Mobile\build\app\intermediates\merged_res\debug
+com.example.app-packaged_res-45 D:\New\Flutter\flutter-project\levelearn\Mobile\build\app_links\intermediates\packaged_res\debug
+com.example.app-packaged_res-46 D:\New\Flutter\flutter-project\levelearn\Mobile\build\file_picker\intermediates\packaged_res\debug
+com.example.app-packaged_res-47 D:\New\Flutter\flutter-project\levelearn\Mobile\build\flutter_file_downloader\intermediates\packaged_res\debug
+com.example.app-packaged_res-48 D:\New\Flutter\flutter-project\levelearn\Mobile\build\flutter_image_compress_common\intermediates\packaged_res\debug
+com.example.app-packaged_res-49 D:\New\Flutter\flutter-project\levelearn\Mobile\build\flutter_native_splash\intermediates\packaged_res\debug
+com.example.app-packaged_res-50 D:\New\Flutter\flutter-project\levelearn\Mobile\build\flutter_plugin_android_lifecycle\intermediates\packaged_res\debug
+com.example.app-packaged_res-51 D:\New\Flutter\flutter-project\levelearn\Mobile\build\open_filex\intermediates\packaged_res\debug
+com.example.app-packaged_res-52 D:\New\Flutter\flutter-project\levelearn\Mobile\build\path_provider_android\intermediates\packaged_res\debug
+com.example.app-packaged_res-53 D:\New\Flutter\flutter-project\levelearn\Mobile\build\shared_preferences_android\intermediates\packaged_res\debug
+com.example.app-packaged_res-54 D:\New\Flutter\flutter-project\levelearn\Mobile\build\url_launcher_android\intermediates\packaged_res\debug

@@ -6,8 +6,11 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
+import '../model/badge.dart';
 import '../model/user.dart';
+import '../utils/colors.dart';
 import 'login_screen.dart';
+import 'main_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -69,7 +72,50 @@ class _ProfileState extends State<ProfileScreen> {
     prefs.remove('token');
   }
 
-
+  List<BadgeModel> userBadges = [
+    BadgeModel(
+      image: 'lib/assets/pictures/icon.png',
+      name: 'UX Researcher',
+      type: 'Beginner',
+      course: 'Interaksi Manusia Komputer',
+      chapter: '2',
+    ),
+    BadgeModel(
+      image: 'lib/assets/pictures/icon.png',
+      name: 'UX Researcher',
+      type: 'Intermediate',
+      course: 'Interaksi Manusia Komputer',
+      chapter: '4',
+    ),
+    BadgeModel(
+      image: 'lib/assets/pictures/icon.png',
+      name: 'UX Researcher',
+      type: 'Advance',
+      course: 'Interaksi Manusia Komputer',
+      chapter: '6',
+    ),
+    BadgeModel(
+      image: 'lib/assets/pictures/icon.png',
+      name: 'OS Engineer',
+      type: 'Beginner',
+      course: 'Sistem Operasi',
+      chapter: '2',
+    ),
+    BadgeModel(
+      image: 'lib/assets/pictures/icon.png',
+      name: 'OS Engineer',
+      type: 'Intermediate',
+      course: 'Sistem Operasi',
+      chapter: '4',
+    ),
+    BadgeModel(
+      image: 'lib/assets/pictures/icon.png',
+      name: 'OS Engineer',
+      type: 'Advance',
+      course: 'Sistem Operasi',
+      chapter: '6',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +141,13 @@ class _ProfileState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: GlobalVar.primaryColor,
         leading: IconButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Mainscreen()),
+              );
+            },
             icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
         title: Text(
             "Profile",
@@ -200,7 +252,70 @@ class _ProfileState extends State<ProfileScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: 16,
+                    height: 4,
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text(
+                          'Badge Saya',
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor,
+                            fontFamily: 'DIN_Next_Rounded',
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Container(
+                          height: 64,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: userBadges.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  _showBadgeDetails(context, userBadges[index]);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.asset(
+                                      userBadges[index].image,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                      ],
+                    ),
                   ),
 
                   ProfileMenuWidget(
@@ -244,6 +359,36 @@ class _ProfileState extends State<ProfileScreen> {
                       );
                     },
                   ),
+                  SizedBox(
+                      height: 16
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfileScreen()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            side: BorderSide.none,
+                            shape: const StadiumBorder(),
+                          ),
+                          child: Text("Log Out", style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontFamily: 'DIN_Next_Rounded',
+                              color: Colors.white
+                          ),)
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                      height: 16
+                  ),
                 ],
               ),
             ),
@@ -252,6 +397,48 @@ class _ProfileState extends State<ProfileScreen> {
       ),
     );
   }
+
+  void _showBadgeDetails(BuildContext context, BadgeModel badge) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 8),
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(badge.image)
+              ),
+              SizedBox(height: 16),
+              Text(
+                  badge.name,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'DIN_Next_Rounded',
+                      color: AppColors.primaryColor,
+                      fontSize: 16
+                  )),
+              Text('(${badge.type})',style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
+              SizedBox(height: 8),
+              Text('Badge ini diperoleh karena telah berhasil menyelesaikan ${badge.course} sampai pada chapter ${badge.chapter}', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Tutup', style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Widget _buildInfoColumn(
       IconData icon, String label, String value, Color color) {
@@ -318,9 +505,9 @@ class ProfileMenuWidget extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              color: iconColor.withOpacity(0.1),
+              color: AppColors.primaryColor,
             ),
-            child: Icon(icon, color: iconColor),
+            child: Icon(icon, color: Colors.white),
           ),
           title: Text(title, style: Theme
               .of(context)
