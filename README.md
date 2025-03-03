@@ -42,7 +42,7 @@ Before running the app, ensure you have installed:
 
 * To run the app on Android:
   
-  Note: Make sure you already prepared a platform to run the application (Example: Android Emulator, Physical Device, Web Browser)
+  **Note: ** Make sure you already prepared a platform to run the application (Example: Android Emulator, Physical Device, Web Browser)
 
   If already done, run this command:
     ```bash
@@ -99,7 +99,7 @@ Mobile/
 
 ## License
 
-This project is licensed under the [License Name] License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the Apache License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ## Contact
 
