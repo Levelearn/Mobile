@@ -68,12 +68,12 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#441F7F" # Warna latar belakang splash screen (hex color)
-  image: lib/assets/pictures/icon.png
+  image: lib/assets/pictures/logo-png.png
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "lib/assets/pictures/icon.png"
+  image_path: "lib/assets/pictures/logo-full.png"
   min_sdk_android: 21
 
 # For information on the generic Dart part of this file, see the
@@ -122,6 +122,8 @@ flutter:
     - lib/assets/pictures/background-pattern.png
     - lib/assets/pictures/background-pattern-L.png
     - lib/assets/pictures/icon.png
+    - lib/assets/pictures/logo-full.png
+    - lib/assets/pictures/logo-png.png
   fonts:
     - family: DIN_Next_Rounded
       fonts:
