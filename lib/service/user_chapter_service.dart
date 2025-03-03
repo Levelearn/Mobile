@@ -22,12 +22,15 @@ class UserChapterService {
           userId: result[0]['userId'],
           chapterId: result[0]['chapterId'],
           isCompleted: result[0]['isCompleted'],
+          isStarted: result[0]['isStarted'],
           materialDone: result[0]['materialDone'],
           assessmentDone: result[0]['assessmentDone'],
           assignmentDone: result[0]['assignmentDone'],
           assessmentAnswer: resultListAnswer,
           assessmentGrade: result[0]['assessmentGrade'],
           submission: result[0]['submission'],
+          timeStarted: DateTime.parse(result[0]['timeStarted']),
+          timeFinished: DateTime.parse(result[0]['timeFinished']),
           createdAt: DateTime.parse(result[0]['createdAt']),
           updatedAt: DateTime.parse(result[0]['updatedAt']),
         );
@@ -41,13 +44,14 @@ class UserChapterService {
            "assignmentDone": false,
            "assessmentAnswer": "[]",
            "submission": "",
-           "assessmentGrade": 0
+           "assessmentGrade": 0,
+           "timeStarted": DateTime.now().toUtc().toIso8601String(),
+           "timeFinished": DateTime.now().toUtc().toIso8601String()
          };
          final responsePost = await http.post(Uri.parse('${GlobalVar.baseUrl}/userchapter'), headers: {
            'Content-type' : 'application/json; charset=utf-8',
            'Accept': 'application/json',
          }, body: jsonEncode(request));
-         print(responsePost.statusCode);
 
          if (responsePost.statusCode == 201) {
            final body = responsePost.body;
@@ -60,12 +64,15 @@ class UserChapterService {
                userId: resultPost['userChapter']['userId'],
                chapterId: resultPost['userChapter']['chapterId'],
                isCompleted: resultPost['userChapter']['isCompleted'],
+               isStarted: resultPost['userChapter']['isStarted'],
                materialDone: resultPost['userChapter']['materialDone'],
                assessmentDone: resultPost['userChapter']['assessmentDone'],
                assignmentDone: resultPost['userChapter']['assignmentDone'],
                assessmentAnswer: resultListAnswer,
                assessmentGrade: resultPost['userChapter']['assessmentGrade'],
                submission: resultPost['userChapter']['submission'],
+               timeStarted: DateTime.parse(resultPost['userChapter']['timeStarted']),
+               timeFinished: DateTime.parse(resultPost['userChapter']['timeFinished']),
                createdAt: DateTime.parse(resultPost['userChapter']['createdAt']),
                updatedAt: DateTime.parse(resultPost['userChapter']['updatedAt'])
            );
@@ -79,6 +86,8 @@ class UserChapterService {
 
   static Future<ChapterStatus> updateChapterStatus(int id, ChapterStatus user) async {
     try {
+      print(user.timeStarted);
+      print(user.timeFinished);
       late ChapterStatus status;
       Map<String, dynamic> request = {
         "isCompleted": user.isCompleted,
@@ -87,7 +96,9 @@ class UserChapterService {
         "assignmentDone": user.assignmentDone,
         "assessmentAnswer": jsonEncode(user.assessmentAnswer),
         "submission": user.submission,
-        "assessmentGrade": user.assessmentGrade
+        "assessmentGrade": user.assessmentGrade,
+        "timeStarted": user.timeStarted.toUtc().toIso8601String(),
+        "timeFinished": user.timeFinished.toUtc().toIso8601String(),
       };
       final responsePut = await http.put(Uri.parse('${GlobalVar.baseUrl}/userchapter/$id'), headers: {
         'Content-type' : 'application/json; charset=utf-8',
@@ -105,12 +116,15 @@ class UserChapterService {
           userId: result['data']['userId'],
           chapterId: result['data']['chapterId'],
           isCompleted: result['data']['isCompleted'],
+          isStarted: result['data']['isStarted'],
           materialDone: result['data']['materialDone'],
           assessmentDone: result['data']['assessmentDone'],
           assignmentDone: result['data']['assignmentDone'],
           assessmentAnswer: resultListAnswer,
           assessmentGrade: result['data']['assessmentGrade'],
           submission: result['data']['submission'],
+          timeStarted: DateTime.parse(result['data']['timeStarted']),
+          timeFinished: DateTime.parse(result['data']['timeFinished']),
           createdAt: DateTime.parse(result['data']['createdAt']),
           updatedAt: DateTime.parse(result['data']['updatedAt']),
         );

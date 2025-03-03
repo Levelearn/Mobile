@@ -1,3 +1,4 @@
+import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:app/view/profile_screen.dart';
@@ -30,6 +31,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool hasChanges = false;
+  FilePickerResult? result;
 
   @override
   void initState() {
@@ -115,6 +117,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: GlobalVar.primaryColor,
         leading: IconButton(
             onPressed: () {
               Navigator.pushReplacement(
@@ -123,184 +126,229 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     builder: (context) => ProfileScreen()),
               );
             },
-            icon: const Icon(LineAwesomeIcons.angle_left_solid)),
-        title: Text("Update Profile", style: Theme.of(context).textTheme.headlineMedium),
+            icon: const Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white)),
+        title: Text("Update Profile",
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontFamily: 'DIN_Next_Rounded',
+                color: Colors.white)
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Stack(
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage(
+                        'lib/assets/pictures/background-pattern.png'),
+                    fit: BoxFit.cover)),
+          ),
+          SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: 120,
-                    height: 120,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: user?.image != null || user?.image != '' ?
-                      Image.network(user!.image!) : Icon(Icons.person, size: 100, color: Colors.white,)
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () async {
-                        final result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['jpg', 'jpeg', 'png'],
-                        );
-
-                        if (result == null) return;
-
-                        final photo = result.files.first;
-                        final filename = '${photo.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo.extension}';
-                        final compressedXFile = await compressImage(photo);
-
-                        if (compressedXFile != null) {
-                          uploadPhotoProfile(compressedXFile, filename).then((_) {
-                            updateUser();
-                          });
-                        }
-                      },
-                      child: Container(
-                        width: 35,
-                        height: 35,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: Colors.deepPurple),
-                        child: const Icon(
-                          LineAwesomeIcons.camera_solid,
-                          color: Colors.black,
-                          size: 20,
-                        ),
-                      ),
-                    )
-                  ),
-                ],
-              ),
-              const SizedBox(height: 50),
-              Form(child: Column(
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                        prefixIconColor: Colors.green,
-                        floatingLabelStyle: const TextStyle(color: Colors.green),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(width: 2 ,color: Colors.green),
-                        ),
-                        label: Text("Name"),
-                        hintText: user?.name != null && user?.name != '' ? user!.name : "Name",
-                        prefixIcon: Icon(LineAwesomeIcons.person_booth_solid)
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: usernameController,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(100)),
-                        prefixIconColor: Colors.green,
-                        floatingLabelStyle:
-                        const TextStyle(color: Colors.green),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(width: 2, color: Colors.green),
-                        ),
-                        label: Text("Username"),
-                        hintText: user?.username != null && user?.username != '' ? user!.username : "Username",
-                        prefixIcon: Icon(LineAwesomeIcons.user)
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: passwordController,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(100)),
-                        prefixIconColor: Colors.green,
-                        floatingLabelStyle:
-                        const TextStyle(color: Colors.green),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(width: 2, color: Colors.green),
-                        ),
-                        label: Text("Password"),
-                        prefixIcon: Icon(LineAwesomeIcons.fingerprint_solid)
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        String newName = nameController.text.trim();
-                        String newUsername = usernameController.text.trim();
-                        String newPassword = passwordController.text.trim();
-
-                        if (newName.isNotEmpty && newName != user?.name) {
-                          user?.name = newName;
-                          hasChanges = true;
-                        }
-                        if (newUsername.isNotEmpty && newUsername != user?.username) {
-                          user?.username = newUsername;
-                          hasChanges = true;
-                        }
-                        if (newPassword.isNotEmpty && newPassword != user?.password) {
-                          user?.password = newPassword;
-                          hasChanges = true;
-                        }
-
-                        if (hasChanges) {
-                          await updateUser();
-                          showSuccessDialog(context);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        side: BorderSide.none,
-                        shape: const StadiumBorder(),
-                      ),
-                      child: Text("Save", style: TextStyle(color: Colors.black)),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Stack(
                     children: [
-                      const Text.rich(
-                          TextSpan(
-                            text: "Joined",
-                            style: TextStyle(fontSize: 12),
-                            children: [
-                              TextSpan(text: "6 Agustus 2004", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))
-                            ],
+                      SizedBox(
+                        width: 120,
+                        height: 120,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: user?.image != null || user?.image != '' ?
+                            Image.network(user!.image!) : Icon(Icons.person, size: 100, color: Colors.white,)
+                        ),
+                      ),
+                      Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () async {
+                              result = await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['jpg', 'jpeg', 'png'],
+                              );
+                            },
+                            child: Container(
+                              width: 35,
+                              height: 35,
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: GlobalVar.secondaryColor),
+                              child: const Icon(
+                                LineAwesomeIcons.camera_solid,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
                           )
                       ),
-                      ElevatedButton(
-                        onPressed: () async{
-                          await prefs.clear();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent.withOpacity(0.1),
-                            elevation: 0,
-                            foregroundColor: Colors.red,
-                            shape: const StadiumBorder(),
-                            side: BorderSide.none
+                    ],
+                  ),
+                  const SizedBox(height: 64),
+                  Form(child: Column(
+                    children: [
+                      TextFormField(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontFamily: 'DIN_Next_Rounded',
                         ),
-                        child: const Text("Logout"),
+                        controller: nameController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
+                            prefixIconColor: Colors.green,
+                            floatingLabelStyle: const TextStyle(color: Colors.green),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(width: 2 ,color: Colors.green),
+                            ),
+                            label: Text(
+                                "Name",
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontFamily: 'DIN_Next_Rounded',
+                                )
+                            ),
+                            hintText: user?.name != null && user?.name != '' ? user!.name : "Name",
+                            prefixIcon: Icon(LineAwesomeIcons.person_booth_solid)
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontFamily: 'DIN_Next_Rounded',
+                        ),
+                        controller: usernameController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(100)),
+                            prefixIconColor: GlobalVar.primaryColor,
+                            floatingLabelStyle:
+                            const TextStyle(color: GlobalVar.secondaryColor),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(width: 2, color: Colors.green),
+                            ),
+                            label: Text("Username"),
+                            hintText: user?.username != null && user?.username != '' ? user!.username : "Username",
+                            prefixIcon: Icon(LineAwesomeIcons.user)
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontFamily: 'DIN_Next_Rounded',
+                        ),
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(100)),
+                            prefixIconColor: GlobalVar.primaryColor,
+                            floatingLabelStyle:
+                            const TextStyle(color: GlobalVar.secondaryColor),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(width: 2, color: GlobalVar.primaryColor),
+                            ),
+                            label: Text(
+                                "Password",
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontFamily: 'DIN_Next_Rounded',
+                                )
+                            ),
+                            prefixIcon: Icon(LineAwesomeIcons.fingerprint_solid)
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              if (result == null) return;
+
+                              final photo = result?.files.first;
+                              final filename = '${photo?.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo?.extension}';
+                              final compressedXFile = await compressImage(photo!);
+
+                              if (compressedXFile != null) {
+                                uploadPhotoProfile(compressedXFile, filename).then((_) {
+                                  updateUser();
+                                });
+                              }
+
+                              String newName = nameController.text.trim();
+                              String newUsername = usernameController.text.trim();
+                              String newPassword = passwordController.text.trim();
+
+                              if (newName.isNotEmpty && newName != user?.name) {
+                                user?.name = newName;
+                                hasChanges = true;
+                              }
+                              if (newUsername.isNotEmpty && newUsername != user?.username) {
+                                user?.username = newUsername;
+                                hasChanges = true;
+                              }
+                              if (newPassword.isNotEmpty && newPassword != user?.password) {
+                                user?.password = newPassword;
+                                hasChanges = true;
+                              }
+
+                              if (hasChanges) {
+                                await updateUser();
+                                showSuccessDialog(context);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: GlobalVar.primaryColor,
+                              side: BorderSide.none,
+                              shape: const StadiumBorder(),
+                            ),
+                            child: Text("Save", style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontFamily: 'DIN_Next_Rounded',
+                                color: Colors.white
+                            ),)
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text.rich(
+                              TextSpan(
+                                text: "Joined",
+                                style: TextStyle(fontSize: 12),
+                                children: [
+                                  TextSpan(text: "6 Agustus 2004", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))
+                                ],
+                              )
+                          ),
+                          ElevatedButton(
+                            onPressed: () async{
+                              await prefs.clear();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginScreen()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent.withOpacity(0.1),
+                                elevation: 0,
+                                foregroundColor: Colors.red,
+                                shape: const StadiumBorder(),
+                                side: BorderSide.none
+                            ),
+                            child: Text("Delete", style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                fontFamily: 'DIN_Next_Rounded',
+                                color: Colors.red
+                            ),
+                            ),
+                          )
+                        ],
                       )
                     ],
-                  )
+                  ))
                 ],
-              ))
-            ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

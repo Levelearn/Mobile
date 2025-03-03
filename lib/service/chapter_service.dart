@@ -12,14 +12,13 @@ class ChapterService {
       final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id/materials'));
       final body = response.body;
       final result = jsonDecode(body);
-      final material = result[0]['materials'][0];
       LearningMaterial chapter = LearningMaterial(
-                  id: material['id'],
-                  chapterId: material['chapterId'],
-                  name: material['name'],
-                  content: material['content'],
-                  createdAt: DateTime.parse(material['createdAt']),
-                  updatedAt: DateTime.parse(material['updatedAt']),
+                  id: result['id'],
+                  chapterId: result['chapterId'],
+                  name: result['name'],
+                  content: result['content'],
+                  createdAt: DateTime.parse(result['createdAt']),
+                  updatedAt: DateTime.parse(result['updatedAt']),
           );
       return chapter;
     } catch(e){
@@ -70,13 +69,12 @@ class ChapterService {
     try {
       final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id/assignments'));
       final result = jsonDecode(response.body);
-      final decodeResult = result[0]['assignments'][0];
 
       if (result.isEmpty) {
         throw Exception("No assignment found");
       }
 
-      Assignment assignment = Assignment.fromJson(decodeResult);
+      Assignment assignment = Assignment.fromJson(result);
 
       return assignment;
     } catch (e) {

@@ -50,6 +50,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  smooth_page_indicator: ^1.2.1
+  flutter_native_splash: ^2.4.4
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +65,16 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_multi_select_items: ^0.4.3
+
+flutter_native_splash:
+  color: "#441F7F" # Warna latar belakang splash screen (hex color)
+  image: lib/assets/pictures/icon.png
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "lib/assets/pictures/icon.png"
+  min_sdk_android: 21
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -86,6 +99,7 @@ flutter:
     - lib/assets/empty.png
     - lib/assets/starempty.png
     - lib/assets/starfilled.png
+    - lib/assets/learnbg.png
     - lib/assets/pictures/background-pattern.png
     - lib/assets/pictures/background-pattern-L.png
     - lib/assets/pictures/dashboard.png
@@ -101,8 +115,20 @@ flutter:
     - lib/assets/vectors/socialinfluencer-primary.svg
     - lib/assets/vectors/socialshare-primary.svg
     - lib/assets/vectors/winterdesign-secondary.svg
-
-  # To add assets to your application, add an assets section, like this:
+    - lib/assets/vectors/socialshare-primary.png
+    - lib/assets/vectors/socialinfluencer-primary.png
+    - lib/assets/vectors/gaming-primary.png
+    - lib/assets/vectors/learn.png
+    - lib/assets/pictures/background-pattern.png
+    - lib/assets/pictures/background-pattern-L.png
+    - lib/assets/pictures/icon.png
+  fonts:
+    - family: DIN_Next_Rounded
+      fonts:
+        - asset: lib/assets/fonts/DIN_Next_Rounded_Regular.ttf
+    - family: Modak
+      fonts:
+        - asset: lib/assets/fonts/Modak-Regular.ttf
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
