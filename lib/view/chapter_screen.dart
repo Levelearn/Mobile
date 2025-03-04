@@ -3,6 +3,7 @@ import 'package:app/model/assignment.dart';
 import 'package:app/model/chapter_status.dart';
 import 'package:app/model/learning_material.dart';
 import 'package:app/model/user_course.dart';
+import 'package:app/service/badge_service.dart';
 import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_chapter_service.dart';
 import 'package:app/service/user_service.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-// import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -30,6 +30,7 @@ class Chapterscreen extends StatefulWidget {
   final int chLength;
   final Student user;
   final String chapterName;
+  final int idBadge;
   const Chapterscreen({
     super.key,
     required this.status,
@@ -38,6 +39,7 @@ class Chapterscreen extends StatefulWidget {
     required this.chLength,
     required this.user,
     required this.chapterName,
+    this.idBadge = 0
   });
 
   @override
@@ -51,6 +53,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   late ChapterStatus status;
   late UserCourse uc;
   int chLength = 0;
+  int idBadge = 0;
   late final TabController _tabController;
   late ScrollController _scrollController;
   // final MultiSelectController<String> _controller = MultiSelectController();
@@ -80,6 +83,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     showDialogMaterialOnce = widget.status.materialDone;
     showDialogAssessmentOnce = widget.status.assessmentDone;
     showDialogAssignmentOnce = widget.status.assignmentDone;
+    idBadge = widget.idBadge;
     status = widget.status;
     uc = widget.uc;
     chLength = widget.chLength;
@@ -201,6 +205,10 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     await UserCourseService.updateUserCourse(uc.id, uc);
   }
 
+  Future<void> createUserBadge(int userId, int badgeId) async{
+    await BadgeService.createUserBadgeByChapterId(userId, badgeId);
+  }
+
   Future<void> updateUser() async {
     await UserService.updateUser(user!);
   }
@@ -238,6 +246,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                                 ),
                               );
                             },
+                            idBadge: idBadge,
                           ),
                         ),
                       );
@@ -799,8 +808,11 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                       user?.points = calculatePoint(difference.inMinutes);
                       uc.currentChapter++ ;
                       uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
-                      updateUserCourse();
 
+                      if(idBadge != 0) {
+                        createUserBadge(user!.id, idBadge);
+                      }
+                      updateUserCourse();
                       updateProgressAssignment();
 
                       Future.delayed(Duration(milliseconds: 200), () {

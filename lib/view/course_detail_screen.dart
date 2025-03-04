@@ -2,6 +2,7 @@ import 'package:app/global_var.dart';
 import 'package:app/model/chapter.dart';
 import 'package:app/main.dart';
 import 'package:app/model/chapter_status.dart';
+import 'package:app/service/badge_service.dart';
 import 'package:app/service/course_service.dart';
 import 'package:app/service/user_chapter_service.dart';
 import 'package:app/service/user_course_service.dart';
@@ -9,6 +10,7 @@ import 'package:app/service/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/badge.dart';
 import '../model/course.dart';
 import '../model/user.dart';
 import '../model/user_course.dart';
@@ -32,7 +34,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
   bool isLoading = true;
   UserCourse? uc;
   Student? user;
-  
+  List<BadgeModel>? listBadge;
 
   @override
   void didChangeDependencies() {
@@ -63,6 +65,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
       courseDetail = result;
     });
     getChapter(idCourse);
+    getListBadge(idCourse);
   }
 
   void getUserCourse() async {
@@ -87,6 +90,10 @@ class _CourseDetail extends State<CourseDetailScreen> {
     });
   }
 
+  Future<void> getListBadge(int courseId) async {
+    listBadge = await BadgeService.getBadgeListCourseByCourseId(courseId);
+  }
+
   Future<List<Chapter>> getStatusChapter(List<Chapter> list) async {
     await Future.forEach(list, (Chapter chapter) async {
       chapter.status = await UserChapterService.getChapterStatus(idUser, chapter.id);
@@ -101,8 +108,36 @@ class _CourseDetail extends State<CourseDetailScreen> {
     });
     if (idUser != 0 && idCourse != 0) {
       getUserCourse();
-
     }
+  }
+
+  int idOfBadge(int isCheckpoint) {
+    int idbadge = 0;
+    switch(isCheckpoint) {
+      case 1 : {
+        for(BadgeModel i in listBadge!) {
+          if(i.type == 'BEGINNER') {
+            idbadge = i.id as int;
+          }
+        }
+      }
+      case 2 : {
+        for(BadgeModel i in listBadge!) {
+          if(i.type == 'INTERMEDIATE') {
+            idbadge = i.id as int;
+          }
+        }
+      }
+      case 3 : {
+        for(BadgeModel i in listBadge!) {
+          if(i.type == 'ADVANCE') {
+            idbadge = i.id as int;
+          }
+        }
+      }
+      default : idbadge = 0;
+    }
+    return idbadge;
   }
 
   @override
@@ -236,6 +271,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
                       chLength: listChapter.length,
                       user: user!,
                       chapterName: listChapter[index].name,
+                      idBadge: idOfBadge(listChapter[index].isCheckpoint),
                     ),
                   ),
                 );
