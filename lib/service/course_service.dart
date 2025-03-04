@@ -56,6 +56,7 @@ class CourseService {
                 description: result['description'],
                 level: result['level'],
                 courseId: result['courseId'],
+                isCheckpoint: result['isCheckpoint'],
                 createdAt: DateTime.parse(result['createdAt']),
                 updatedAt: DateTime.parse(result['updatedAt']),
             )

@@ -6,6 +6,7 @@ class Chapter {
   final String description;
   final int level;
   final int courseId;
+  final int isCheckpoint;
   ChapterStatus? status;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -16,6 +17,7 @@ class Chapter {
     required this.description,
     required this.level,
     required this.courseId,
+    required this.isCheckpoint,
     required this.createdAt,
     required this.updatedAt,
     this.status,
@@ -28,6 +30,7 @@ class Chapter {
       description: json['description'],
       level: json['level'],
       courseId: json['courseId'],
+      isCheckpoint: json['isCheckpoint'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

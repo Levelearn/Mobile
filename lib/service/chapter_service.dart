@@ -30,13 +30,12 @@ class ChapterService {
     try {
       final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id/assessments'));
       final result = jsonDecode(response.body);
-      final decodeResult = result[0]['assessments'][0];
 
       if (result.isEmpty) {
         throw Exception("No assessments found");
       }
 
-      final List<dynamic> decodeQuestion = jsonDecode(decodeResult['questions']);
+      final List<dynamic> decodeQuestion = jsonDecode(result['questions']);
       List<Question> questions = decodeQuestion.map((q) => Question(
         question: q['question'],
         option: List<String>.from(q['options']),
@@ -45,18 +44,18 @@ class ChapterService {
       )).toList();
 
       // Decode answers safely (null-safe handling)
-      final List<String>? decodedAnswers = decodeResult['answers'] != null
-          ? List<String>.from(jsonDecode(decodeResult['answers']))
+      final List<String>? decodedAnswers = result['answers'] != null
+          ? List<String>.from(jsonDecode(result['answers']))
           : null;
 
       Assessment assessment = Assessment(
-        id: decodeResult['id'],
-        chapterId: decodeResult['chapterId'],
-        instruction: decodeResult['instruction'],
+        id: result['id'],
+        chapterId: result['chapterId'],
+        instruction: result['instruction'],
         questions: questions,
         answers: decodedAnswers,
-        createdAt: DateTime.parse(decodeResult['createdAt']),
-        updatedAt: DateTime.parse(decodeResult['updatedAt']),
+        createdAt: DateTime.parse(result['createdAt']),
+        updatedAt: DateTime.parse(result['updatedAt']),
       );
 
       return assessment;
