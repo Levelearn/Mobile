@@ -1,17 +1,19 @@
+import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 
-class CongratulationsScreen extends StatefulWidget {
+
+class WhatADealScreen extends StatefulWidget {
   final String message;
   final VoidCallback? onContinue;
 
-  const CongratulationsScreen({super.key, required this.message, this.onContinue});
+  const WhatADealScreen({super.key, required this.message, this.onContinue});
 
   @override
-  _CongratulationsScreenState createState() => _CongratulationsScreenState();
+  State<WhatADealScreen> createState() => _WhatADealScreenState();
 }
 
-class _CongratulationsScreenState extends State<CongratulationsScreen> {
+class _WhatADealScreenState extends State<WhatADealScreen> {
   late ConfettiController _confettiController;
 
   @override
@@ -40,14 +42,15 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.celebration, color: Colors.orange, size: 100),
+                  Icon(Icons.celebration, color: AppColors.secondaryColor, size: 100),
                   const SizedBox(height: 20),
                   Text(
-                    "Congratulations!",
+                    "What a Deal!",
                     style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                        fontFamily: 'DIN_Next_Rounded'
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -58,9 +61,10 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
                   ),
                   const SizedBox(height: 30),
                   if (widget.onContinue != null)
-                    TextButton(
+                    ElevatedButton(
                       onPressed: widget.onContinue,
-                      child: Text("Ayo Lanjutkan ke Level Berikutnya", style: TextStyle(fontSize: 16, color: Colors.blueAccent)),
+                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor)),
+                      child: Text("Ayo, dapatkan lebih banyak badge!", style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'DIN_Next_Rounded')),
                     ),
                 ],
               ),

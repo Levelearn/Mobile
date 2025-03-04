@@ -1,5 +1,6 @@
 import 'package:app/global_var.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/view/trade_screen.dart';
 import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -148,7 +149,7 @@ class _ProfileState extends State<ProfileScreen> {
             icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
         title: Text(
             "Profile",
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontFamily: 'DIN_Next_Rounded',
                 color: Colors.white
             )),
@@ -282,7 +283,7 @@ class _ProfileState extends State<ProfileScreen> {
                         ),
                       ),
                         SizedBox(
-                        height: 32,
+                        height: 4,
                       ),
                         Container(
                         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -301,9 +302,6 @@ class _ProfileState extends State<ProfileScreen> {
                         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                         child: Column(
                           children: [
-                            SizedBox(
-                              height: 8,
-                            ),
                             Text(
                               'Badge Saya',
                               textAlign: TextAlign.start,
@@ -347,6 +345,16 @@ class _ProfileState extends State<ProfileScreen> {
                         ),
                       ),
                         ProfileMenuWidget(
+                          title: "Trades",
+                          icon: LineAwesomeIcons.coins_solid,
+                          onPress: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => TradeScreen(user: user!,)),
+                            );
+                          },
+                        ),
+                        ProfileMenuWidget(
                           title: "Update Profile",
                           icon: LineAwesomeIcons.person_booth_solid,
                           onPress: () {
@@ -371,21 +379,21 @@ class _ProfileState extends State<ProfileScreen> {
                           icon: LineAwesomeIcons.info_circle_solid,
                           onPress: () {},
                         ),
-                        ProfileMenuWidget(
-                        title: "Logout",
-                        icon: LineAwesomeIcons.arrow_circle_left_solid,
-                        textColor: Colors.red,
-                        endIcon: false,
-                        onPress: () {
-                          logout();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen()
-                            ),
-                          );
-                        },
-                      ),
+                      //   ProfileMenuWidget(
+                      //   title: "Logout",
+                      //   icon: LineAwesomeIcons.arrow_circle_left_solid,
+                      //   textColor: Colors.red,
+                      //   endIcon: false,
+                      //   onPress: () {
+                      //     logout();
+                      //     Navigator.pushReplacement(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //           builder: (context) => LoginScreen()
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
                         SizedBox(
                             height: 16
                         ),

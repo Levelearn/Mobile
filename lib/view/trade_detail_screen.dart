@@ -1,6 +1,9 @@
 import 'package:app/model/badge.dart';
 import 'package:app/model/trade.dart';
+import 'package:app/view/trade_screen.dart';
+import 'package:app/view/whatadeal_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../utils/colors.dart';
 
@@ -45,6 +48,9 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
   void _purchase() {
     if (_isPurchaseValid()) {
       print('Pembelian berhasil!');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showCompletionDialog(context, "Transaksi badge anda telah berhasil!", false);
+      });
     } else {
       setState(() {
         errorMessage = 'Badge yang dipilih tidak sesuai.';
@@ -64,12 +70,35 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
     return true;
   }
 
+  void showCompletionDialog(BuildContext context, String message, bool isAssignment) {
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WhatADealScreen(
+              message: message,
+              onContinue: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Trade Detail"),
         backgroundColor: AppColors.primaryColor,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white)),
         titleTextStyle: TextStyle(
             fontFamily: 'DIN_Next_Rounded',
             fontSize: 24,

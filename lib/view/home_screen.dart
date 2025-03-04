@@ -187,9 +187,17 @@ class _HomeState extends State<Homescreen> {
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Leaderboard Hari Ini', style: TextStyle(color: purple, fontSize: 20, fontWeight: FontWeight.w800)),
+            Text('Papan Peringkat',
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                    color: AppColors.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'DIN_Next_Rounded'
+                )),
+            SizedBox(
+              height: 4,
+            ),
             Column(
               children: list.isNotEmpty ?
               List.generate(list.length > 3 ? 3 : list.length, (index) =>
@@ -278,14 +286,14 @@ class _HomeState extends State<Homescreen> {
           ),
           SizedBox(
             width: double.infinity,
-            height: 220,
+            height: 180,
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Progress Saya',
-                      style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                           color: AppColors.primaryColor,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'DIN_Next_Rounded'
@@ -542,15 +550,15 @@ class _HomeState extends State<Homescreen> {
 
   Widget _buildMore() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Explore Courses',
+            'Jelajahi Course',
             style: Theme.of(context)
                 .textTheme
-                .headlineMedium!
+                .headlineSmall!
                 .copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.primaryColor,
