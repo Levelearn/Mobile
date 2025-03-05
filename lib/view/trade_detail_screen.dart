@@ -1,6 +1,5 @@
 import 'package:app/model/badge.dart';
 import 'package:app/model/trade.dart';
-import 'package:app/view/trade_screen.dart';
 import 'package:app/view/whatadeal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
