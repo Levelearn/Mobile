@@ -1,10 +1,15 @@
 import 'package:app/model/trade.dart';
 import 'package:app/utils/colors.dart';
+import 'package:app/view/main_screen.dart';
 import 'package:app/view/trade_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+
+import '../model/user.dart';
 
 class TradeScreen extends StatefulWidget {
-  const TradeScreen({super.key});
+  final Student user;
+  const TradeScreen({super.key, required this.user});
 
   @override
   State<TradeScreen> createState() => _TradeScreenState();
@@ -39,6 +44,15 @@ class _TradeScreenState extends State<TradeScreen> {
       appBar: AppBar(
         title: Text("Trade"),
         backgroundColor: AppColors.primaryColor,
+        leading: IconButton(
+            onPressed: (){
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Mainscreen()),
+              );
+            },
+            icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
         titleTextStyle: TextStyle(
             fontFamily: 'DIN_Next_Rounded',
             fontSize: 24,

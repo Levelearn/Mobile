@@ -130,7 +130,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
             },
             icon: const Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white)),
         title: Text("Update Profile",
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
                 fontFamily: 'DIN_Next_Rounded',
                 color: Colors.white)
         ),
