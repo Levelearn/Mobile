@@ -44,7 +44,10 @@ class _CourseDetail extends State<CourseDetailScreen> {
   }
 
   Future<void> updateStatus(index) async {
-    listChapter[index].status = await UserChapterService.updateChapterStatus(listChapter[index].status!.id, listChapter[index].status!);
+    final result = await UserChapterService.updateChapterStatus(listChapter[index].status!.id, listChapter[index].status!);
+    setState(() {
+      listChapter[index].status = result;
+    });
   }
 
   void getUser(int id) async {
@@ -215,7 +218,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
               itemBuilder: (context, count) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 1.0),
-                  child: count + 1 <= uc!.currentChapter ? _buildCourseItem(count) : _buildCourseItemLocked(count),
+                  child: count <= uc!.currentChapter - 1 ? _buildCourseItem(count) : _buildCourseItemLocked(count),
                 );
               },
             ),
@@ -272,6 +275,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
                       user: user!,
                       chapterName: listChapter[index].name,
                       idBadge: idOfBadge(listChapter[index].isCheckpoint),
+                      level: listChapter[index].level,
                     ),
                   ),
                 );

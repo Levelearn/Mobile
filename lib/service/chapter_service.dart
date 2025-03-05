@@ -3,6 +3,7 @@ import 'package:app/global_var.dart';
 import 'package:app/model/assignment.dart';
 import 'package:http/http.dart' as http;
 import '../model/assessment.dart';
+import '../model/chapter.dart';
 import '../model/learning_material.dart';
 
 class ChapterService {
@@ -76,6 +77,23 @@ class ChapterService {
       Assignment assignment = Assignment.fromJson(result);
 
       return assignment;
+    } catch (e) {
+      throw Exception("Error fetching assessment: ${e.toString()}");
+    }
+  }
+
+  static Future<Chapter> getChapterById(int id) async{
+    try {
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$id'));
+      final result = jsonDecode(response.body);
+
+      if (result.isEmpty) {
+        throw Exception("No Chapter found");
+      }
+
+      Chapter chapter = Chapter.fromJson(result);
+
+      return chapter;
     } catch (e) {
       throw Exception("Error fetching assessment: ${e.toString()}");
     }

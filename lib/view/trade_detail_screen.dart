@@ -236,6 +236,6 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
           ),
         ),
       )
-    );;
+    );
   }
 }

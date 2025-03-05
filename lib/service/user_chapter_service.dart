@@ -39,6 +39,7 @@ class UserChapterService {
            "userId": idUser,
            "chapterId": idChapter,
            "isCompleted": false,
+           "isStarted": false,
            "materialDone": false,
            "assessmentDone": false,
            "assignmentDone": false,
@@ -90,6 +91,7 @@ class UserChapterService {
       print(user.timeFinished);
       late ChapterStatus status;
       Map<String, dynamic> request = {
+        "isStarted": user.isStarted,
         "isCompleted": user.isCompleted,
         "materialDone": user.materialDone,
         "assessmentDone": user.assessmentDone,

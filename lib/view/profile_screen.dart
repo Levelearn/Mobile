@@ -1,12 +1,16 @@
 import 'package:app/global_var.dart';
+import 'package:app/model/chapter.dart';
+import 'package:app/service/badge_service.dart';
+import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_service.dart';
-import 'package:app/view/trade_screen.dart';
 import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/badge.dart';
+import '../model/course.dart';
 import '../model/user.dart';
+import '../service/course_service.dart';
 import '../utils/colors.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
@@ -24,11 +28,14 @@ class _ProfileState extends State<ProfileScreen> {
   bool isLoading = true;
   List<Student> list = [];
   int rank = 0;
+  List<BadgeModel>? userBadges = [];
+  Course? course;
+  Chapter? chapter;
+  List<Course>? allCourses;
 
   @override
   void initState() {
     getUserData();
-    getAllUser();
     super.initState();
   }
 
@@ -41,10 +48,13 @@ class _ProfileState extends State<ProfileScreen> {
         user = fetchedUser;
         isLoading = false;
       });
+      getUserBadges(idUser);
+      getAllUser();
+      getEnrolledCourse(idUser);
     }
   }
 
-  void getAllUser() async {
+  Future<void> getAllUser() async {
     final result = await UserService.getAllUser();
     setState(() {
       list = studentRole(result);
@@ -59,8 +69,30 @@ class _ProfileState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> getEnrolledCourse(int userId) async {
+    final result = await CourseService.getEnrolledCourse(userId);
+    setState(() {
+      allCourses = result;
+    });
+  }
+
+  Future<void> getUserBadges(int userId) async {
+    final result = await BadgeService.getUserBadgeListByUserId(userId);
+    setState(() {
+      userBadges = result;
+    });
+  }
+
   List<Student> studentRole(List<Student> list) {
     return list.where((user) => user.role == 'STUDENT').toList();
+  }
+
+  Future<Course> getCourseById(int id) {
+    return CourseService.getCourse(id);
+  }
+
+  Future<Chapter> getChapterById(int id) {
+    return ChapterService.getChapterById(id);
   }
 
   void logout() {
@@ -69,57 +101,6 @@ class _ProfileState extends State<ProfileScreen> {
     prefs.remove('role');
     prefs.remove('token');
   }
-
-  List<BadgeModel> userBadges = [
-    BadgeModel(
-      id: 1,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'UX Researcher',
-      type: 'Beginner',
-      courseId: 1,
-      chapterId: 3,
-    ),
-    BadgeModel(
-      id: 2,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'UX Researcher',
-      type: 'Intermediate',
-      courseId: 1,
-      chapterId: 6,
-    ),
-    BadgeModel(
-      id: 3,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'UX Researcher',
-      type: 'Advance',
-      courseId: 1,
-      chapterId: 8,
-    ),
-    BadgeModel(
-      id: 4,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'OS Engineer',
-      type: 'Beginner',
-      courseId: 3,
-      chapterId: 3,
-    ),
-    BadgeModel(
-      id: 5,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'OS Engineer',
-      type: 'Intermediate',
-      courseId: 3,
-      chapterId: 5,
-    ),
-    BadgeModel(
-      id: 6,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'OS Engineer',
-      type: 'Advance',
-      courseId: 3,
-      chapterId: 8,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +136,7 @@ class _ProfileState extends State<ProfileScreen> {
             icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
         title: Text(
             "Profile",
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontFamily: 'DIN_Next_Rounded',
                 color: Colors.white
             )),
@@ -206,232 +187,192 @@ class _ProfileState extends State<ProfileScreen> {
                   ),
                 ),
                 SingleChildScrollView(
-                  child: Container(
-                    // padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Container(
-                          color: GlobalVar.primaryColor,
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  SizedBox(
-                                    width: 120,
-                                    height: 120,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(100),
-                                      child: user?.image != "" && user?.image != null ? Image.network(user!.image!)
-                                          : Icon(Icons.person, size: 100, color: Colors.white,),
-                                    ),
-                                  ),
-                                Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
-                                        );
-                                      },
-                                      child: Container(
-                                        width: 35,
-                                        height: 35,
-                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: GlobalVar.secondaryColor),
-                                        child: const Icon(
-                                          LineAwesomeIcons.pencil_alt_solid,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    )
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Text(user!.name,
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    fontFamily: 'DIN_Next_Rounded',
-                                    color: Colors.white
-                                )),
-                            Text(user!.studentId!,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontFamily: 'DIN_Next_Rounded',
-                                    color: GlobalVar.accentColor
-                                )),
-                            const SizedBox(height: 16),
-                            // const Divider(),
-                            Container(
-                              margin: EdgeInsets.symmetric(horizontal: 32),
-                              padding: EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 24,
-                                children: [
-                                  _buildInfoColumn(LineAwesomeIcons.medal_solid,
-                                      'Lencana', '${user?.badges}', GlobalVar.secondaryColor),
-                                  _buildInfoColumn(LineAwesomeIcons.user_check_solid,
-                                      'Course', '${user?.totalCourses}', GlobalVar.secondaryColor),
-                                  _buildInfoColumn(LineAwesomeIcons.trophy_solid,
-                                      'Peringkat', '$rank', GlobalVar.secondaryColor),
-                                  _buildInfoColumn(LineAwesomeIcons.gem_solid,
-                                      'Poin', '${user?.points}', GlobalVar.secondaryColor)
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 32),
-                          ],
-                        ),
-                      ),
-                        SizedBox(
-                        height: 4,
-                      ),
-                        Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  child: Column(
+                    children: [
+                      Container(
+                        color: GlobalVar.primaryColor,
                         child: Column(
                           children: [
-                            Text(
-                              'Badge Saya',
-                              textAlign: TextAlign.start,
-                              style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: GlobalVar.primaryColor,
-                                fontFamily: 'DIN_Next_Rounded',
-                              ),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Container(
-                              height: 64,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: userBadges.length,
-                                itemBuilder: (context, index) {
-                                  return GestureDetector(
+                            Stack(
+                              children: [
+                                SizedBox(
+                                  width: 120,
+                                  height: 120,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: user?.image != "" && user?.image != null ? Image.network(user!.image!)
+                                        : Icon(Icons.person, size: 100, color: Colors.white,),
+                                  ),
+                                ),
+                              Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: GestureDetector(
                                     onTap: () {
-                                      _showBadgeDetails(context, userBadges[index]);
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
+                                      );
                                     },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.asset(
-                                          userBadges[index].image,
-                                          fit: BoxFit.cover,
-                                        ),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: GlobalVar.secondaryColor),
+                                      child: const Icon(
+                                        LineAwesomeIcons.pencil_alt_solid,
+                                        color: Colors.white,
+                                        size: 20,
                                       ),
                                     ),
-                                  );
-                                },
-                              ),
+                                  )
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(user!.name,
+                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontFamily: 'DIN_Next_Rounded',
+                                  color: Colors.white
+                              )),
+                          Text(user!.studentId!,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontFamily: 'DIN_Next_Rounded',
+                                  color: GlobalVar.accentColor
+                              )),
+                          const SizedBox(height: 16),
+                          // const Divider(),
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 32),
+                            padding: EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                          ],
-                        ),
-                      ),
-                        ProfileMenuWidget(
-                          title: "Trades",
-                          icon: LineAwesomeIcons.coins_solid,
-                          onPress: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => TradeScreen(user: user!,)),
-                            );
-                          },
-                        ),
-                        ProfileMenuWidget(
-                          title: "Update Profile",
-                          icon: LineAwesomeIcons.person_booth_solid,
-                          onPress: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
-                            );
-                          },
-                        ),
-                        ProfileMenuWidget(
-                          title: "Quick Access",
-                          icon: LineAwesomeIcons.accessible,
-                          onPress: () {},
-                        ),
-                        ProfileMenuWidget(
-                          title: "App Rating",
-                          icon: LineAwesomeIcons.star,
-                          onPress: () {},
-                        ),
-                        ProfileMenuWidget(
-                          title: "About App",
-                          icon: LineAwesomeIcons.info_circle_solid,
-                          onPress: () {},
-                        ),
-                      //   ProfileMenuWidget(
-                      //   title: "Logout",
-                      //   icon: LineAwesomeIcons.arrow_circle_left_solid,
-                      //   textColor: Colors.red,
-                      //   endIcon: false,
-                      //   onPress: () {
-                      //     logout();
-                      //     Navigator.pushReplacement(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //           builder: (context) => LoginScreen()
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                        SizedBox(
-                            height: 16
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ProfileScreen()),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: GlobalVar.primaryColor,
-                                  side: BorderSide.none,
-                                  shape: const StadiumBorder(),
-                                ),
-                                child: Text("Log Out", style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontFamily: 'DIN_Next_Rounded',
-                                    color: Colors.white
-                                ),)
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: 24,
+                              children: [
+                                _buildInfoColumn(LineAwesomeIcons.medal_solid,
+                                    'Lencana', '${user?.badges}', GlobalVar.secondaryColor),
+                                _buildInfoColumn(LineAwesomeIcons.user_check_solid,
+                                    'Course', '${allCourses?.length}', GlobalVar.secondaryColor),
+                                _buildInfoColumn(LineAwesomeIcons.trophy_solid,
+                                    'Peringkat', '$rank', GlobalVar.secondaryColor),
+                                _buildInfoColumn(LineAwesomeIcons.gem_solid,
+                                    'Poin', '${user?.points}', GlobalVar.secondaryColor)
+                              ],
                             ),
                           ),
-                        ),
-                        SizedBox(
-                            height: 16
-                        ),
-                      ],
+                          const SizedBox(height: 32),
+                        ],
+                      ),
                     ),
+                      SizedBox(
+                      height: 32,
+                    ),
+                      Container(
+                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            'Badge Saya',
+                            textAlign: TextAlign.start,
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: GlobalVar.primaryColor,
+                              fontFamily: 'DIN_Next_Rounded',
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Container(
+                            height: 64,
+                            child: userBadges!.isNotEmpty ? ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: userBadges?.length,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    _showBadgeDetails(context, userBadges![index]);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: userBadges?[index].image != null  ?
+                                      Image.network(userBadges![index].image!, fit: BoxFit.cover) : Image.asset('lib/assets/pictures/icon.png', fit: BoxFit.cover)
+                                    ),
+                                  ),
+                                );
+                              },
+                            ) : Center(
+                              child: Text('Kamu belum mempunyai badge', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                            )
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                        ],
+                      ),
+                    ),
+                      ProfileMenuWidget(
+                        title: "Update Profile",
+                        icon: LineAwesomeIcons.person_booth_solid,
+                        onPress: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
+                          );
+                        },
+                      ),
+                      ProfileMenuWidget(
+                        title: "Quick Access",
+                        icon: LineAwesomeIcons.accessible,
+                        onPress: () {},
+                      ),
+                      ProfileMenuWidget(
+                        title: "App Rating",
+                        icon: LineAwesomeIcons.star,
+                        onPress: () {},
+                      ),
+                      ProfileMenuWidget(
+                        title: "About App",
+                        icon: LineAwesomeIcons.info_circle_solid,
+                        onPress: () {},
+                      ),
+                      ProfileMenuWidget(
+                      title: "Logout",
+                      icon: LineAwesomeIcons.arrow_circle_left_solid,
+                      textColor: Colors.red,
+                      endIcon: false,
+                      onPress: () {
+                        logout();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()
+                          ),
+                        );
+                      },
+                    ),
+                    ],
                   ),
                 )
               ],
@@ -442,47 +383,67 @@ class _ProfileState extends State<ProfileScreen> {
     );
   }
 
-  void _showBadgeDetails(BuildContext context, BadgeModel badge) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 8),
-              ClipRRect(
+  void _showBadgeDetails(BuildContext context, BadgeModel badge) async {
+    Course resultCourse = await getCourseById(badge.courseId);
+    Chapter resultChapter = await getChapterById(badge.chapterId);
+    setState(() {
+      course = resultCourse;
+      chapter = resultChapter;
+    });
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 8),
+                ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.asset(badge.image)
-              ),
-              SizedBox(height: 16),
-              Text(
+                  child: badge.image != null  ?
+                  Image.network(badge.image!, fit: BoxFit.cover) : Image.asset('lib/assets/pictures/icon.png', fit: BoxFit.cover),
+                ),
+                SizedBox(height: 16),
+                Text(
                   badge.name,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'DIN_Next_Rounded',
-                      color: AppColors.primaryColor,
-                      fontSize: 16
-                  )),
-              Text('(${badge.type})',style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
-              SizedBox(height: 8),
-              Text('Badge ini diperoleh karena telah berhasil menyelesaikan course', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Tutup', style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'DIN_Next_Rounded',
+                    color: AppColors.primaryColor,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  '(${badge.type})',
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Badge ini diperoleh karena telah berhasil menyelesaikan ${course!.courseName} sampai pada chapter ${chapter!.name}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                ),
+              ],
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Tutup',
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
-
 
   Widget _buildInfoColumn(
       IconData icon, String label, String value, Color color) {
@@ -535,10 +496,6 @@ class ProfileMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery
-        .of(context)
-        .platformBrightness == Brightness.dark;
-    var iconColor = isDark ? GlobalVar.accentColor : GlobalVar.primaryColor;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

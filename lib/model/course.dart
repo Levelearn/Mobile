@@ -1,5 +1,3 @@
-import 'chapter.dart';
-
 const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 class Course {

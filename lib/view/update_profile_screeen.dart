@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
 import 'package:app/view/main_screen.dart';
@@ -154,8 +156,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         height: 120,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: user?.image != "" && user?.image != null ? Image.network(user!.image!)
-                              : Icon(Icons.person, size: 100, color: Colors.grey,),
+                          child: photo != null
+                              ? (photo!.bytes != null
+                              ? Image.memory(photo!.bytes!, fit: BoxFit.cover)
+                              : Image.file(File(photo!.path!), fit: BoxFit.cover))
+                              : (user?.image != null && user!.image!.isNotEmpty
+                              ? Image.network(user!.image!, fit: BoxFit.cover)
+                              : Icon(Icons.person, size: 100, color: Colors.grey)),
                         ),
                       ),
                       Positioned(
@@ -170,15 +177,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
                             if (result == null) return;
 
-                            final photo = result.files.first;
-                            final filename = '${photo.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo.extension}';
-                            final compressedXFile = await compressImage(photo);
-
-                            if (compressedXFile != null) {
-                              uploadPhotoProfile(compressedXFile, filename).then((_) {
-                                updateUser();
-                              });
-                            }
+                            setState(() {
+                              photo = result.files.first;
+                            });
                           },
                           child: Container(
                             width: 35,
@@ -274,9 +275,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () async {
-                            if (result == null) return;
-
-                              final photo = result?.files.first;
+                            if(photo != null) {
                               final filename = '${photo?.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo?.extension}';
                               final compressedXFile = await compressImage(photo!);
 
@@ -285,6 +284,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                   updateUser();
                                 });
                               }
+                            }
                             String newName = nameController.text.trim();
                             String newUsername = usernameController.text.trim();
                             String newPassword = passwordController.text.trim();

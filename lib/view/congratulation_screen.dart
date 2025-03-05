@@ -9,11 +9,7 @@ class CongratulationsScreen extends StatefulWidget {
   final int idBadge;
   final VoidCallback? onContinue;
 
-  const CongratulationsScreen(
-      {super.key,
-      required this.message,
-      this.onContinue,
-      required this.idBadge});
+  const CongratulationsScreen({super.key, required this.message, this.onContinue, required this.idBadge});
 
   @override
   _CongratulationsScreenState createState() => _CongratulationsScreenState();
@@ -27,16 +23,15 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
   @override
   void initState() {
     idBadge = widget.idBadge;
-    if (idBadge != 0) {
+    if(idBadge != 0) {
       getBadgeById(idBadge);
+      print(badge?.name);
       super.initState();
-      _confettiController =
-          ConfettiController(duration: const Duration(seconds: 3));
+      _confettiController = ConfettiController(duration: const Duration(seconds: 3));
       _confettiController.play();
     } else {
       super.initState();
-      _confettiController =
-          ConfettiController(duration: const Duration(seconds: 3));
+      _confettiController = ConfettiController(duration: const Duration(seconds: 3));
       _confettiController.play();
     }
   }
@@ -48,7 +43,11 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
   }
 
   Future<void> getBadgeById(int id) async {
-    badge = await BadgeService.getBadgeById(id);
+    final result = await BadgeService.getBadgeById(id);
+    setState(() {
+      badge = result;
+    });
+    print(badge?.name);
   }
 
   @override
@@ -64,45 +63,32 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  idBadge != 0
-                      ? badge?.image != null && badge?.image != ""
-                          ? Image.network(
-                              badge!.image,
-                              height: 100,
-                              width: 100,
-                            )
-                          : Image.asset('lib/assets/pictures/icon.png')
-                      : Icon(Icons.celebration,
-                          color: Colors.orange, size: 100),
+                  idBadge != 0 ?
+                    badge?.image != null && badge?.image != "" ?
+                      Image.network(badge!.image!, height: 100, width: 100,) :  Image.asset('lib/assets/pictures/icon.png')
+                  : Icon(Icons.celebration, color: Colors.orange, size: 100),
                   const SizedBox(height: 20),
                   Text(
                     "Congratulations!",
                     style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                        fontFamily: 'DIN_Next_Rounded'),
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      fontFamily: 'DIN_Next_Rounded'
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    idBadge != 0
-                        ? "Yeay, you've got badge ${badge?.name}!"
-                        : widget.message,
+                    idBadge != 0 ? "Yeay, you've got badge ${badge?.name}!" :
+                    widget.message,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                        fontFamily: 'DIN_Next_Rounded'),
+                    style: TextStyle(fontSize: 16, color: Colors.black54, fontFamily: 'DIN_Next_Rounded'),
                   ),
                   const SizedBox(height: 30),
                   if (widget.onContinue != null)
                     TextButton(
                       onPressed: widget.onContinue,
-                      child: Text("Ayo Lanjutkan ke Level Berikutnya",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.blueAccent,
-                              fontFamily: 'DIN_Next_Rounded')),
+                      child: Text("Ayo Lanjutkan ke Level Berikutnya", style: TextStyle(fontSize: 16, color: Colors.blueAccent, fontFamily: 'DIN_Next_Rounded')),
                     ),
                 ],
               ),
@@ -112,13 +98,7 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
             shouldLoop: false,
-            colors: [
-              Colors.red,
-              Colors.blue,
-              Colors.yellow,
-              Colors.green,
-              Colors.purple
-            ],
+            colors: [Colors.red, Colors.blue, Colors.yellow, Colors.green, Colors.purple],
           ),
         ],
       ),

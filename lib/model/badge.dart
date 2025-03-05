@@ -2,7 +2,7 @@ class BadgeModel {
   final int id;
   final String name;
   final String type;
-  final String image;
+  final String? image;
   final int courseId;
   final int chapterId;
 
@@ -10,7 +10,7 @@ class BadgeModel {
     required this.id,
     required this.name,
     required this.type,
-    required this.image,
+    this.image,
     required this.courseId,
     required this.chapterId,
   });
