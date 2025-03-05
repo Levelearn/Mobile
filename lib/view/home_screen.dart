@@ -1,6 +1,4 @@
-import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
-import 'package:app/view/course_detail_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -11,10 +9,6 @@ import '../service/course_service.dart';
 import '../service/user_service.dart';
 import '../utils/colors.dart';
 import 'main_screen.dart';
-
-Color purple = Color(0xFF441F7F);
-Color backgroundNavHex = Color(0xFFF3EDF7);
-const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -121,8 +115,8 @@ class _HomeState extends State<Homescreen> {
           bottom: 0,
           right: 0,
           child: Container(
-            width: 200, // Adjust width as needed
-            height: 200, // Adjust height as needed
+            width: 200,
+            height: 200,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("lib/assets/vectors/learn.png"),
@@ -438,7 +432,7 @@ class _HomeState extends State<Homescreen> {
                           LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
-                          LineAwesomeIcons.user_check_solid, 'Course', '${user?.totalCourses}', AppColors.accentColor),
+                          LineAwesomeIcons.user_check_solid, 'Course', '${allCourses.length}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
                           LineAwesomeIcons.trophy_solid, 'Peringkat', '$rank / ${list.length}', AppColors.accentColor),
@@ -586,7 +580,8 @@ class _HomeState extends State<Homescreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => CourseDetailScreen(id: course.id)),
+              builder: (context) => Mainscreen(navIndex: 2,)
+          ),
         );
       },
       child: Container(

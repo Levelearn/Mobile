@@ -7,8 +7,8 @@ class CustomTabIndicator extends Decoration {
 
   CustomTabIndicator({
     required this.color,
-    this.widthFraction = 1 / 3, // Default to 1/3 of screen width
-    this.height = 4.0, // Indicator height
+    this.widthFraction = 1 / 3,
+    this.height = 4.0,
   });
 
   @override

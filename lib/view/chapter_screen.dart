@@ -31,6 +31,7 @@ class Chapterscreen extends StatefulWidget {
   final Student user;
   final String chapterName;
   final int idBadge;
+  final int level;
   const Chapterscreen({
     super.key,
     required this.status,
@@ -39,7 +40,8 @@ class Chapterscreen extends StatefulWidget {
     required this.chLength,
     required this.user,
     required this.chapterName,
-    this.idBadge = 0
+    this.idBadge = 0,
+    required this.level,
   });
 
   @override
@@ -805,13 +807,17 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                     onPressed: () async {
                       await uploadFile(file!);
                       Duration difference = status.timeStarted.difference(status.timeFinished);
-                      user?.points = calculatePoint(difference.inMinutes);
-                      uc.currentChapter++ ;
-                      uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
+                      user?.points = user!.points! + calculatePoint(difference.inMinutes);
+                      if(widget.level == uc.currentChapter){
+                        uc.currentChapter++ ;
+                        uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
+                      }
 
                       if(idBadge != 0) {
                         createUserBadge(user!.id, idBadge);
+                        user?.badges = user!.badges! + 1;
                       }
+                      updateUser();
                       updateUserCourse();
                       updateProgressAssignment();
 

@@ -16,27 +16,27 @@ class TradeDetailScreen extends StatefulWidget {
 class _TradeDetailScreenState extends State<TradeDetailScreen> {
 
   List<BadgeModel> userBadges = [
-    BadgeModel(
-      image: 'lib/assets/pictures/icon.png',
-      name: 'Beginner HCI',
-      type: 'BEGINNER',
-      course: 'Interaksi Manusia Komputer',
-      chapter: 'Chapter 1',
-    ),
-    BadgeModel(
-      image: 'lib/assets/pictures/icon.png',
-      name: 'Intermediate HCI',
-      type: 'INTERMEDIATE',
-      course: 'Interaksi Manusia Komputer',
-      chapter: 'Chapter 2',
-    ),
-    BadgeModel(
-      image: 'lib/assets/pictures/icon.png',
-      name: 'Advanced HCI',
-      type: 'ADVANCE',
-      course: 'Interaksi Manusia Komputer',
-      chapter: 'Chapter 2',
-    ),
+    // BadgeModel(
+    //   image: 'lib/assets/pictures/icon.png',
+    //   name: 'Beginner HCI',
+    //   type: 'BEGINNER',
+    //   course: 'Interaksi Manusia Komputer',
+    //   chapter: 'Chapter 1',
+    // ),
+    // BadgeModel(
+    //   image: 'lib/assets/pictures/icon.png',
+    //   name: 'Intermediate HCI',
+    //   type: 'INTERMEDIATE',
+    //   course: 'Interaksi Manusia Komputer',
+    //   chapter: 'Chapter 2',
+    // ),
+    // BadgeModel(
+    //   image: 'lib/assets/pictures/icon.png',
+    //   name: 'Advanced HCI',
+    //   type: 'ADVANCE',
+    //   course: 'Interaksi Manusia Komputer',
+    //   chapter: 'Chapter 2',
+    // ),
   ];
 
   List<BadgeModel> selectedBadges = [];

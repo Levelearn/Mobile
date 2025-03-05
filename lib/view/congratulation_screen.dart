@@ -25,6 +25,7 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
     idBadge = widget.idBadge;
     if(idBadge != 0) {
       getBadgeById(idBadge);
+      print(badge?.name);
       super.initState();
       _confettiController = ConfettiController(duration: const Duration(seconds: 3));
       _confettiController.play();
@@ -42,7 +43,11 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
   }
 
   Future<void> getBadgeById(int id) async {
-    badge = await BadgeService.getBadgeById(id);
+    final result = await BadgeService.getBadgeById(id);
+    setState(() {
+      badge = result;
+    });
+    print(badge?.name);
   }
 
   @override
@@ -60,7 +65,7 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
                 children: [
                   idBadge != 0 ?
                     badge?.image != null && badge?.image != "" ?
-                      Image.network(badge!.image, height: 100, width: 100,) :  Image.asset('lib/assets/pictures/icon.png')
+                      Image.network(badge!.image!, height: 100, width: 100,) :  Image.asset('lib/assets/pictures/icon.png')
                   : Icon(Icons.celebration, color: Colors.orange, size: 100),
                   const SizedBox(height: 20),
                   Text(

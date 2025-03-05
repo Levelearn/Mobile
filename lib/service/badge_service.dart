@@ -10,7 +10,7 @@ class BadgeService {
 
   static Future<List<BadgeModel>> getBadgeListCourseByCourseId(int courseId) async {
     try {
-      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/chapter/$courseId/badges'));
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/course/$courseId/badges'));
       final body = response.body;
       final result = jsonDecode(body);
       List<BadgeModel> list = List<BadgeModel>.from(
@@ -25,9 +25,9 @@ class BadgeService {
   static Future<void> createUserBadgeByChapterId(int userId, int badgeId) async {
     try {
       Map<String, dynamic> request = {
-        'userId':userId,
-        'badgeId':badgeId,
-        'isPurchased':false
+        "userId": userId,
+        "badgeId": badgeId,
+        "isPurchased": false
       };
       final response = await http.post(Uri.parse('${GlobalVar.baseUrl}/userbadge'), headers: {
         'Content-type' : 'application/json; charset=utf-8',
@@ -36,7 +36,7 @@ class BadgeService {
 
       final body = response.body;
       final result = jsonDecode(body);
-      print(UserBadge.fromJson(result['message']));
+      print(result['message']);
     } catch(e) {
       throw Exception(e.toString());
     }
