@@ -73,6 +73,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   String lastestSubmissionUrl = '';
   bool complete = false;
   Student? user;
+  bool isSubmitted = false;
+  List<Question> pgList = [];
 
   @override
   void initState() {
@@ -213,6 +215,23 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Future<void> updateUser() async {
     await UserService.updateUser(user!);
+  }
+
+  int getScore() {
+    int score = 0;
+    double rangeScore = 100 / question!.questions.length;
+    for(Question i in question!.questions){
+      if(i.type == 'PG' || i.type == 'TF' || i.type == 'MC') {
+        if(i.isCorrect){
+          score += rangeScore.toInt();
+        }
+      } else if (i.type == 'EY'){
+        if(i.selectedAnswer.length >= 50){
+          score += rangeScore.toInt();
+        }
+      }
+    }
+    return score;
   }
 
   void showCompletionDialog(BuildContext context, String message, bool isAssignment) {
@@ -455,14 +474,16 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                 onPressed: () {
                   setState(() {
                     tapped = true;
+                    isSubmitted = true;
                     allQuestionsAnswered = question!.questions.every(
-                          (q) =>
-                      q.selectedAnswer.isNotEmpty ||
-                          q.selectedMultAnswer.isNotEmpty,
+                          (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
                     );
                   });
 
                   if (allQuestionsAnswered && tapped) {
+                    final score = getScore();
+                    user!.points = user!.points! + score;
+
                     if (question!.answers == null) {
                       question!.answers = [];
                     }
@@ -471,6 +492,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                     }
                     status.assessmentDone = true;
                     status.assessmentAnswer = question!.answers!;
+                    updateUser();
                     updateProgressAssessment();
                   }
 
@@ -554,7 +576,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
             isThreeLine: true,
             title: Text(question?.questions[number].question ?? 'No question available', style: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded')),
             subtitle: question?.questions[number].option.isNotEmpty ?? false
-                ? _buildChoiceAnswer(question!.questions[number])
+                ? _buildChoiceAnswer(question!.questions[number], number)
                 : null,
           ),
         );
@@ -578,20 +600,41 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     }
   }
 
-  Widget _buildChoiceAnswer(Question question) {
+  Widget _buildChoiceAnswer(Question question, int number) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: question.option.map((answer) {
         final bool isSelected = question.selectedAnswer == answer;
+        final bool isCorrectAnswer = answer == question.correctedAnswer;
+        final bool isIncorrectSelected = isSelected && !question.isCorrect;
+
+        Color borderColor;
+        Color backgroundColor;
+
+        if (tapped) {
+          if (isIncorrectSelected) {
+            borderColor = Colors.red;
+            backgroundColor = Colors.red.shade50;
+          } else if (isCorrectAnswer) {
+            borderColor = Colors.green;
+            backgroundColor = Colors.green.shade50;
+          } else {
+            borderColor = Colors.grey.shade300;
+            backgroundColor = Colors.white;
+          }
+        } else {
+          borderColor = isSelected ? Colors.deepPurple : Colors.grey.shade300;
+          backgroundColor = isSelected ? Colors.deepPurple.shade50 : Colors.white;
+        }
 
         return AnimatedContainer(
           duration: Duration(milliseconds: 300),
           margin: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.deepPurple.shade50 : Colors.white,
+            color: backgroundColor,
             border: Border.all(
-              color: isSelected ? Colors.deepPurple : Colors.grey.shade300,
+              color: borderColor,
               width: 1.5,
             ),
             borderRadius: BorderRadius.circular(15),
@@ -620,10 +663,13 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
             groupValue: question.selectedAnswer,
             activeColor: Colors.deepPurple,
             contentPadding: EdgeInsets.zero,
-            onChanged: (String? value) {
+            onChanged: tapped
+                ? null
+                : (String? value) {
               if (value != null) {
                 setState(() {
-                  question.selectedAnswer = answer;
+                  question.selectedAnswer = value;
+                  question.isCorrect = value == question.correctedAnswer;
                 });
               }
             },
@@ -632,6 +678,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       }).toList(),
     );
   }
+
 
   Widget _buildTextAnswer(Question question) {
     return Card(

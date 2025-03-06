@@ -38,6 +38,7 @@ class Question {
   String type;
   String _selectedAnswer = '';
   List<String> _selectedMultiAnswer = [];
+  bool isCorrect = false;
 
   Question({
     required this.question,
