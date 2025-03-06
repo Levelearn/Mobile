@@ -440,7 +440,7 @@ class _HomeState extends State<Homescreen> {
                           LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
-                          LineAwesomeIcons.user_check_solid, 'Course', '${allCourses.length}', AppColors.accentColor),
+                          LineAwesomeIcons.user_check_solid, 'Course', '${allCourses.isNotEmpty ? allCourses.length : 0}', AppColors.accentColor),
                       SizedBox(width: 24), // Jarak antar info
                       _buildInfoColumn(
                           LineAwesomeIcons.trophy_solid, 'Peringkat', '$rank / ${list.length}', AppColors.accentColor),

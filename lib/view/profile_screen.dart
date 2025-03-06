@@ -1,5 +1,6 @@
 import 'package:app/global_var.dart';
 import 'package:app/model/chapter.dart';
+import 'package:app/model/user_badge.dart';
 import 'package:app/service/badge_service.dart';
 import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_service.dart';
@@ -29,7 +30,7 @@ class _ProfileState extends State<ProfileScreen> {
   bool isLoading = true;
   List<Student> list = [];
   int rank = 0;
-  List<BadgeModel>? userBadges = [];
+  List<UserBadge>? userBadges = [];
   Course? course;
   Chapter? chapter;
   List<Course>? allCourses;
@@ -311,14 +312,14 @@ class _ProfileState extends State<ProfileScreen> {
                               itemBuilder: (context, index) {
                                 return GestureDetector(
                                   onTap: () {
-                                    _showBadgeDetails(context, userBadges![index]);
+                                    _showBadgeDetails(context, userBadges![index].badge);
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: userBadges?[index].image != null  ?
-                                      Image.network(userBadges![index].image!, fit: BoxFit.cover) : Image.asset('lib/assets/pictures/icon.png', fit: BoxFit.cover)
+                                      child: userBadges?[index].badge.image != null  ?
+                                      Image.network(userBadges![index].badge.image!, fit: BoxFit.cover) : Image.asset('lib/assets/pictures/icon.png', fit: BoxFit.cover)
                                     ),
                                   ),
                                 );
@@ -377,10 +378,11 @@ class _ProfileState extends State<ProfileScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                               onPressed: () {
+                                logout();
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ProfileScreen()),
+                                      builder: (context) => LoginScreen()),
                                 );
                               },
                               style: ElevatedButton.styleFrom(

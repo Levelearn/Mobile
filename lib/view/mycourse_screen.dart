@@ -1,4 +1,5 @@
 import 'package:app/service/course_service.dart';
+import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/course.dart';
@@ -62,8 +63,6 @@ class _CourseDetail extends State<MycourseScreen> {
     }
   }
 
-
-
   void _filterCourses() {
     String query = _searchController.text.toLowerCase().trim();
     if (query.isEmpty) {
@@ -119,7 +118,7 @@ class _CourseDetail extends State<MycourseScreen> {
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               toolbarHeight: 180,
-              backgroundColor: purple,
+              backgroundColor: AppColors.primaryColor,
               automaticallyImplyLeading: false,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app/model/badge.dart';
+import 'package:app/model/user_badge.dart';
 import 'package:http/http.dart' as http;
 
 import '../global_var.dart';
@@ -41,7 +42,7 @@ class BadgeService {
     }
   }
 
-  static Future<List<BadgeModel>> getUserBadgeListByUserId(int userId) async {
+  static Future<List<UserBadge>> getUserBadgeListByUserId(int userId) async {
     try {
       final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/user/$userId/badges'));
       final result = jsonDecode(response.body);
@@ -50,11 +51,26 @@ class BadgeService {
         throw Exception("No assignment found");
       }
 
-      List<BadgeModel> list = List<BadgeModel>.from(
-          result.map((q) => BadgeModel.fromJson(q['badge']))
+      List<UserBadge> list = List<UserBadge>.from(
+          result.map((q) => UserBadge.fromJson(q))
       );
 
       return list;
+    } catch (e) {
+      throw Exception("Error fetching assessment: ${e.toString()}");
+    }
+  }
+
+  static Future<List<UserBadge>> getUserBadgeListWithStatusByUserId(int userId) async {
+    try {
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/user/$userId/badges'));
+      final result = jsonDecode(response.body);
+
+      if (result.isEmpty) {
+        throw Exception("No assignment found");
+      }
+
+      return result;
     } catch (e) {
       throw Exception("Error fetching assessment: ${e.toString()}");
     }
@@ -76,4 +92,6 @@ class BadgeService {
       throw Exception("Error fetching assessment: ${e.toString()}");
     }
   }
+
+
 }

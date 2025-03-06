@@ -11,6 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:intl/intl.dart';
 
 import '../service/user_service.dart';
 import '../utils/colors.dart';
@@ -288,18 +289,18 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             String newUsername = usernameController.text.trim();
                             String newPassword = passwordController.text.trim();
 
-                                  if (newName.isNotEmpty && newName != user?.name) {
-                                    user?.name = newName;
-                                    hasChanges = true;
-                                  }
-                                  if (newUsername.isNotEmpty && newUsername != user?.username) {
-                                    user?.username = newUsername;
-                                    hasChanges = true;
-                                  }
-                                  if (newPassword.isNotEmpty && newPassword != user?.password) {
-                                    user?.password = newPassword;
-                                    hasChanges = true;
-                                  }
+                            if (newName.isNotEmpty && newName != user?.name) {
+                              user?.name = newName;
+                              hasChanges = true;
+                            }
+                            if (newUsername.isNotEmpty && newUsername != user?.username) {
+                              user?.username = newUsername;
+                              hasChanges = true;
+                            }
+                            if (newPassword.isNotEmpty && newPassword != user?.password) {
+                              user?.password = newPassword;
+                              hasChanges = true;
+                            }
 
                             if (hasChanges) {
                               await updateUser();
@@ -321,14 +322,28 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text.rich(
-                              TextSpan(
-                                text: "Joined",
-                                style: TextStyle(fontSize: 12),
-                                children: [
-                                  TextSpan(text: "6 Agustus 2004", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))
-                                ],
-                              )
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text.rich(
+                                  TextSpan(
+                                    text: "Joined: ",
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                                    children: [
+                                      TextSpan(text: DateFormat('dd MMMM yyyy HH:mm:ss').format(user!.createdAt), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primaryColor))
+                                    ],
+                                  )
+                              ),
+                              Text.rich(
+                                  TextSpan(
+                                    text: "Last Modified: ",
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                                    children: [
+                                      TextSpan(text: DateFormat('dd MMMM yyyy HH:mm:ss').format(user!.updatedAt), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primaryColor))
+                                    ],
+                                  )
+                              ),
+                            ],
                           ),
                           ElevatedButton(
                             onPressed: () async{

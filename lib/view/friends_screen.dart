@@ -1,4 +1,5 @@
 import 'package:app/service/user_service.dart';
+import 'package:app/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 import '../model/user.dart';
@@ -58,20 +59,20 @@ class _FriendsScreen extends State<FriendsScreen> {
            backgroundColor: Colors.transparent,
           appBar: AppBar(
             toolbarHeight: 450,
-            backgroundColor: purple,
+            backgroundColor: AppColors.primaryColor,
             automaticallyImplyLeading: false,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
               ),
             ),
             title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Papan Peringkat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 30),),
+                  Text('Papan Peringkat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 24, fontFamily: 'DIN_Next_Rounded'),),
                   _buildLeaderBoard(user),
                 ],
               ),
@@ -89,7 +90,7 @@ class _FriendsScreen extends State<FriendsScreen> {
       itemCount: user.length,
       itemBuilder: (context, count) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 1.0),
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
           child: _listFriendsItem(user[count], count),
         );
       },
@@ -100,7 +101,7 @@ class _FriendsScreen extends State<FriendsScreen> {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -114,7 +115,7 @@ class _FriendsScreen extends State<FriendsScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: ListTile(
           leading: index <= 2 ? Image.asset(
@@ -126,16 +127,16 @@ class _FriendsScreen extends State<FriendsScreen> {
               }
           ) : Text('#${index + 1}', style: TextStyle(fontSize: 25),),
           title: Text(
-            user.username,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+            user.name,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
           ),
           subtitle: Text(
             user.studentId!,
-            style: TextStyle(fontSize: 13, color: Colors.black),
+            style: TextStyle(fontSize: 12, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
           ),
           trailing: Text(
             '${user.points} Point',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
           ),
         ),
       ),
@@ -144,7 +145,7 @@ class _FriendsScreen extends State<FriendsScreen> {
 
   Widget _buildLeaderBoard(List<Student> list) {
     return Container(
-      margin: EdgeInsets.all(13),
+      margin: EdgeInsets.all(16),
       height: 300,
       width: double.infinity,
       child: Row(
@@ -160,7 +161,7 @@ class _FriendsScreen extends State<FriendsScreen> {
               CircleAvatar(
                   radius: 30,
                   child: Icon(Icons.person, size: 20,)),
-              Text(list.isNotEmpty && list.length >= 2? list[1].username : '', style: TextStyle(color: Colors.white),),
+              Text(list.isNotEmpty && list.length >= 2? list[1].name : '', style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'DIN_Next_Rounded'),),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -168,7 +169,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 ),
                 child: Padding(
                     padding: EdgeInsets.all(10),
-                  child: Text('${list.isNotEmpty && list.length >= 2 ? list[1].points : 0} pts', style: TextStyle(fontSize: 12),),
+                  child: Text('${list.isNotEmpty && list.length >= 2 ? list[1].points : 0} pts', style: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded'),),
                 ),
               ),
               SizedBox(
@@ -180,9 +181,14 @@ class _FriendsScreen extends State<FriendsScreen> {
                 height: 120,
                 decoration: BoxDecoration(
                     color: Colors.blueGrey.shade400,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(0),
+                    bottomLeft: Radius.circular(0),
+                    bottomRight: Radius.circular(0),
+                  ),
                 ),
-                child: Center(child: Text('#2', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900)),),
+                child: Center(child: Text('#2', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
               )
             ],
           ),
@@ -196,7 +202,7 @@ class _FriendsScreen extends State<FriendsScreen> {
               CircleAvatar(
                   radius: 30,
                   child: Icon(Icons.person, size: 20,)),
-              Text(list.isNotEmpty ? list[0].username : '', style: TextStyle(color: Colors.white),),
+              Text(list.isNotEmpty ? list[0].name : '', style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'DIN_Next_Rounded'),),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -204,7 +210,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text('${list.isNotEmpty? list[0].points : 0} pts', style: TextStyle(fontSize: 12),),
+                  child: Text('${list.isNotEmpty? list[0].points : 0} pts', style: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded'),),
                 ),
               ),
               SizedBox(
@@ -216,9 +222,14 @@ class _FriendsScreen extends State<FriendsScreen> {
                 height: 150,
                 decoration: BoxDecoration(
                   color: Colors.amber.shade300,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                    bottomLeft: Radius.circular(0),
+                    bottomRight: Radius.circular(0),
+                  ),
                 ),
-                child: Center(child: Text('#1', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900)),),
+                child: Center(child: Text('#1', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
               )
             ],
           ),
@@ -232,7 +243,7 @@ class _FriendsScreen extends State<FriendsScreen> {
               CircleAvatar(
                   radius: 30,
                   child: Icon(Icons.person, size: 20,)),
-              Text(list.isNotEmpty && list.length >= 3 ? list[2].username : '', style: TextStyle(color: Colors.white),),
+              Text(list.isNotEmpty && list.length >= 3 ? list[2].name : '', style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'DIN_Next_Rounded'),),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -240,7 +251,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text('${list.isNotEmpty && list.length >= 3 ? list[2].points : 0} pts', style: TextStyle(fontSize: 12),),
+                  child: Text('${list.isNotEmpty && list.length >= 3 ? list[2].points : 0} pts', style: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded'),),
                 ),
               ),
               SizedBox(
@@ -252,9 +263,14 @@ class _FriendsScreen extends State<FriendsScreen> {
                 height: 90,
                 decoration: BoxDecoration(
                   color: Colors.orange.shade400,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(0),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(0),
+                  ),
                 ),
-                child: Center(child: Text('#3', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900)),),
+                child: Center(child: Text('#3', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
               )
             ],
           ),

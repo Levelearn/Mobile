@@ -1,8 +1,13 @@
 import 'package:app/model/badge.dart';
 import 'package:app/model/trade.dart';
+import 'package:app/model/user_badge.dart';
+import 'package:app/service/badge_service.dart';
+import 'package:app/service/trade_service.dart';
+import 'package:app/service/user_badge_service.dart';
 import 'package:app/view/whatadeal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/colors.dart';
 
@@ -17,66 +22,75 @@ class TradeDetailScreen extends StatefulWidget {
 
 class _TradeDetailScreenState extends State<TradeDetailScreen> {
 
-  List<BadgeModel> userBadges = [
-    BadgeModel(
-      id: 1,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'UX Researcher',
-      type: 'Beginner',
-      courseId: 1,
-      chapterId: 3,
-    ),
-    BadgeModel(
-      id: 2,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'UX Researcher',
-      type: 'Intermediate',
-      courseId: 1,
-      chapterId: 6,
-    ),
-    BadgeModel(
-      id: 3,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'UX Researcher',
-      type: 'Advance',
-      courseId: 1,
-      chapterId: 8,
-    ),
-    BadgeModel(
-      id: 4,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'OS Engineer',
-      type: 'Beginner',
-      courseId: 3,
-      chapterId: 3,
-    ),
-    BadgeModel(
-      id: 5,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'OS Engineer',
-      type: 'Intermediate',
-      courseId: 3,
-      chapterId: 5,
-    ),
-    BadgeModel(
-      id: 6,
-      image: 'lib/assets/pictures/icon.png',
-      name: 'OS Engineer',
-      type: 'Advance',
-      courseId: 3,
-      chapterId: 8,
-    ),
-  ];
+  late SharedPreferences pref;
+  List<UserBadge> userBadges = [];
+  List<BadgeModel> allowedBadges = [];
+  List<UserBadge> userBadgesWithStatus = [];
 
-  List<BadgeModel> selectedBadges = [];
+  List<UserBadge> selectedBadges = [];
   String errorMessage = '';
 
-  void _purchase() {
-    if (_isPurchaseValid()) {
-      print('Pembelian berhasil!');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showCompletionDialog(context, "Transaksi badge anda telah berhasil!", false);
+  @override
+  void initState() {
+
+    getUserBadges();
+    getUserBadgesWithStatus();
+    super.initState();
+  }
+
+  Future<void> getUserBadges() async {
+    try {
+      pref = await SharedPreferences.getInstance();
+      int? id = pref.getInt('userId');
+      if (id == null) return;
+
+      final result = await BadgeService.getUserBadgeListByUserId(id);
+      if (!mounted) return;
+
+      setState(() {
+        userBadges = result;
       });
+    } catch (e) {
+      debugPrint("Error fetching user badges: $e");
+    }
+  }
+
+  Future<void> getUserBadgesWithStatus() async {
+    try {
+      pref = await SharedPreferences.getInstance();
+      int? id = pref.getInt('userId');
+      if (id == null) return;
+
+      final result = await BadgeService.getUserBadgeListWithStatusByUserId(id);
+      if (!mounted) return;
+
+      setState(() {
+        userBadgesWithStatus = result;
+      });
+    } catch (e) {
+      debugPrint("Error fetching user badges: $e");
+    }
+  }
+
+  Future<void> _purchase() async {
+    if(_isPurchaseValid()) {
+      pref = await SharedPreferences.getInstance();
+      int? id = pref.getInt('userId');
+
+      try {
+        await createUserTrade(id!, widget.trade.id, selectedBadges.first.id);
+        await updateUserBadgeStatus(selectedBadges.first.id, true);
+
+        print('Pembelian berhasil!');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showCompletionDialog(context, "Transaksi badge anda telah berhasil!", false);
+        });
+      } catch (e) {
+        debugPrint("Error during purchase: $e");
+        setState(() {
+          errorMessage = 'Terjadi kesalahan saat melakukan pembelian.';
+        });
+      }
     } else {
       setState(() {
         errorMessage = 'Badge yang dipilih tidak sesuai.';
@@ -89,11 +103,19 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
       return false;
     }
     for (var badge in selectedBadges) {
-      if (badge.type != widget.trade.requiredBadgeType) {
+      if (badge.badge.type != widget.trade.requiredBadgeType) {
         return false;
       }
     }
     return true;
+  }
+
+  Future<void> createUserTrade(int userId, int tradeId, int badgeId) async{
+    await TradeService.createUserTrade(userId, tradeId, badgeId);
+  }
+
+  Future<void> updateUserBadgeStatus(int badgeId, bool status) async{
+    await UserBadgeService.updateUserBadgeStatus(badgeId, status);
   }
 
   void showCompletionDialog(BuildContext context, String message, bool isAssignment) {
@@ -190,9 +212,10 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
                     return ChoiceChip(
                       selectedColor: AppColors.accentColor,
                       backgroundColor: Colors.white,
-                      label: Text(badge.name, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                      label: Text(badge.badge.name, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
                       selected: selectedBadges.contains(badge),
-                      onSelected: (selected) {
+                      onSelected: !badge.isPurchased ? (selected) {
+                        print(badge.isPurchased);
                         setState(() {
                           if (selected) {
                             selectedBadges.add(badge);
@@ -201,7 +224,7 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
                           }
                           errorMessage = '';
                         });
-                      },
+                      } : null,
                     );
                   }).toList(),
                 ),

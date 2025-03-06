@@ -1,9 +1,11 @@
 import 'package:app/model/trade.dart';
+import 'package:app/service/trade_service.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:app/view/trade_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/user.dart';
 
@@ -17,26 +19,29 @@ class TradeScreen extends StatefulWidget {
 
 class _TradeScreenState extends State<TradeScreen> {
 
-  final List<TradeModel> trades = [
-    TradeModel(
-      image: 'lib/assets/pictures/icon.png',
-      title: 'Voucher Belanja Cafetaria Del',
-      description: 'Voucher Belanja senilai Rp.10.000,- untuk transaksi di Cafetaria Del. Berlaku sampai 1 semester kedepan.',
-      requiredBadgeType: 'ADVANCE',
-    ),
-    TradeModel(
-      image: 'lib/assets/pictures/icon.png',
-      title: 'Sticky Notes UTS',
-      description: 'Sticky Notes berupa cemilan makanan dan minuman dengan ucapan semangat menjalani UTS',
-      requiredBadgeType: 'BEGINNER',
-    ),
-    TradeModel(
-      image: 'lib/assets/pictures/icon.png',
-      title: 'Nilai Tambah UTS +5',
-      description: 'Penambahan Nilai UTS sebanyak 5. Maksimal nilai yang bisa diperoleh dengan penambahan adalah 80',
-      requiredBadgeType: 'INTERMEDIATE',
-    ),
-  ];
+  late SharedPreferences pref;
+  List<TradeModel> trades = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getAllTrades();
+
+    trades = trades;
+  }
+
+  void getAllTrades() async {
+    try {
+      final result = await TradeService.getAllTrades();
+      if (!mounted) return;
+
+      setState(() {
+        trades = result;
+      });
+    } catch (e) {
+      debugPrint("Error fetching trades: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,42 +78,43 @@ class _TradeScreenState extends State<TradeScreen> {
         ),
         child: trades.isEmpty
             ? Center(
-          child: Text('Penawaran belum tersedia.',
-              style: TextStyle(
-                  fontFamily: 'DIN_Next_Rounded',
-                  color: AppColors.primaryColor
-              )),
-        )
-            : ListView.builder(
-          itemCount: trades.length,
-          itemBuilder: (context, index) {
-            final trade = trades[index];
-            return ListTile(
-              leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.asset(trade.image)),
-              title: Text(
-                  trade.title,
+              child: Text('Penawaran belum tersedia',
                   style: TextStyle(
                       fontFamily: 'DIN_Next_Rounded',
-                      fontWeight: FontWeight.w600,
                       color: AppColors.primaryColor
-                  )),
-              subtitle: Text(
-                'Tukarkan badge ${trade.requiredBadgeType} anda untuk mendapatkan penawaran ini!',
-                style: TextStyle(
-                  fontFamily: 'DIN_Next_Rounded',
-                ),
+                  )
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TradeDetailScreen(trade: trade),
+            )
+            : ListView.builder(
+              itemCount: trades.length,
+              itemBuilder: (context, index) {
+                final trade = trades[index];
+                return ListTile(
+                  leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.asset(trade.image)),
+                  title: Text(
+                      trade.title,
+                      style: TextStyle(
+                          fontFamily: 'DIN_Next_Rounded',
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryColor
+                      )),
+                  subtitle: Text(
+                    'Tukarkan badge ${trade.requiredBadgeType} anda untuk mendapatkan penawaran ini!',
+                    style: TextStyle(
+                      fontFamily: 'DIN_Next_Rounded',
+                    ),
                   ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TradeDetailScreen(trade: trade),
+                      ),
+                    );
+                  },
                 );
               },
-            );
-          },
-        ),
+            ),
       )
     );
   }
