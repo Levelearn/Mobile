@@ -3,6 +3,7 @@ import 'package:app/model/chapter.dart';
 import 'package:app/service/badge_service.dart';
 import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/view/trade_screen.dart';
 import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -268,7 +269,7 @@ class _ProfileState extends State<ProfileScreen> {
                       ),
                     ),
                       SizedBox(
-                      height: 32,
+                      height: 4,
                     ),
                       Container(
                       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -333,6 +334,16 @@ class _ProfileState extends State<ProfileScreen> {
                       ),
                     ),
                       ProfileMenuWidget(
+                        title: "Trades",
+                        icon: LineAwesomeIcons.coins_solid,
+                        onPress: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => TradeScreen(user: user!,)),
+                          );
+                        },
+                      ),
+                      ProfileMenuWidget(
                         title: "Update Profile",
                         icon: LineAwesomeIcons.person_booth_solid,
                         onPress: () {
@@ -357,21 +368,36 @@ class _ProfileState extends State<ProfileScreen> {
                         icon: LineAwesomeIcons.info_circle_solid,
                         onPress: () {},
                       ),
-                      ProfileMenuWidget(
-                      title: "Logout",
-                      icon: LineAwesomeIcons.arrow_circle_left_solid,
-                      textColor: Colors.red,
-                      endIcon: false,
-                      onPress: () {
-                        logout();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LoginScreen()
+                      SizedBox(
+                          height: 16
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProfileScreen()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: GlobalVar.primaryColor,
+                                side: BorderSide.none,
+                                shape: const StadiumBorder(),
+                              ),
+                              child: Text("Log Out", style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontFamily: 'DIN_Next_Rounded',
+                                  color: Colors.white
+                              ),)
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      SizedBox(
+                          height: 16
+                      ),
                     ],
                   ),
                 )

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:app/model/badge.dart';
-import 'package:app/model/user_badge.dart';
 import 'package:http/http.dart' as http;
 
 import '../global_var.dart';

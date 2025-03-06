@@ -1,6 +1,5 @@
 import 'package:app/view/login_screen.dart';
 import 'package:app/view/main_screen.dart';
-import 'package:app/view/trade_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -44,4 +43,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

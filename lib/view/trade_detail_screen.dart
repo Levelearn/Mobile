@@ -1,6 +1,5 @@
 import 'package:app/model/badge.dart';
 import 'package:app/model/trade.dart';
-import 'package:app/view/trade_screen.dart';
 import 'package:app/view/whatadeal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -19,27 +18,54 @@ class TradeDetailScreen extends StatefulWidget {
 class _TradeDetailScreenState extends State<TradeDetailScreen> {
 
   List<BadgeModel> userBadges = [
-    // BadgeModel(
-    //   image: 'lib/assets/pictures/icon.png',
-    //   name: 'Beginner HCI',
-    //   type: 'BEGINNER',
-    //   course: 'Interaksi Manusia Komputer',
-    //   chapter: 'Chapter 1',
-    // ),
-    // BadgeModel(
-    //   image: 'lib/assets/pictures/icon.png',
-    //   name: 'Intermediate HCI',
-    //   type: 'INTERMEDIATE',
-    //   course: 'Interaksi Manusia Komputer',
-    //   chapter: 'Chapter 2',
-    // ),
-    // BadgeModel(
-    //   image: 'lib/assets/pictures/icon.png',
-    //   name: 'Advanced HCI',
-    //   type: 'ADVANCE',
-    //   course: 'Interaksi Manusia Komputer',
-    //   chapter: 'Chapter 2',
-    // ),
+    BadgeModel(
+      id: 1,
+      image: 'lib/assets/pictures/icon.png',
+      name: 'UX Researcher',
+      type: 'Beginner',
+      courseId: 1,
+      chapterId: 3,
+    ),
+    BadgeModel(
+      id: 2,
+      image: 'lib/assets/pictures/icon.png',
+      name: 'UX Researcher',
+      type: 'Intermediate',
+      courseId: 1,
+      chapterId: 6,
+    ),
+    BadgeModel(
+      id: 3,
+      image: 'lib/assets/pictures/icon.png',
+      name: 'UX Researcher',
+      type: 'Advance',
+      courseId: 1,
+      chapterId: 8,
+    ),
+    BadgeModel(
+      id: 4,
+      image: 'lib/assets/pictures/icon.png',
+      name: 'OS Engineer',
+      type: 'Beginner',
+      courseId: 3,
+      chapterId: 3,
+    ),
+    BadgeModel(
+      id: 5,
+      image: 'lib/assets/pictures/icon.png',
+      name: 'OS Engineer',
+      type: 'Intermediate',
+      courseId: 3,
+      chapterId: 5,
+    ),
+    BadgeModel(
+      id: 6,
+      image: 'lib/assets/pictures/icon.png',
+      name: 'OS Engineer',
+      type: 'Advance',
+      courseId: 3,
+      chapterId: 8,
+    ),
   ];
 
   List<BadgeModel> selectedBadges = [];
@@ -108,105 +134,107 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
           color: Colors.white,
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-                'lib/assets/pictures/background-pattern.png'
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                  'lib/assets/pictures/background-pattern.png'
+              ),
+              fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
             ),
-            fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.asset(widget.trade.image)),
-              SizedBox(height: 16),
-              Text(
-                widget.trade.title,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'DIN_Next_Rounded',
-                  color: AppColors.primaryColor,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                widget.trade.description,
-                style: TextStyle(
-                  fontFamily: 'DIN_Next_Rounded',
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Persyaratan',
-                style: TextStyle(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.asset(widget.trade.image)),
+                SizedBox(height: 16),
+                Text(
+                  widget.trade.title,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                     fontFamily: 'DIN_Next_Rounded',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16
-                ),
-              ),
-              Text(
-                'Tukarkan satu buah badge dengan tipe ${widget.trade.requiredBadgeType} untuk mendapatkan penawaran ini!',
-                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
-              ),
-              SizedBox(height: 16),
-              Text('Pilih Badge untuk ditukarkan:', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-              userBadges.isEmpty
-                  ? Text('Anda belum memiliki badge.', style: TextStyle(fontFamily: 'DIN_Next_Rounded'))
-                  : Wrap(
-                spacing: 8.0,
-                children: userBadges.map((badge) {
-                  return ChoiceChip(
-                    selectedColor: AppColors.accentColor,
-                    backgroundColor: Colors.white,
-                    label: Text(badge.name, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-                    selected: selectedBadges.contains(badge),
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          selectedBadges.add(badge);
-                        } else {
-                          selectedBadges.remove(badge);
-                        }
-                        errorMessage = '';
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isPurchaseValid() ? _purchase : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
+                    color: AppColors.primaryColor,
                   ),
-                  child: Text(
-                    'Purchase',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'DIN_Next_Rounded'
+                ),
+                SizedBox(height: 8),
+                Text(
+                  widget.trade.description,
+                  style: TextStyle(
+                    fontFamily: 'DIN_Next_Rounded',
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Persyaratan',
+                  style: TextStyle(
+                      fontFamily: 'DIN_Next_Rounded',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16
+                  ),
+                ),
+                Text(
+                  'Tukarkan satu buah badge dengan tipe ${widget.trade.requiredBadgeType} untuk mendapatkan penawaran ini!',
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                ),
+                SizedBox(height: 16),
+                Text('Pilih Badge untuk ditukarkan:', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                userBadges.isEmpty
+                    ? Text('Anda belum memiliki badge.', style: TextStyle(fontFamily: 'DIN_Next_Rounded'))
+                    : Wrap(
+                  spacing: 8.0,
+                  children: userBadges.map((badge) {
+                    return ChoiceChip(
+                      selectedColor: AppColors.accentColor,
+                      backgroundColor: Colors.white,
+                      label: Text(badge.name, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                      selected: selectedBadges.contains(badge),
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            selectedBadges.add(badge);
+                          } else {
+                            selectedBadges.remove(badge);
+                          }
+                          errorMessage = '';
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isPurchaseValid() ? _purchase : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                    ),
+                    child: Text(
+                      'Purchase',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'DIN_Next_Rounded'
+                      ),
                     ),
                   ),
                 ),
-              ),
-              if (errorMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    errorMessage,
-                    style: TextStyle(color: Colors.red),
+                if (errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      errorMessage,
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       )
-    );;
+    );
   }
 }

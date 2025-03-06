@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:app/global_var.dart';
 import 'package:app/model/user.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:file_picker/file_picker.dart';
