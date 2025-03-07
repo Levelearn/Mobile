@@ -96,7 +96,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
       await prefs.setString('name', user!.name);
       await prefs.setString('role', user!.role);
     }
-    }
+  }
+
+  Future<void> updateUserPhoto() async {
+    await UserService.updateUserPhoto(user!);
+  }
 
   Future<XFile?> compressImage(PlatformFile file) async {
     final tempDir = await getTemporaryDirectory();
@@ -276,12 +280,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if(photo != null) {
+                              hasChanges = true;
                               final filename = '${photo?.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo?.extension}';
                               final compressedXFile = await compressImage(photo!);
 
                               if (compressedXFile != null) {
                                 uploadPhotoProfile(compressedXFile, filename).then((_) {
-                                  updateUser();
+                                  updateUserPhoto();
                                 });
                               }
                             }
@@ -298,6 +303,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               hasChanges = true;
                             }
                             if (newPassword.isNotEmpty && newPassword != user?.password) {
+                              print(newPassword);
                               user?.password = newPassword;
                               hasChanges = true;
                             }

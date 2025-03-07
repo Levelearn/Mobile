@@ -5,9 +5,8 @@ import 'package:confetti/confetti.dart';
 
 class WhatADealScreen extends StatefulWidget {
   final String message;
-  final VoidCallback? onContinue;
 
-  const WhatADealScreen({super.key, required this.message, this.onContinue});
+  const WhatADealScreen({super.key, required this.message});
 
   @override
   State<WhatADealScreen> createState() => _WhatADealScreenState();
@@ -60,9 +59,10 @@ class _WhatADealScreenState extends State<WhatADealScreen> {
                     style: TextStyle(fontSize: 16, color: Colors.black54),
                   ),
                   const SizedBox(height: 30),
-                  if (widget.onContinue != null)
                     ElevatedButton(
-                      onPressed: widget.onContinue,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                       style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor)),
                       child: Text("Ayo, dapatkan lebih banyak badge!", style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'DIN_Next_Rounded')),
                     ),
