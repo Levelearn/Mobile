@@ -91,11 +91,66 @@ class UserService {
       } , body: jsonEncode(request));
 
       final body = response.body;
-      print(body);
+      // print(body);
       final result = jsonDecode(body);
-      print(result);
+      // print(result);
       Student users = Student.fromJson(result['user']);
       return users;
+    } catch(e){
+      throw Exception(e.toString());
+    }
+  }
+
+  static Future<Student> updateUserPoints (Student user) async {
+    try {
+      Map<String, dynamic> request = {
+        "points": user.points,
+      };
+      final response = await http.put(Uri.parse('${GlobalVar.baseUrl}/user/${user.id}'), headers: {
+        'Content-type' : 'application/json; charset=utf-8',
+        'Accept': 'application/json',
+      } , body: jsonEncode(request));
+
+      final body = response.body;
+      final result = jsonDecode(body);
+      Student users = Student.fromJson(result['user']);
+      return users;
+    } catch(e){
+      throw Exception(e.toString());
+    }
+  }
+
+  static Future<Student> updateUserPointsAndBadge (Student user) async {
+    try {
+      Map<String, dynamic> request = {
+        "points": user.points,
+      };
+      final response = await http.put(Uri.parse('${GlobalVar.baseUrl}/user/${user.id}'), headers: {
+        'Content-type' : 'application/json; charset=utf-8',
+        'Accept': 'application/json',
+      } , body: jsonEncode(request));
+
+      final body = response.body;
+      final result = jsonDecode(body);
+      Student users = Student.fromJson(result['user']);
+      return users;
+    } catch(e){
+      throw Exception(e.toString());
+    }
+  }
+
+  static Future<void> updateUserPhoto(Student user) async {
+    try {
+      Map<String, dynamic> request = {
+        "image": user.image,
+      };
+      final response = await http.put(Uri.parse('${GlobalVar.baseUrl}/user/${user.id}'), headers: {
+        'Content-type' : 'application/json; charset=utf-8',
+        'Accept': 'application/json',
+      } , body: jsonEncode(request));
+
+      final body = response.body;
+      // print(body);
     } catch(e){
       throw Exception(e.toString());
     }

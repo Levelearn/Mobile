@@ -584,7 +584,8 @@ class _HomeState extends State<Homescreen> {
       Course course
       ) {
     return GestureDetector(
-      onTap: (){
+      onTap: () async {
+        await pref.setInt('lastestSelectedCourse', course.id);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

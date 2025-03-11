@@ -126,9 +126,6 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
           MaterialPageRoute(
             builder: (context) => WhatADealScreen(
               message: message,
-              onContinue: () {
-                Navigator.pop(context);
-              },
             ),
           ),
         );

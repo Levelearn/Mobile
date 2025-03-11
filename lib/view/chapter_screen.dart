@@ -13,7 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -215,6 +215,14 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Future<void> updateUser() async {
     await UserService.updateUser(user!);
+  }
+
+  Future<void> updateUserPoints() async {
+    await UserService.updateUserPoints(user!);
+  }
+
+  Future<void> updateUserPointsAndBadge() async {
+    await UserService.updateUserPointsAndBadge(user!);
   }
 
   int getScore() {
@@ -481,7 +489,10 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                   });
 
                   if (allQuestionsAnswered && tapped) {
-                    final score = getScore();
+                    int score = 0;
+                    if(!widget.status.assessmentDone){
+                      score = getScore();
+                    }
                     user!.points = user!.points! + score;
 
                     if (question!.answers == null) {
@@ -492,7 +503,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                     }
                     status.assessmentDone = true;
                     status.assessmentAnswer = question!.answers!;
-                    updateUser();
+                    updateUserPoints();
                     updateProgressAssessment();
                   }
 
@@ -864,7 +875,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                         createUserBadge(user!.id, idBadge);
                         user?.badges = user!.badges! + 1;
                       }
-                      updateUser();
+                      updateUserPointsAndBadge();
                       updateUserCourse();
                       updateProgressAssignment();
 
