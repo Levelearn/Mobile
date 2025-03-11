@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/course.dart';
 import 'course_detail_screen.dart';
 
-Color purple = Color(0xFF441F7F);
+Color purple = AppColors.primaryColor;
 Color backgroundNavHex = Color(0xFFF3EDF7);
 const url = 'https://www.globalcareercounsellor.com/blog/wp-content/uploads/2018/05/Online-Career-Counselling-course.jpg';
 
@@ -191,14 +191,14 @@ class _CourseDetail extends State<MycourseScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        color: Colors.deepPurple[500],
+        color: AppColors.primaryColor,
         elevation: 5,
         margin: EdgeInsets.all(10),
         child:  Column(
           children: [
             Image.network(url, height: 100, width: double.infinity, fit: BoxFit.cover),
             ListTile(
-              title: Text(course.codeCourse.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.grey.shade300),),
+              title: Text(course.codeCourse.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.accentColor, fontFamily: 'DIN_Next_Rounded'),),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -209,7 +209,7 @@ class _CourseDetail extends State<MycourseScreen> {
                     borderRadius: BorderRadius.circular(15), // Ensure the child gets rounded corners
                     child: LinearProgressIndicator(
                       backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.lightGreen.shade400),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondaryColor),
                       value: course.progress! / 100,
                       minHeight: 10,
                       borderRadius: BorderRadius.circular(15),

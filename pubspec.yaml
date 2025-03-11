@@ -125,6 +125,9 @@ flutter:
     - lib/assets/pictures/icon.png
     - lib/assets/pictures/logo-full.png
     - lib/assets/pictures/logo-png.png
+    - lib/assets/badges/imk-2.png
+    - lib/assets/badges/imk-1.png
+    - lib/assets/badges/imk-3.png
   fonts:
     - family: DIN_Next_Rounded
       fonts:
