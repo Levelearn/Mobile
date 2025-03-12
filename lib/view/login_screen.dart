@@ -1,9 +1,16 @@
+import 'dart:io';
+
 import 'package:app/global_var.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/utils/colors.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'dart:async';
 
 import '../model/login.dart';
 
@@ -21,34 +28,54 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void login() async {
     setState(() => isLoading = true);
-    final response = await UserService.login(emailController.text, passwordController.text);
 
-    if (response['code'] == 200) {
-      // Simpan token ke SharedPreferences
-      Login credential = response['value'];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      var client = http.Client();
+      final response = await UserService.login(emailController.text, passwordController.text).timeout(Duration(seconds: 15));
 
-      if(credential.role == 'STUDENT') {
-        await prefs.setInt('userId', credential.id);
-        await prefs.setString('name', credential.name);
-        await prefs.setString('role', credential.role);
-        await prefs.setString('token', credential.token);
+      if (response['code'] == 200) {
+        // Simpan token ke SharedPreferences
+        Login credential = response['value'];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Mainscreen()),
-        );
+        if(credential.role == 'STUDENT') {
+          await prefs.setInt('userId', credential.id);
+          await prefs.setString('name', credential.name);
+          await prefs.setString('role', credential.role);
+          await prefs.setString('token', credential.token);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Mainscreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Mohon Login sebagai mahasiswa")),
+          );
+        }
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Mohon Login sebagai mahasiswa")),
+          SnackBar(content: Text("${response['message']}")),
         );
       }
-
-    } else {
-      // Tampilkan pesan error
+      client.close();
+    } on TimeoutException catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${response['message']}")),
+        SnackBar(content: Text("Waktu koneksi habis. Coba lagi nanti.")),
       );
+      print("Waktu koneksi habis. Coba lagi nanti.");
+    }
+    on SocketException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Tidak dapat terhubung ke server. Periksa koneksi internet Anda.")),
+      );
+      print("Tidak dapat terhubung ke server. Periksa koneksi internet Anda.");
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan: ${e.toString()}")),
+      );
+      print("Terjadi kesalahan: ${e.toString()}");
     }
 
     setState(() => isLoading = false);

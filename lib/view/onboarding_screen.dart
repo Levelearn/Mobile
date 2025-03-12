@@ -2,7 +2,10 @@ import 'package:app/model/onboarding.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import 'login_screen.dart';
 
 
 class OnboardingScreen extends StatefulWidget {
@@ -85,13 +88,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   curve: Curves.ease,
                                 );
                               }
-                            : () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Mainscreen()),
-                                );
-                              },
+                            : () async {
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setBool('firstLaunch', false);
+
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginScreen()),
+                              );
+                            },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:  AppColors.primaryColor,
                         ),
@@ -134,7 +140,7 @@ class OnboardingPage extends StatelessWidget {
           Text(
             model.title,
             style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                fontWeight: FontWeight.bold, 
+                fontWeight: FontWeight.bold,
                 fontFamily: 'DIN_Next_Rounded',
                 color: AppColors.primaryColor
             ),
