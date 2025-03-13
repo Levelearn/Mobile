@@ -8,12 +8,14 @@ import 'package:app/service/user_chapter_service.dart';
 import 'package:app/service/user_course_service.dart';
 import 'package:app/service/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/badge.dart';
 import '../model/course.dart';
 import '../model/user.dart';
 import '../model/user_course.dart';
+import '../utils/colors.dart';
 import 'chapter_screen.dart';
 
 class CourseDetailScreen extends StatefulWidget {
@@ -68,7 +70,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
       courseDetail = result;
     });
     getChapter(idCourse);
-    getListBadge(idCourse);
+    await getListBadge(idCourse);
   }
 
   void getUserCourse() async {
@@ -145,92 +147,91 @@ class _CourseDetail extends State<CourseDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return _buildDetailCourse();
+  }
+
+  Widget _buildDetailCourse() {
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Colors.white, // Change this to your desired background color
+            color: Colors.white,
             image: DecorationImage(
-              image: AssetImage("lib/assets/learnbg.png"), // Background image
-              fit: BoxFit.cover,
-              opacity: 0.7
+                image: AssetImage("lib/assets/learnbg.png"),
+                fit: BoxFit.cover,
+                opacity: 0.7
             ),
           ),
         ),
-          idCourse != 0 && courseDetail != null ? Scaffold(
+        idCourse != 0 && courseDetail != null
+        ? Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: PreferredSize(
-              preferredSize: Size.fromHeight(320.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: purple,
-                  borderRadius: BorderRadius.circular(10.0),
+          appBar: AppBar(
+            centerTitle: true,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.center ,
+              spacing: 4,
+              children: [
+                Text('Level', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                Text(
+                  courseDetail!.courseName,
+                  style: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded'),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children:[
-                    SizedBox(
-                      width: double.infinity,
-                      child: Container(
-                        foregroundDecoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              purple,
-                              Colors.transparent,
-                            ],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.center,
-                            stops: const [0, 0.8],
-                          ),
-                        ),
-                        child: Image.network(GlobalVar.url, height: 150, fit: BoxFit.cover,),
-                      ),
-                    ),
-                    SizedBox(height: 10,),
-                    Text('${courseDetail?.courseName}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'DIN_Next_Rounded',),),
-                    SizedBox(height: 10,),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text('${courseDetail?.description}', textAlign: TextAlign.justify, style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'DIN_Next_Rounded'), maxLines: 8,),
-                    )
-                  ],
-                ),
-              )
+              ],
+            ),
+            backgroundColor: AppColors.primaryColor,
+            leading: IconButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
+            titleTextStyle: TextStyle(
+                fontFamily: 'DIN_Next_Rounded',
+                fontSize: 24,
+                color: Colors.white
+            ),
+            iconTheme: IconThemeData(
+              color: Colors.white,
+            ),
           ),
-          body: isLoading ? SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 10), // Space between progress bar and text
-                    Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
-                    ),
-                  ],
-                ),
-              )
-          ) : Padding(padding: EdgeInsets.symmetric(vertical: 20),
+          body: isLoading
+          ? SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
+                  ),
+                ],
+              ),
+            )
+          )
+          : Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: ListView.builder(
               itemCount: listChapter.length,
               itemBuilder: (context, count) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 1.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                   child: count <= uc!.currentChapter - 1 ? _buildCourseItem(count) : _buildCourseItemLocked(count),
                 );
               },
             ),
           ),
-        ) : Scaffold(
+        )
+        : Scaffold(
           backgroundColor: Colors.transparent,
           body: Center(
               child: Column(
                 children: [
                   Image.asset('lib/assets/empty.png'),
                   SizedBox(height: 20,),
-                  Text('Kamu belum ada akses Course'),
+                  Text('Kamu belum ada akses Course', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
                 ],
               )
           ),
@@ -243,18 +244,18 @@ class _CourseDetail extends State<CourseDetailScreen> {
     final chapter = listChapter[index];
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 25),
+      padding: EdgeInsets.only(top: 32),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Card(
             elevation: 5,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(16),
             ),
             color: purple,
             child: InkWell(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(16),
               onTap: () async {
                 uc?.currentChapter = uc!.currentChapter < chapter.level ? chapter.level : uc!.currentChapter;
                 updateUserCourse();
@@ -287,21 +288,21 @@ class _CourseDetail extends State<CourseDetailScreen> {
                 }
               },
               child: Padding(
-                padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 15),
+                padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
                 child: Column(
                   children: [
-                    SizedBox(height: 40), // Space for the floating badge
+                    SizedBox(height: 48), // Space for the floating badge
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildStatusIcon(chapter.status!.materialDone, Icons.book),
+                        _buildStatusIcon(chapter.status!.materialDone, Icons.menu_book),
                         SizedBox(width: 10),
-                        _buildStatusIcon(chapter.status!.assessmentDone, Icons.assignment_turned_in),
+                        _buildStatusIcon(chapter.status!.assessmentDone, Icons.task),
                         SizedBox(width: 10),
-                        _buildStatusIcon(chapter.status!.assignmentDone, Icons.task_alt),
+                        _buildStatusIcon(chapter.status!.assignmentDone, Icons.file_copy),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 8),
                     Text(
                       chapter.name,
                       textAlign: TextAlign.center,
@@ -312,12 +313,12 @@ class _CourseDetail extends State<CourseDetailScreen> {
                           fontFamily: 'DIN_Next_Rounded'
                       ),
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 4),
                     Text(
                       chapter.description,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         color: Colors.white70,
                           fontFamily: 'DIN_Next_Rounded'
                       ),
@@ -340,7 +341,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
                 height: 75,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.green.shade600, // Base green color
+                  color: AppColors.secondaryColor, // Base green color
                   boxShadow: [
                     BoxShadow(
                       color: Colors.green.shade900,
@@ -383,7 +384,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
     final chapter = listChapter[index];
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 25),
+      padding: EdgeInsets.only(top: 32),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -394,21 +395,21 @@ class _CourseDetail extends State<CourseDetailScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              color: purple,
+              color: AppColors.lightGrey,
               child: InkWell(
                 borderRadius: BorderRadius.circular(15),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 15),
+                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(height: 40,),
-                      Icon(Icons.lock, size: 50, color: Colors.white),
+                      Icon(Icons.lock, size: 50, color: AppColors.darkGrey),
                       SizedBox(height: 10),
                       Text(
                         "Selesaikan dahulu level sebelumnya!",
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),
+                        style: TextStyle(fontSize: 16, color: AppColors.darkGrey, fontFamily: 'DIN_Next_Rounded'),
                       ),
                     ],
                   ),

@@ -1,5 +1,6 @@
 import 'package:app/service/course_service.dart';
 import 'package:app/utils/colors.dart';
+import 'package:app/view/course_initial_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/course.dart';
@@ -133,7 +134,7 @@ class _CourseDetail extends State<MycourseScreen> {
                   children: [
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 15),
-                      child: Center(child: Text('Enrolled Course', style: TextStyle(fontSize: 25, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded',),),),
+                      child: Center(child: Text('Enrolled Course', style: TextStyle(fontSize: 24, color: Colors.white, fontFamily: 'DIN_Next_Rounded',),),),
                     ),
                     _buildSearch(),
                   ],
@@ -163,7 +164,37 @@ class _CourseDetail extends State<MycourseScreen> {
   }
 
   Widget _listCourse() {
-    return ListView.builder(
+    return filteredCourses.isEmpty
+    ? Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+                'lib/assets/pictures/background-pattern.png'
+            ),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Kamu belum ada terdaftar pada course apapun',
+                  style: TextStyle(
+                    fontFamily: 'DIN_Next_Rounded'
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    )
+    : ListView.builder(
       itemCount: filteredCourses.length,
       itemBuilder: (context, count) {
         return Padding(
@@ -181,7 +212,7 @@ class _CourseDetail extends State<MycourseScreen> {
             Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CourseDetailScreen(id: course.id),
+            builder: (context) => CourseInitialScreen(id: course.id),
           ),
         );
       },

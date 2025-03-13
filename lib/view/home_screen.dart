@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app/model/user.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import '../model/course.dart';
 import '../service/course_service.dart';
 import '../service/user_service.dart';
 import '../utils/colors.dart';
+import 'login_screen.dart';
 import 'main_screen.dart';
 
 class Homescreen extends StatefulWidget {
@@ -43,25 +46,41 @@ class _HomeState extends State<Homescreen> {
     pref = await SharedPreferences.getInstance();
     int? id = pref.getInt('userId');
     if(id != null) {
-      final result = await CourseService.getEnrolledCourse(id);
-      final fetchedUser = await UserService.getUserById(id);
-      setState(() {
-        allCourses = result;
-        user = fetchedUser;
-        isLoading = false;
-      });
-      final idCourse = pref.getInt('lastestSelectedCourse') ?? 0;
-      for (var c in allCourses) {
-        if(c.id == idCourse){
-          setState(() {
-            lastestCourse = c;
-          });
-          break;
+      try {
+        final result = await CourseService.getEnrolledCourse(id).timeout(Duration(seconds: 10));
+        final fetchedUser = await UserService.getUserById(id).timeout(Duration(seconds: 10));
+        setState(() {
+          allCourses = result;
+          user = fetchedUser;
+          isLoading = false;
+        });
+        final idCourse = pref.getInt('lastestSelectedCourse') ?? 0;
+        for (var c in allCourses) {
+          if(c.id == idCourse){
+            setState(() {
+              lastestCourse = c;
+            });
+            break;
+          }
         }
+      } on TimeoutException catch (_) {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Koneksi ke server terlalu lambat. Coba lagi nanti.')),
+          );
+        });
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal memuat course. Periksa koneksi internet Anda.')),
+          );
+        });
+        print('Error getEnrolledCourse: $e');
       }
     }
   }
-
 
   List<Student> sortUserbyPoint(List<Student> list) {
     print(list);
@@ -74,43 +93,71 @@ class _HomeState extends State<Homescreen> {
   }
 
   void getAllUser() async {
-    final result = await UserService.getAllUser();
-    setState(() {
-      list = sortUserbyPoint(studentRole(result));
-    });
+    try {
+      final result = await UserService.getAllUser().timeout(Duration(seconds: 10));
+      setState(() {
+        list = sortUserbyPoint(studentRole(result));
+      });
 
-    if (idUser == 0) return;
+      if (idUser == 0) return;
 
-    for (int i = 0; i < list.length; i++) {
-      if (list[i].id == idUser) {
-        setState(() {
-          rank = i + 1;
-        });
-        break;
+      for (int i = 0; i < list.length; i++) {
+        if (list[i].id == idUser) {
+          setState(() {
+            rank = i + 1;
+          });
+          break;
+        }
       }
+    } on TimeoutException catch (_) {
+      setState(() {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Koneksi ke server terlalu lambat. Coba lagi nanti.')),
+        );
+      });
+    } catch (e) {
+      setState(() {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memuat data pengguna. Periksa koneksi internet Anda.')),
+        );
+      });
+      print('Error getAllUser: $e');
     }
   }
-
 
   Future<void> getUserFromSharedPreference() async {
     final prefs = await SharedPreferences.getInstance();
-    final storedIdUser = prefs.getInt('userId');  // Retrieve id from SharedPreferences
+    final storedIdUser = prefs.getInt('userId');
     if (storedIdUser != null) {
       final fetchedUser = await UserService.getUserById(storedIdUser);
       setState(() {
-        idUser = storedIdUser; // Now idUser is properly set
+        idUser = storedIdUser;
         name = prefs.getString('name') ?? '';
         user = fetchedUser;
       });
+    } else {
+      logout();
     }
   }
 
+  void logout() {
+    pref.remove('userId');
+    pref.remove('name');
+    pref.remove('role');
+    pref.remove('token');
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoginScreen()
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Background Image
         Positioned(
           bottom: 0,
           right: 0,
@@ -127,53 +174,121 @@ class _HomeState extends State<Homescreen> {
         isLoading
           ? Scaffold(
             backgroundColor: Colors.transparent,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 10),
-                  Text(
-                    "Mohon Tunggu",
-                    style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            body: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'lib/assets/pictures/background-pattern.png'
                   ),
-                ],
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10),
+                    Text(
+                      "Mohon Tunggu",
+                      style:
+                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
+                    ),
+                  ],
+                ),
               ),
             ),
           )
-          : Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
+          : allCourses.isEmpty && user == null
+            ? Scaffold(
+              body: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(
-                      'lib/assets/pictures/background-pattern.png'
-                    ), // Ganti dengan path gambar Anda
-                    fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
+                        'lib/assets/pictures/background-pattern.png'
+                    ),
+                    fit: BoxFit.cover,
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 30,),
-                      _buildProfile(),
-                      _buildStats(),
-                      _buildMyProgress(),
-                      _buildMore(),
-                      _buildTodayLeaderboard(),
-                    ],
-                  )
-                )
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(LineAwesomeIcons.frown, size: 72, color: Colors.red),
+                        SizedBox(height: 20),
+                        Text(
+                          'Gagal memuat data. Periksa koneksi internet Anda atau coba lagi nanti.',
+                          style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 16,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                getEnrolledCourse();
+                                getAllUser();
+                              },
+                              child: Text('Coba Lagi', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                              ),
+                              onPressed: () {
+                                logout();
+                              },
+                              child: Text('Log Out', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: AppColors.primaryColor)),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
             )
-          )
+            : Scaffold(
+              body: SingleChildScrollView(
+                child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(
+                            'lib/assets/pictures/background-pattern.png'
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 30,),
+                            _buildProfile(),
+                            _buildStats(),
+                            _buildMyProgress(),
+                            _buildMore(),
+                            _buildTodayLeaderboard(),
+                          ],
+                        )
+                    )
+                ),
+              )
+            )
       ],
     );
   }
-
 
   Widget _buildTodayLeaderboard(){
     return SizedBox(
@@ -190,7 +305,7 @@ class _HomeState extends State<Homescreen> {
                     fontFamily: 'DIN_Next_Rounded'
                 )),
             SizedBox(
-              height: 4,
+              height: 16,
             ),
             Column(
               children: list.isNotEmpty ?
@@ -238,7 +353,8 @@ class _HomeState extends State<Homescreen> {
                       ),
                     ),
                   )
-              ) : [
+              )
+              : [
                 Center(
                   child: Text(
                       'Belum ada Pengguna',
@@ -255,13 +371,7 @@ class _HomeState extends State<Homescreen> {
   }
 
   Widget _buildMyProgress() {
-    return lastestCourse == null ? SizedBox(
-      width: double.infinity,
-      height: 220,
-      child: Center(
-        child: Text('Kamu belum ada akses Course'),
-      ),
-    ) : GestureDetector(
+    return GestureDetector(
       onTap: (){
         Navigator.pushReplacement(
           context,
@@ -280,7 +390,7 @@ class _HomeState extends State<Homescreen> {
           ),
           SizedBox(
             width: double.infinity,
-            height: 180,
+            // height: 180,
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
@@ -294,58 +404,77 @@ class _HomeState extends State<Homescreen> {
                       )),
                   Padding(
                     padding: EdgeInsets.only(top: 12),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: Stack(
-                            children: <Widget>[
-                              Center(
-                                child: SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 10,
-                                    value: lastestCourse!.progress! / 100,
-                                    strokeCap: StrokeCap.round,
+                    child: lastestCourse == null
+                      ? SizedBox(
+                        height: 80,
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [Center(
+                            child: Text(
+                                'Akses Course untuk menampilkan Progress Bar!',
+                              style: TextStyle(
+                                fontFamily: "DIN_Next_Rounded",
+                              ),
+                            ),
+                          )],
+                        ),
+                      )
+                      : Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: Stack(
+                              children: <Widget>[
+                                Center(
+                                  child: SizedBox(
+                                    width: 70,
+                                    height: 70,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 10,
+                                      value: lastestCourse!.progress! / 100,
+                                      strokeCap: StrokeCap.round,
+                                      color: AppColors.primaryColor,
+                                      backgroundColor: AppColors.accentColor,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
-                            ],
+                                Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
+                              ],
+                            ),
                           ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(left: 15),
-                          width: 180,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(lastestCourse!.courseName,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium!
-                                      .copyWith(
-                                      color: AppColors.primaryColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'DIN_Next_Rounded'
-                                  )),
-                              Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                  color: AppColors.primaryColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'DIN_Next_Rounded'
-                              )),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  )
+                          Container(
+                            margin: EdgeInsets.only(left: 16),
+                            width: 240,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(lastestCourse!.courseName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(
+                                        color: AppColors.primaryColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'DIN_Next_Rounded'
+                                    )),
+                                Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                    color: AppColors.primaryColor,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'DIN_Next_Rounded'
+                                )),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                  ),
+                  SizedBox(height: 8)
                 ],
               ),
             ),
@@ -434,14 +563,14 @@ class _HomeState extends State<Homescreen> {
                 children: [
                   Row(
                     mainAxisAlignment:
-                    MainAxisAlignment.start, // Rata kiri untuk row
+                    MainAxisAlignment.start,
                     children: [
                       _buildInfoColumn(
-                          LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges}', AppColors.accentColor),
-                      SizedBox(width: 24), // Jarak antar info
+                          LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges ?? 0}', AppColors.accentColor),
+                      SizedBox(width: 24),
                       _buildInfoColumn(
                           LineAwesomeIcons.user_check_solid, 'Course', '${allCourses.isNotEmpty ? allCourses.length : 0}', AppColors.accentColor),
-                      SizedBox(width: 24), // Jarak antar info
+                      SizedBox(width: 24),
                       _buildInfoColumn(
                           LineAwesomeIcons.trophy_solid, 'Peringkat', '$rank / ${list.length}', AppColors.accentColor),
                     ],
@@ -478,7 +607,7 @@ class _HomeState extends State<Homescreen> {
                                   'DIN_Next_Rounded', // Ganti dengan font yang diinginkan
                                 ),
                               ),
-                              Text("${user?.points}",
+                              Text("${user?.points ?? 0}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleLarge!
@@ -560,7 +689,20 @@ class _HomeState extends State<Homescreen> {
             ),
           ),
           SizedBox(height: 16),
-          CarouselSlider.builder(
+          allCourses.isEmpty
+          ? SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: Center(
+              child: Text(
+                  'Kamu belum terdaftar pada course apapun',
+                style: TextStyle(
+                  fontFamily: "DIN_Next_Rounded",
+                ),
+              ),
+            ),
+          )
+          : CarouselSlider.builder(
             itemCount: allCourses.length,
             itemBuilder: (context, index, realIndex) {
               final course = allCourses[index];
@@ -595,7 +737,7 @@ class _HomeState extends State<Homescreen> {
       },
       child: Container(
         width: MediaQuery.of(context).size.width *
-            0.8, // Lebar card mengikuti lebar layar
+            0.8,
         height: 200,
         margin: EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
@@ -611,7 +753,6 @@ class _HomeState extends State<Homescreen> {
         ),
         child: Stack(
           children: [
-            // Gambar course
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -621,7 +762,6 @@ class _HomeState extends State<Homescreen> {
                 ),
               ),
             ),
-            // Box informasi di bawah gambar
             Positioned(
               bottom: 0,
               left: 0,
@@ -629,7 +769,7 @@ class _HomeState extends State<Homescreen> {
               child: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryColor, // Background dengan warna primary
+                  color: AppColors.primaryColor,
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(12),
                     bottomRight: Radius.circular(12),
@@ -644,6 +784,7 @@ class _HomeState extends State<Homescreen> {
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'DIN_Next_Rounded',
                       ),
                     ),
                     SizedBox(height: 4),
@@ -652,6 +793,7 @@ class _HomeState extends State<Homescreen> {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
+                        fontFamily: 'DIN_Next_Rounded',
                       ),
                     ),
                   ],
@@ -673,6 +815,7 @@ class _HomeState extends State<Homescreen> {
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'DIN_Next_Rounded',
                   ),
                 ),
               ),
@@ -682,4 +825,6 @@ class _HomeState extends State<Homescreen> {
       ),
     );
   }
+
+
 }

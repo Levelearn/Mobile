@@ -7,6 +7,7 @@ import 'package:app/service/badge_service.dart';
 import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_chapter_service.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/utils/colors.dart';
 import 'package:app/view/main_screen.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
@@ -75,6 +76,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   Student? user;
   bool isSubmitted = false;
   List<Question> pgList = [];
+  bool _quizFinished = false;
+  bool _assessmentStarted = false;
+  bool _assessmentFinished = false;
 
   @override
   void initState() {
@@ -329,10 +333,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           return true;
         },
         child: Scaffold(
-          appBar:AppBar(
+          appBar: AppBar(
             automaticallyImplyLeading: false,
-            toolbarHeight: 80,
-            backgroundColor: Colors.deepPurple.shade700,
+            backgroundColor: AppColors.primaryColor,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -341,7 +344,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                     widget.chapterName,
                     style: TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
                       fontSize: 18,
                       fontFamily: 'DIN_Next_Rounded',
                     ),
@@ -358,11 +360,11 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
             children: [
               TabBar(
                 controller: _tabController,
-                indicator: CustomTabIndicator(color: Colors.deepPurple.shade400),
-                labelColor: Colors.deepPurple.shade400,
+                indicator: CustomTabIndicator(color: AppColors.primaryColor),
+                labelColor: AppColors.primaryColor,
                 unselectedLabelColor: Colors.grey.shade400,
                 labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
-                unselectedLabelStyle: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded'),
+                unselectedLabelStyle: TextStyle(fontSize: 14, fontFamily: 'DIN_Next_Rounded'),
                 tabs: [
                   Tab(child: Text('Material')),
                   Tab(child: Text('Assessment')),
@@ -372,12 +374,12 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
-                  physics: progressValue < 1.0
+                  physics: progressValue < 1.0 || (_assessmentStarted && !_assessmentFinished)
                       ? const NeverScrollableScrollPhysics() // Disable swipe when progress < 100%
                       : const AlwaysScrollableScrollPhysics(), // Enable swipe when progress = 100%
                   children: <Widget>[
                     _buildMaterialContent(),
-                    progressValue >= 1.0 ? _buildAssessmentContent() : _lockedContent(),
+                    progressValue >= 1.0 ? _buildNewAssessmentContent() : _lockedContent(),
                     allQuestionsAnswered ? _buildAssignmentContent() : _lockedAssignmentContent(),
                   ],
                 ),
@@ -445,117 +447,239 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   Widget _buildAssessmentContent() {
     return question != null
         ? question!.questions.isNotEmpty
-        ? Column(
-      children: [
-        // Progress Indicator
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: LinearProgressIndicator(
-            value: question!.questions
-                .where((q) =>
-            q.selectedAnswer.isNotEmpty ||
-                q.selectedMultAnswer.isNotEmpty)
-                .length /
-                question!.questions.length,
-            backgroundColor: Colors.grey.shade300,
-            valueColor:
-            AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: question?.questions.length,
-            itemBuilder: (context, count) {
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: _buildQuestion(count),
-              );
-            },
-          ),
-        ),
-        // Submit Button with Feedback
-        Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
+          ? Column(
             children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    tapped = true;
-                    isSubmitted = true;
-                    allQuestionsAnswered = question!.questions.every(
-                          (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
-                    );
-                  });
-
-                  if (allQuestionsAnswered && tapped) {
-                    int score = 0;
-                    if(!widget.status.assessmentDone){
-                      score = getScore();
-                    }
-                    user!.points = user!.points! + score;
-
-                    if (question!.answers == null) {
-                      question!.answers = [];
-                    }
-                    for (var q in question!.questions) {
-                      question!.answers!.add(q.selectedAnswer);
-                    }
-                    status.assessmentDone = true;
-                    status.assessmentAnswer = question!.answers!;
-                    updateUserPoints();
-                    updateProgressAssessment();
-                  }
-
-                  updateStatus();
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(
-                      allQuestionsAnswered
-                          ? Colors.green
-                          : Colors.purple[900]),
-                  padding: WidgetStatePropertyAll(
-                      EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  )),
-                ),
-                icon: Icon(Icons.check, color: Colors.white),
-                label: Text(
-                  'Submit',
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontFamily: 'DIN_Next_Rounded'),
+              // Progress Indicator
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: LinearProgressIndicator(
+                  value: question!.questions
+                      .where((q) =>
+                  q.selectedAnswer.isNotEmpty ||
+                      q.selectedMultAnswer.isNotEmpty)
+                      .length /
+                      question!.questions.length,
+                  backgroundColor: Colors.grey.shade300,
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.deepPurple),
                 ),
               ),
-              SizedBox(height: 10),
-              allQuestionsAnswered && tapped
-                  ? Text(
-                '🎉 Great! You’ve answered all questions!',
-                style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'DIN_Next_Rounded'),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: question?.questions.length,
+                  itemBuilder: (context, count) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: _buildQuestion(count),
+                    );
+                  },
+                ),
+              ),
+              // Submit Button with Feedback
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          tapped = true;
+                          isSubmitted = true;
+                          allQuestionsAnswered = question!.questions.every(
+                                (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
+                          );
+                        });
+
+                        if (allQuestionsAnswered && tapped) {
+                          int score = 0;
+                          if(!widget.status.assessmentDone){
+                            score = getScore();
+                          }
+                          user!.points = user!.points! + score;
+
+                          if (question!.answers == null) {
+                            question!.answers = [];
+                          }
+                          for (var q in question!.questions) {
+                            question!.answers!.add(q.selectedAnswer);
+                          }
+                          status.assessmentDone = true;
+                          status.assessmentAnswer = question!.answers!;
+                          updateUserPoints();
+                          updateProgressAssessment();
+                        }
+
+                        updateStatus();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                            allQuestionsAnswered
+                                ? Colors.green
+                                : Colors.purple[900]),
+                        padding: WidgetStatePropertyAll(
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        )),
+                      ),
+                      icon: Icon(Icons.check, color: Colors.white),
+                      label: Text(
+                        'Submit',
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontFamily: 'DIN_Next_Rounded'),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    allQuestionsAnswered && tapped
+                        ? Text(
+                      '🎉 Great! You’ve answered all questions!',
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'DIN_Next_Rounded'),
+                    )
+                        : tapped
+                        ? Text(
+                      '⚠️ You missed some questions, check again!',
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'DIN_Next_Rounded'),
+                    )
+                        : SizedBox()
+                  ],
+                ),
               )
-                  : tapped
-                  ? Text(
-                '⚠️ You missed some questions, check again!',
-                style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'DIN_Next_Rounded'),
-              )
-                  : SizedBox()
             ],
-          ),
-        )
-      ],
     )
         : _emptyState()
         : _emptyState();
+  }
+
+  Widget _buildNewAssessmentContent() {
+    if (!_assessmentStarted) {
+      return _buildAssessmentInitial();
+    } else if (!_assessmentFinished) {
+      return question != null && question!.questions.isNotEmpty
+          ? Column(
+        children: [
+          // Progress Indicator
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: LinearProgressIndicator(
+              value: question!.questions
+                  .where((q) =>
+              q.selectedAnswer.isNotEmpty ||
+                  q.selectedMultAnswer.isNotEmpty)
+                  .length /
+                  question!.questions.length,
+              backgroundColor: Colors.grey.shade300,
+              valueColor:
+              AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                question!.questions.length,
+                    (index) =>
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: InkWell(
+                        onTap: () {
+                          _pageController.animateToPage(
+                            index,
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: question!.questions[index]
+                              .selectedAnswer.isNotEmpty ||
+                              question!.questions[index].selectedMultAnswer
+                                  .isNotEmpty
+                              ? Colors
+                              .amber // Warna sekunder jika sudah dijawab
+                              : _currentPage == index
+                              ? AppColors.primaryColor // Warna aktif
+                              : Colors.grey.shade400, // Warna default
+                          child: Text(
+                            '${index + 1}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: question!.questions.length,
+              onPageChanged: (int page) {
+                setState(() {
+                  _currentPage = page;
+                });
+              },
+              itemBuilder: (context, count) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: _buildSingleQuestion(count),
+                );
+              },
+            ),
+          ),
+          // Tombol Back/Next
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (_currentPage > 0)
+                  ElevatedButton(
+                    onPressed: () {
+                      _pageController.previousPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: Text('Back'),
+                  ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_currentPage < question!.questions.length - 1) {
+                      _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      _showFinishConfirmation();
+                    }
+                  },
+                  child: Text(_currentPage < question!.questions.length - 1
+                      ? 'Next'
+                      : 'Finish'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      )
+          : _emptyState();
+    } else {
+      return _buildQuizResult(); // Widget hasil kuis
+    }
   }
 
 // Empty State UI
@@ -609,6 +733,43 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           ),
         );
     }
+  }
+
+  Widget _buildSingleQuestion(int number) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          question?.questions[number].question ?? 'No question available',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        if (question?.questions[number].type == 'TF')
+          _buildTFOptions(question!.questions[number], number)
+        else if (question?.questions[number].type == 'MC')
+          _buildChoiceAnswer(question!.questions[number], number)
+        else if (question?.questions[number].type == 'EY')
+            _buildTextAnswer(question!.questions[number]),
+      ],
+    );
+  }
+
+  Widget _buildTFOptions(Question q, int number){
+    return Row(
+      children: [
+        ElevatedButton(onPressed: (){
+          setState(() {
+            q.selectedAnswer = 'True';
+          });
+        }, child: Text("True"), style: ElevatedButton.styleFrom(backgroundColor: q.selectedAnswer == "True" ? Colors.blue : Colors.grey),),
+        SizedBox(width: 10,),
+        ElevatedButton(onPressed: (){
+          setState(() {
+            q.selectedAnswer = 'False';
+          });
+        }, child: Text("False"), style: ElevatedButton.styleFrom(backgroundColor: q.selectedAnswer == "False" ? Colors.blue : Colors.grey),)
+      ],
+    );
   }
 
   Widget _buildChoiceAnswer(Question question, int number) {
@@ -743,6 +904,134 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           ],
         ),
       ),
+    );
+  }
+
+  PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  void _showFinishConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Finish Quiz'),
+        content: Text('Are you sure you want to finish the quiz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showQuizResults();
+            },
+            child: Text('Finish'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQuizResults() {
+    // Logic to calculate quiz results and display them
+    // You can navigate to a new screen or show a dialog with the results
+    print('Quiz finished!');
+
+    setState(() {
+      tapped = true;
+      isSubmitted = true;
+      allQuestionsAnswered = question!.questions.every(
+            (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
+      );
+    });
+
+    if (allQuestionsAnswered && tapped) {
+      int score = 0;
+      if(!widget.status.assessmentDone){
+        score = getScore();
+      }
+      user!.points = user!.points! + score;
+
+      if (question!.answers == null) {
+        question!.answers = [];
+      }
+      for (var q in question!.questions) {
+        question!.answers!.add(q.selectedAnswer);
+      }
+      status.assessmentDone = true;
+      status.assessmentAnswer = question!.answers!;
+      updateUserPoints();
+      updateProgressAssessment();
+    }
+
+    updateStatus();
+
+    setState(() {
+      _quizFinished = true; // Set status kuis selesai
+      _assessmentFinished = true;
+    });
+  }
+
+  Widget _buildAssessmentInitial() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Instruksi Kuis',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Baca instruksi kuis dengan saksama sebelum memulai.',
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _assessmentStarted = true;
+                });
+              },
+              child: Text('Start Quiz'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizResult() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                Text('Jumlah Benar: blm ada / ${question!.questions.length}'),
+                Text('Skor: blm ada'),
+                Text('Poin: blm ada'),
+              ],
+            ),
+          ),
+          Column(
+            children: List.generate(
+              question!.questions.length,
+                  (count) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: _buildQuestion(count), // Gunakan _buildQuestion untuk menampilkan soal
+              ),
+            ),
+          ),
+        ],
+      )
     );
   }
 
