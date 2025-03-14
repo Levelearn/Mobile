@@ -12,7 +12,6 @@ class UserChapterService {
       final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/userchapter/$idUser/$idChapter'));
       final body = response.body;
       final result = jsonDecode(body);
-      print(result);
       if (result is List && result.isNotEmpty) {
         final resultListAnswer = (jsonDecode(result[0]['assessmentAnswer']) as List)
             .map((item) => item.toString()) // Convert each item to String

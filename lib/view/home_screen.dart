@@ -371,6 +371,7 @@ class _HomeState extends State<Homescreen> {
   }
 
   Widget _buildMyProgress() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: (){
         Navigator.pushReplacement(
@@ -440,13 +441,13 @@ class _HomeState extends State<Homescreen> {
                                     ),
                                   ),
                                 ),
-                                Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),)),
+                                Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),)),
                               ],
                             ),
                           ),
                           Container(
                             margin: EdgeInsets.only(left: 16),
-                            width: 240,
+                            width: (screenWidth / 9) * 5,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,

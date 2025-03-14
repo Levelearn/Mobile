@@ -52,33 +52,36 @@ class Chapterscreen extends StatefulWidget {
 class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin {
   FilePickerResult? result;
   PlatformFile? file;
-  int navIndex = 1;
-  late ChapterStatus status;
-  late UserCourse uc;
-  int chLength = 0;
-  int idBadge = 0;
-  late final TabController _tabController;
-  late ScrollController _scrollController;
-  // final MultiSelectController<String> _controller = MultiSelectController();
-  double progressValue = 0.0;
-  bool allQuestionsAnswered = false;
-  bool assignmentDone = false;
-  bool showDialogMaterialOnce = false;
-  bool showDialogAssessmentOnce = false;
-  bool showDialogAssignmentOnce = false;
-  bool tapped = false;
   Assessment? question;
   Assignment? assignment;
   LearningMaterial? material;
   double downloadProgress = 0.0;
   String lastestSubmissionUrl = '';
-  bool complete = false;
   Student? user;
-  bool isSubmitted = false;
   List<Question> pgList = [];
+  late final TabController _tabController;
+  late ScrollController _scrollController;
+  late ChapterStatus status;
+  late UserCourse uc;
+  int chLength = 0;
+  int idBadge = 0;
+  int navIndex = 1;
+  // final MultiSelectController<String> _controller = MultiSelectController();
+  double progressValue = 0.0;
+  bool allQuestionsAnswered = false;
+  bool assignmentDone = false;
+  bool showDialogMaterialOnce = false;
+  bool showDialogAssignmentOnce = false;
+  bool tapped = false;
+  bool assessmentDone = false;
+  bool complete = false; //to indicate the chapter has completed before opened
+  bool isSubmitted = false;
   bool _quizFinished = false;
   bool _assessmentStarted = false;
   bool _assessmentFinished = false;
+  bool _isFileUploaded = true;
+  bool _isUserBadgeUpdated = true;
+  bool _isUserCourseUpdated = true;
 
   @override
   void initState() {
@@ -89,7 +92,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     allQuestionsAnswered = widget.status.assessmentDone;
     assignmentDone = widget.status.assignmentDone;
     showDialogMaterialOnce = widget.status.materialDone;
-    showDialogAssessmentOnce = widget.status.assessmentDone;
+    assessmentDone = widget.status.assessmentDone;
     showDialogAssignmentOnce = widget.status.assignmentDone;
     idBadge = widget.idBadge;
     status = widget.status;
@@ -126,7 +129,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       progressValue = currentProgressValue <= progressValue ? progressValue : currentProgressValue;
       if (progressValue >= 1.0 && !showDialogMaterialOnce) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Materi, Ayo lanjutkan ke bagian Assessment", false);
+          showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Materi, Ayo lanjutkan ke bagian Assessment", false, false);
         });
         showDialogMaterialOnce = true;
       }
@@ -139,23 +142,27 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
   updateProgressAssessment() {
-    if (status.assessmentDone && !showDialogAssessmentOnce) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Assessment, Ayo lanjutkan ke bagian Assignment", false);
-      });
-      showDialogAssessmentOnce = true;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(allQuestionsAnswered) {
+        showCompletionDialog(context, "🎉 Great! You’ve answered all questions!", true, false);
+      } else {
+        showCompletionDialog(context, "⚠️ You missed some questions, check again!", true, false);
+      }
+    });
   }
 
   void updateProgressAssignment() {
     if (status.assignmentDone && status.isCompleted && !showDialogAssignmentOnce) {
       showDialogAssignmentOnce = true;
-      showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Chapter ini, Ayo lanjutkan pelajari chapter yang lain", true);
+      showCompletionDialog(context, "Yeay kamu berhasil menyelesaikan Chapter ini, Ayo lanjutkan pelajari chapter yang lain", false, true);
     }
   }
 
   Future<void> updateStatus() async {
     status = await UserChapterService.updateChapterStatus(status.id, status);
+    setState(() {
+      if(file != null);
+    });
   }
 
   void getMaterial(int id) async {
@@ -202,7 +209,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     }
   }
 
-
   String getPublicUrl(String filePath) {
     return Supabase.instance.client.storage
         .from('assigment')
@@ -211,6 +217,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Future<void> updateUserCourse() async {
     await UserCourseService.updateUserCourse(uc.id, uc);
+    setState(() {
+      _isUserCourseUpdated = true;
+    });
   }
 
   Future<void> createUserBadge(int userId, int badgeId) async{
@@ -227,6 +236,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Future<void> updateUserPointsAndBadge() async {
     await UserService.updateUserPointsAndBadge(user!);
+    setState(() {
+      _isUserBadgeUpdated = true;
+    });
   }
 
   int getScore() {
@@ -246,52 +258,70 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     return score;
   }
 
-  void showCompletionDialog(BuildContext context, String message, bool isAssignment) {
+  void showCompletionDialog(BuildContext context, String message, bool isAssessment, bool isAssignment) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            "Progress Completed!",
+            !allQuestionsAnswered && isAssessment ? "Progress Not Completed!" : "Progress Completed!",
             style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+            textAlign: TextAlign.center, // Center the title
           ),
-          content: Text(
-            message,
-            style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+          content: Center(
+            child: Text(
+              message,
+              style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+              textAlign: TextAlign.center, // Center the message
+            ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                if (isAssignment) {
-                  Future.delayed(Duration(milliseconds: 100), () {
-                    if (context.mounted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CongratulationsScreen(
-                            message: "You have successfully completed this assignment!",
-                            onContinue: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Mainscreen(navIndex: 2),
-                                ),
-                              );
-                            },
-                            idBadge: idBadge,
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  if (isAssignment) {
+                    Future.delayed(Duration(milliseconds: 100), () {
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CongratulationsScreen(
+                              message: "You have successfully completed this assignment!",
+                              onContinue: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Mainscreen(navIndex: 2),
+                                  ),
+                                );
+                              },
+                              idBadge: idBadge,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
+                    });
+                  }
+                  else if (isAssessment) {
+                    if(allQuestionsAnswered) {
+                      setState(() {
+                        tapped = true;
+                      });
+                      _showQuizResults();
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pop(context);
                     }
-                  });
-                } else {
-                  Navigator.pop(context); // Hanya menutup dialog jika bukan assignment
-                }
-              },
-              child: Text(
-                "OK",
-                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                  }
+                  else {
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text(
+                  "OK",
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                ),
               ),
             ),
           ],
@@ -444,121 +474,121 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     return HtmlWidget(material);
   }
 
-  Widget _buildAssessmentContent() {
-    return question != null
-        ? question!.questions.isNotEmpty
-          ? Column(
-            children: [
-              // Progress Indicator
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: LinearProgressIndicator(
-                  value: question!.questions
-                      .where((q) =>
-                  q.selectedAnswer.isNotEmpty ||
-                      q.selectedMultAnswer.isNotEmpty)
-                      .length /
-                      question!.questions.length,
-                  backgroundColor: Colors.grey.shade300,
-                  valueColor:
-                  AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: question?.questions.length,
-                  itemBuilder: (context, count) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      child: _buildQuestion(count),
-                    );
-                  },
-                ),
-              ),
-              // Submit Button with Feedback
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          tapped = true;
-                          isSubmitted = true;
-                          allQuestionsAnswered = question!.questions.every(
-                                (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
-                          );
-                        });
-
-                        if (allQuestionsAnswered && tapped) {
-                          int score = 0;
-                          if(!widget.status.assessmentDone){
-                            score = getScore();
-                          }
-                          user!.points = user!.points! + score;
-
-                          if (question!.answers == null) {
-                            question!.answers = [];
-                          }
-                          for (var q in question!.questions) {
-                            question!.answers!.add(q.selectedAnswer);
-                          }
-                          status.assessmentDone = true;
-                          status.assessmentAnswer = question!.answers!;
-                          updateUserPoints();
-                          updateProgressAssessment();
-                        }
-
-                        updateStatus();
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                            allQuestionsAnswered
-                                ? Colors.green
-                                : Colors.purple[900]),
-                        padding: WidgetStatePropertyAll(
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        )),
-                      ),
-                      icon: Icon(Icons.check, color: Colors.white),
-                      label: Text(
-                        'Submit',
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontFamily: 'DIN_Next_Rounded'),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    allQuestionsAnswered && tapped
-                        ? Text(
-                      '🎉 Great! You’ve answered all questions!',
-                      style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'DIN_Next_Rounded'),
-                    )
-                        : tapped
-                        ? Text(
-                      '⚠️ You missed some questions, check again!',
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'DIN_Next_Rounded'),
-                    )
-                        : SizedBox()
-                  ],
-                ),
-              )
-            ],
-    )
-        : _emptyState()
-        : _emptyState();
-  }
+  // Widget _buildAssessmentContent() {
+  //   return question != null
+  //       ? question!.questions.isNotEmpty
+  //         ? Column(
+  //           children: [
+  //             // Progress Indicator
+  //             Padding(
+  //               padding: const EdgeInsets.all(16.0),
+  //               child: LinearProgressIndicator(
+  //                 value: question!.questions
+  //                     .where((q) =>
+  //                 q.selectedAnswer.isNotEmpty ||
+  //                     q.selectedMultAnswer.isNotEmpty)
+  //                     .length /
+  //                     question!.questions.length,
+  //                 backgroundColor: Colors.grey.shade300,
+  //                 valueColor:
+  //                 AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+  //               ),
+  //             ),
+  //             Expanded(
+  //               child: ListView.builder(
+  //                 itemCount: question?.questions.length,
+  //                 itemBuilder: (context, count) {
+  //                   return Padding(
+  //                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  //                     child: _buildQuestion(count),
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //             // Submit Button with Feedback
+  //             Padding(
+  //               padding: const EdgeInsets.all(15.0),
+  //               child: Column(
+  //                 children: [
+  //                   ElevatedButton.icon(
+  //                     onPressed: () {
+  //                       setState(() {
+  //                         tapped = true;
+  //                         isSubmitted = true;
+  //                         allQuestionsAnswered = question!.questions.every(
+  //                               (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
+  //                         );
+  //                       });
+  //
+  //                       if (allQuestionsAnswered && tapped) {
+  //                         int score = 0;
+  //                         if(!widget.status.assessmentDone){
+  //                           score = getScore();
+  //                         }
+  //                         user!.points = user!.points! + score;
+  //
+  //                         if (question!.answers == null) {
+  //                           question!.answers = [];
+  //                         }
+  //                         for (var q in question!.questions) {
+  //                           question!.answers!.add(q.selectedAnswer);
+  //                         }
+  //                         status.assessmentDone = true;
+  //                         status.assessmentAnswer = question!.answers!;
+  //                         updateUserPoints();
+  //                         updateProgressAssessment();
+  //                       }
+  //
+  //                       updateStatus();
+  //                     },
+  //                     style: ButtonStyle(
+  //                       backgroundColor: WidgetStatePropertyAll(
+  //                           allQuestionsAnswered
+  //                               ? Colors.green
+  //                               : Colors.purple[900]),
+  //                       padding: WidgetStatePropertyAll(
+  //                           EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
+  //                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(20),
+  //                       )),
+  //                     ),
+  //                     icon: Icon(Icons.check, color: Colors.white),
+  //                     label: Text(
+  //                       'Submit',
+  //                       style: TextStyle(
+  //                           fontSize: 18,
+  //                           color: Colors.white,
+  //                           fontFamily: 'DIN_Next_Rounded'),
+  //                     ),
+  //                   ),
+  //                   SizedBox(height: 10),
+  //                   allQuestionsAnswered && tapped
+  //                       ? Text(
+  //                     '🎉 Great! You’ve answered all questions!',
+  //                     style: TextStyle(
+  //                         color: Colors.green,
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.bold,
+  //                         fontFamily: 'DIN_Next_Rounded'),
+  //                   )
+  //                       : tapped
+  //                       ? Text(
+  //                     '⚠️ You missed some questions, check again!',
+  //                     style: TextStyle(
+  //                         color: Colors.red,
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.bold,
+  //                         fontFamily: 'DIN_Next_Rounded'),
+  //                   )
+  //                       : SizedBox()
+  //                 ],
+  //               ),
+  //             )
+  //           ],
+  //   )
+  //       : _emptyState()
+  //       : _emptyState();
+  // }
 
   Widget _buildNewAssessmentContent() {
     if (!_assessmentStarted) {
@@ -699,7 +729,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     );
   }
 
-
   Widget _buildQuestion(int number) {
     switch (question?.questions[number].type) {
       case 'PG':
@@ -736,21 +765,23 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
   Widget _buildSingleQuestion(int number) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          question?.questions[number].question ?? 'No question available',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 16),
-        if (question?.questions[number].type == 'TF')
-          _buildTFOptions(question!.questions[number], number)
-        else if (question?.questions[number].type == 'MC')
-          _buildChoiceAnswer(question!.questions[number], number)
-        else if (question?.questions[number].type == 'EY')
-            _buildTextAnswer(question!.questions[number]),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            question?.questions[number].question ?? 'No question available',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          if (question?.questions[number].type == 'TF')
+            _buildTFOptions(question!.questions[number], number)
+          else if (question?.questions[number].type == 'MC')
+            _buildChoiceAnswer(question!.questions[number], number)
+          else if (question?.questions[number].type == 'EY')
+              _buildTextAnswer(question!.questions[number]),
+        ],
+      ),
     );
   }
 
@@ -911,6 +942,12 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   int _currentPage = 0;
 
   void _showFinishConfirmation() {
+    setState(() {
+      // isSubmitted = true;
+      allQuestionsAnswered = question!.questions.every(
+            (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
+      );
+    });
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -924,7 +961,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _showQuizResults();
+              updateProgressAssessment();
+              // _showQuizResults();
             },
             child: Text('Finish'),
           ),
@@ -938,18 +976,11 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     // You can navigate to a new screen or show a dialog with the results
     print('Quiz finished!');
 
-    setState(() {
-      tapped = true;
-      isSubmitted = true;
-      allQuestionsAnswered = question!.questions.every(
-            (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
-      );
-    });
-
     if (allQuestionsAnswered && tapped) {
       int score = 0;
-      if(!widget.status.assessmentDone){
+      if(!widget.status.assessmentDone && !assessmentDone){
         score = getScore();
+        assessmentDone = true;
       }
       user!.points = user!.points! + score;
 
@@ -962,7 +993,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       status.assessmentDone = true;
       status.assessmentAnswer = question!.answers!;
       updateUserPoints();
-      updateProgressAssessment();
     }
 
     updateStatus();
@@ -1138,48 +1168,77 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                 ),
               ),
               lastestSubmissionUrl != '' ? _buildExistingFile(lastestSubmissionUrl) : SizedBox(),
-              file == null ? SizedBox() : Row(
-                children: [
-                  ElevatedButton.icon(
-                      onPressed:() {
-                        setState(() {
-                          file = null;
-                        });
-                      },
-                      style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple[900])),
-                      icon: Icon(Icons.delete, size: 20, color: Colors.white,),
-                      label: Text('Delete', style: TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),)
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await uploadFile(file!);
-                      Duration difference = status.timeStarted.difference(status.timeFinished);
-                      user?.points = user!.points! + calculatePoint(difference.inMinutes);
-                      if(widget.level == uc.currentChapter){
-                        uc.currentChapter++ ;
-                        uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
-                      }
+              file == null ? SizedBox() :
+                  !_isFileUploaded && !_isUserBadgeUpdated && !_isUserCourseUpdated ?
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 10),
+                      Text(
+                        "Mohon Tunggu, sedang mengunggah berkas",
+                        style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
+                      ),
+                    ],
+                  ) : Row(
+                    children: [
+                      ElevatedButton.icon(
+                          onPressed:() {
+                            setState(() {
+                              file = null;
+                            });
+                          },
+                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple[900])),
+                          icon: Icon(Icons.delete, size: 20, color: Colors.white,),
+                          label: Text('Delete', style: TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),)
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          setState(() {
+                            _isFileUploaded = false;
+                            _isUserBadgeUpdated = false;
+                            _isUserCourseUpdated = false;
+                          });
 
-                      if(idBadge != 0) {
-                        createUserBadge(user!.id, idBadge);
-                        user?.badges = user!.badges! + 1;
-                      }
-                      updateUserPointsAndBadge();
-                      updateUserCourse();
-                      updateProgressAssignment();
+                          Duration difference = status.timeStarted.difference(status.timeFinished);
+                          user?.points = user!.points! + calculatePoint(difference.inMinutes);
 
-                      Future.delayed(Duration(milliseconds: 200), () {
-                        if (complete) {
-                          Navigator.pop(context);
-                        }
-                      });
-                    },
-                    style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple[900])),
-                    icon: Icon(Icons.done, size: 20, color: Colors.white,),
-                    label: Text('Submit', style: TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),),
-                  ),
-                ],
-              )
+                          if (widget.level == uc.currentChapter) {
+                            uc.currentChapter++;
+                            uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
+                          }
+
+                          if (idBadge != 0) {
+                            createUserBadge(user!.id, idBadge);
+                            user?.badges = user!.badges! + 1;
+                          }
+                          await uploadFile(file!);
+                          await Future.wait([
+                            updateUserPointsAndBadge(),
+                            updateUserCourse(),
+                          ]);
+
+                          if (_isUserCourseUpdated && _isUserBadgeUpdated && _isFileUploaded) {
+                            Future.delayed(Duration(milliseconds: 200), () {
+                              if (complete) {
+                                Navigator.pop(context);
+                              } else {
+                                updateProgressAssignment();
+                              }
+                            });
+                          }
+                        },
+                        style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple[900])),
+                        icon: Icon(Icons.done, size: 20, color: Colors.white),
+                        label: Text(
+                          'Submit',
+                          style: TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),
+                        ),
+                      ),
+                    ],
+                  )
             ],
           ),
         )

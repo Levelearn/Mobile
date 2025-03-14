@@ -25,7 +25,6 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
     idBadge = widget.idBadge;
     if(idBadge != 0) {
       getBadgeById(idBadge);
-      print(badge?.name);
       super.initState();
       _confettiController = ConfettiController(duration: const Duration(seconds: 3));
       _confettiController.play();
@@ -47,7 +46,6 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
     setState(() {
       badge = result;
     });
-    print(badge?.name);
   }
 
   @override
