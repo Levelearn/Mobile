@@ -1,8 +1,10 @@
 import 'package:app/service/badge_service.dart';
+import 'package:app/service/user_course_service.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/view/course_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/badge.dart';
 import '../model/chapter.dart';
@@ -21,8 +23,10 @@ class CourseInitialScreen extends StatefulWidget {
 
 class _CourseInitialScreenState extends State<CourseInitialScreen> {
   Course? courseDetail;
+  int progress = 0;
   List<Chapter> listChapter = [];
   List<BadgeModel>? listBadge;
+  late SharedPreferences pref;
 
   @override
   void didChangeDependencies() {
@@ -246,7 +250,7 @@ class _CourseInitialScreenState extends State<CourseInitialScreen> {
                         );
                       },
                       child: Text(
-                        courseDetail?.progress == 0 ? 'Mulai Course' : 'Lanjutkan Course',
+                        'Kerjakan Course',
                         style: TextStyle(
                             fontFamily: 'DIN_Next_Rounded',
                             color: Colors.white

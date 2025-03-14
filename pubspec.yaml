@@ -129,6 +129,13 @@ flutter:
     - lib/assets/badges/imk-2.png
     - lib/assets/badges/imk-1.png
     - lib/assets/badges/imk-3.png
+    - lib/assets/pixels/assessment-pixel.png
+    - lib/assets/pixels/assignment-pixel.png
+    - lib/assets/pixels/check.png
+    - lib/assets/pixels/lock-pixel.png
+    - lib/assets/pixels/material-pixel.png
+    - lib/assets/pixels/star.png
+    - lib/assets/pixels/time-pixel.png
   fonts:
     - family: DIN_Next_Rounded
       fonts:

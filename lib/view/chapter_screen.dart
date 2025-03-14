@@ -161,7 +161,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   Future<void> updateStatus() async {
     status = await UserChapterService.updateChapterStatus(status.id, status);
     setState(() {
-      if(file != null);
+      if(file != null){
+        _isFileUploaded = true;
+      };
     });
   }
 

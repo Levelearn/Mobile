@@ -239,7 +239,7 @@ class _CourseDetail extends State<MycourseScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15), // Ensure the child gets rounded corners
                     child: LinearProgressIndicator(
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: Colors.white24,
                       valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondaryColor),
                       value: course.progress! / 100,
                       minHeight: 10,
