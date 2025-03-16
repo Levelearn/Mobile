@@ -86,57 +86,60 @@ class _FriendsScreen extends State<FriendsScreen> {
 
   Widget _listFriends() {
     user = sortUserbyPoint(user);
-    return ListView.builder(
-      itemCount: user.length,
-      itemBuilder: (context, count) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-          child: _listFriendsItem(user[count], count),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: ListView.builder(
+        itemCount: user.length,
+        itemBuilder: (context, count) {
+          return _listFriendsItem(user[count], count,  count == 0 ? 0 : count == user.length - 1 ? 2 : 1);
+        },
+      ),
     );
   }
 
-  Widget _listFriendsItem(Student user, int index) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [ (switch (index) {
-              0 => Colors.amber.shade300,
-              1 => Colors.blueGrey.shade400,
-              2 => Colors.orange.shade400,
-              _ => Colors.grey.shade300
-            }), Colors.transparent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+  Widget _listFriendsItem(Student user, int index, int position) {
+    return Padding(
+      padding: position == 0 ? const EdgeInsets.only(top: 12) : position == 2 ? const EdgeInsets.only(bottom: 12) : const EdgeInsets.all(0),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        child: ListTile(
-          leading: index <= 2 ? Image.asset(
-              switch (index) {
-                0 => 'lib/assets/1st.png',
-                1 => 'lib/assets/2nd.png',
-                2 => 'lib/assets/3rd.png',
-                _ => ''
-              }
-          ) : Text('#${index + 1}', style: TextStyle(fontSize: 25),),
-          title: Text(
-            user.name,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [ (switch (index) {
+                0 => Colors.amber.shade300,
+                1 => Colors.blueGrey.shade400,
+                2 => Colors.orange.shade400,
+                _ => Colors.grey.shade300
+              }), Colors.transparent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
           ),
-          subtitle: Text(
-            user.studentId!,
-            style: TextStyle(fontSize: 12, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
-          ),
-          trailing: Text(
-            '${user.points} Point',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
+          child: ListTile(
+            leading: index <= 2 ? Image.asset(
+                switch (index) {
+                  0 => 'lib/assets/1st.png',
+                  1 => 'lib/assets/2nd.png',
+                  2 => 'lib/assets/3rd.png',
+                  _ => ''
+                }
+            ) : Text('#${index + 1}', style: TextStyle(fontSize: 25),),
+            title: Text(
+              user.name,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
+            ),
+            subtitle: Text(
+              user.studentId!,
+              style: TextStyle(fontSize: 12, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
+            ),
+            trailing: Text(
+              '${user.points} Poin',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
+            ),
           ),
         ),
       ),

@@ -226,14 +226,28 @@ class _CourseDetail extends State<CourseDetailScreen> {
         )
         : Scaffold(
           backgroundColor: Colors.transparent,
-          body: Center(
-              child: Column(
-                children: [
-                  Image.asset('lib/assets/empty.png'),
-                  SizedBox(height: 20,),
-                  Text('Kamu belum ada akses Course', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-                ],
-              )
+          body: Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage(
+                        'lib/assets/pictures/background-pattern.png'),
+                    fit: BoxFit.cover
+                )
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('lib/assets/pixels/lock-pixel.png', height: 50,),
+                      SizedBox(height: 16,),
+                      Text('Belum ada Course yang dikerjakan', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'DIN_Next_Rounded', fontWeight: FontWeight.bold,color: AppColors.primaryColor),),
+                      Text('Akses course terlebih dahulu untuk mengaktifkan halaman ini!', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                    ],
+                  )
+              ),
+            ),
           ),
         ),
       ],
@@ -244,7 +258,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
     final chapter = listChapter[index];
 
     return Padding(
-      padding: EdgeInsets.only(top: 32),
+      padding: index == listChapter.length - 1 ? EdgeInsets.only(top: 32, bottom: 16) : EdgeInsets.only(top: 32),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -330,6 +344,40 @@ class _CourseDetail extends State<CourseDetailScreen> {
               ),
             ),
           ),
+          listChapter[index].isCheckpoint == 1
+          ? Positioned(
+            top: 32, // Offset to be outside the card
+            right: 32,
+            child: Icon(
+              LineAwesomeIcons.medal_solid,
+              size: 50,
+              color: chapter.status!.materialDone && chapter.status!.assessmentDone && chapter.status!.assignmentDone
+              ? Colors.tealAccent :Colors.white54
+            )
+          )
+          : listChapter[index].isCheckpoint == 2
+          ? Positioned(
+            top: 32, // Offset to be outside the card
+            right: 32,
+            child: Icon(
+              LineAwesomeIcons.medal_solid,
+              size: 50,
+                color: chapter.status!.materialDone && chapter.status!.assessmentDone && chapter.status!.assignmentDone
+                ? Colors.blueAccent :Colors.white54
+            )
+          )
+          : listChapter[index].isCheckpoint == 3
+          ? Positioned(
+            top: 32, // Offset to be outside the card
+            right: 32,
+            child: Icon(
+              LineAwesomeIcons.medal_solid,
+              size: 50,
+                color: chapter.status!.materialDone && chapter.status!.assessmentDone && chapter.status!.assignmentDone
+                ? Colors.redAccent :Colors.white54
+            )
+          )
+          : SizedBox(),
           // Floating Level Badge
           Positioned(
             top: -25, // Offset to be outside the card
@@ -384,7 +432,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
     final chapter = listChapter[index];
 
     return Padding(
-      padding: EdgeInsets.only(top: 32),
+      padding: index == listChapter.length - 1 ? EdgeInsets.only(top: 32, bottom: 16) : EdgeInsets.only(top: 32),
       child: Stack(
         clipBehavior: Clip.none,
         children: [

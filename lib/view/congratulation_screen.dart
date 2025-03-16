@@ -2,6 +2,8 @@ import 'package:app/model/badge.dart';
 import 'package:app/service/badge_service.dart';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
+
+import '../utils/colors.dart';
 // import 'package:flutter_launcher_icons/constants.dart';
 
 class CongratulationsScreen extends StatefulWidget {
@@ -26,11 +28,11 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
     if(idBadge != 0) {
       getBadgeById(idBadge);
       super.initState();
-      _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+      _confettiController = ConfettiController(duration: const Duration(seconds: 10));
       _confettiController.play();
     } else {
       super.initState();
-      _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+      _confettiController = ConfettiController(duration: const Duration(seconds: 10));
       _confettiController.play();
     }
   }
@@ -57,21 +59,21 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
         children: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   idBadge != 0 ?
                     badge?.image != null && badge?.image != "" ?
-                      Image.network(badge!.image!, height: 100, width: 100,) :  Image.asset('lib/assets/pictures/icon.png')
-                  : Icon(Icons.celebration, color: Colors.orange, size: 100),
+                      Image.network(badge!.image!, height: 100, width: 100,) : Image.asset('lib/assets/pixels/check.png', height: 100)
+                  : Image.asset('lib/assets/pixels/star.png', height: 100),
                   const SizedBox(height: 20),
                   Text(
                     "Congratulations!",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                        color: AppColors.primaryColor,
                       fontFamily: 'DIN_Next_Rounded'
                     ),
                   ),
@@ -84,9 +86,10 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
                   ),
                   const SizedBox(height: 30),
                   if (widget.onContinue != null)
-                    TextButton(
+                    ElevatedButton(
                       onPressed: widget.onContinue,
-                      child: Text("Ayo Lanjutkan ke Level Berikutnya", style: TextStyle(fontSize: 16, color: Colors.blueAccent, fontFamily: 'DIN_Next_Rounded')),
+                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor)),
+                      child: Text("Ayo Lanjutkan ke Level Berikutnya", style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: 'DIN_Next_Rounded')),
                     ),
                 ],
               ),
@@ -95,8 +98,9 @@ class _CongratulationsScreenState extends State<CongratulationsScreen> {
           ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            shouldLoop: false,
-            colors: [Colors.red, Colors.blue, Colors.yellow, Colors.green, Colors.purple],
+            numberOfParticles: 25,
+            shouldLoop: true,
+            colors: [AppColors.primaryColor, AppColors.secondaryColor, AppColors.accentColor, Colors.blue, Colors.green, Colors.purple],
           ),
         ],
       ),

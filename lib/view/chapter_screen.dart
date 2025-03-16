@@ -15,10 +15,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../model/assessment.dart';
+import '../model/chapter.dart';
 import '../model/user.dart';
 import '../service/user_course_service.dart';
 import 'congratulation_screen.dart';
@@ -66,6 +68,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   int chLength = 0;
   int idBadge = 0;
   int navIndex = 1;
+  int correctAnswer = 0;
+  int point = 0;
   // final MultiSelectController<String> _controller = MultiSelectController();
   double progressValue = 0.0;
   bool allQuestionsAnswered = false;
@@ -82,6 +86,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   bool _isFileUploaded = true;
   bool _isUserBadgeUpdated = true;
   bool _isUserCourseUpdated = true;
+  bool _materialLocked = false;
 
   @override
   void initState() {
@@ -250,10 +255,16 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       if(i.type == 'PG' || i.type == 'TF' || i.type == 'MC') {
         if(i.isCorrect){
           score += rangeScore.toInt();
+          setState(() {
+            correctAnswer++;
+          });
         }
       } else if (i.type == 'EY'){
         if(i.selectedAnswer.length >= 50){
           score += rangeScore.toInt();
+          setState(() {
+            correctAnswer++;
+          });
         }
       }
     }
@@ -265,22 +276,96 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        // return AlertDialog(
+        //   title: Text(
+        //     !allQuestionsAnswered && isAssessment ? "Progress Not Completed!" : "Progress Completed!",
+        //     style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+        //     textAlign: TextAlign.center, // Center the title
+        //   ),
+        //   content: Center(
+        //     child: Text(
+        //       message,
+        //       style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+        //       textAlign: TextAlign.center, // Center the message
+        //     ),
+        //   ),
+        //   actions: [
+        //     Center(
+        //       child: TextButton(
+        //         onPressed: () {
+        //           if (isAssignment) {
+        //             Future.delayed(Duration(milliseconds: 100), () {
+        //               if (context.mounted) {
+        //                 Navigator.push(
+        //                   context,
+        //                   MaterialPageRoute(
+        //                     builder: (context) => CongratulationsScreen(
+        //                       message: "You have successfully completed this assignment!",
+        //                       onContinue: () {
+        //                         Navigator.pushReplacement(
+        //                           context,
+        //                           MaterialPageRoute(
+        //                             builder: (context) => Mainscreen(navIndex: 2),
+        //                           ),
+        //                         );
+        //                       },
+        //                       idBadge: idBadge,
+        //                     ),
+        //                   ),
+        //                 );
+        //               }
+        //             });
+        //           }
+        //           else if (isAssessment) {
+        //             if(allQuestionsAnswered) {
+        //               setState(() {
+        //                 tapped = true;
+        //               });
+        //               _showQuizResults();
+        //               Navigator.pop(context);
+        //             } else {
+        //               Navigator.pop(context);
+        //             }
+        //           }
+        //           else {
+        //             Navigator.pop(context);
+        //           }
+        //         },
+        //         child: Text(
+        //           "OK",
+        //           style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // );
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text(
             !allQuestionsAnswered && isAssessment ? "Progress Not Completed!" : "Progress Completed!",
-            style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
-            textAlign: TextAlign.center, // Center the title
+            style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: AppColors.primaryColor),
+            textAlign: TextAlign.center,
           ),
-          content: Center(
-            child: Text(
-              message,
-              style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
-              textAlign: TextAlign.center, // Center the message
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                Image.asset('lib/assets/pixels/check.png', height: 72),
+                SizedBox(height: 16,),
+                Text(
+                  message,
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
           actions: [
-            Center(
-              child: TextButton(
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor
+                ),
                 onPressed: () {
                   if (isAssignment) {
                     Future.delayed(Duration(milliseconds: 100), () {
@@ -322,15 +407,18 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                 },
                 child: Text(
                   "OK",
-                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white),
                 ),
               ),
             ),
           ],
         );
+
       },
     );
   }
+
+
 
   void _openFile(String filePath) {
     OpenFilex.open(filePath);
@@ -390,18 +478,21 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
           body: Column(
             children: [
-              TabBar(
-                controller: _tabController,
-                indicator: CustomTabIndicator(color: AppColors.primaryColor),
-                labelColor: AppColors.primaryColor,
-                unselectedLabelColor: Colors.grey.shade400,
-                labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
-                unselectedLabelStyle: TextStyle(fontSize: 14, fontFamily: 'DIN_Next_Rounded'),
-                tabs: [
-                  Tab(child: Text('Material')),
-                  Tab(child: Text('Assessment')),
-                  Tab(child: Text('Assignment')),
-                ],
+              Material(
+                color: Colors.white,
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: CustomTabIndicator(color: AppColors.primaryColor),
+                  labelColor: AppColors.primaryColor,
+                  unselectedLabelColor: Colors.grey.shade400,
+                  labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
+                  unselectedLabelStyle: TextStyle(fontSize: 14, fontFamily: 'DIN_Next_Rounded'),
+                  tabs: [
+                    Tab(child: Text('Material')),
+                    Tab(child: Text('Assessment')),
+                    Tab(child: Text('Assignment')),
+                  ],
+                ),
               ),
               Expanded(
                 child: TabBarView(
@@ -410,7 +501,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                       ? const NeverScrollableScrollPhysics() // Disable swipe when progress < 100%
                       : const AlwaysScrollableScrollPhysics(), // Enable swipe when progress = 100%
                   children: <Widget>[
-                    _buildMaterialContent(),
+                    _materialLocked ? _lockedMaterialContent() : _buildMaterialContent(),
                     progressValue >= 1.0 ? _buildNewAssessmentContent() : _lockedContent(),
                     allQuestionsAnswered ? _buildAssignmentContent() : _lockedAssignmentContent(),
                   ],
@@ -423,24 +514,127 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
   Widget _buildMaterialContent() {
-    return material != null ? Padding(
-        padding: EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: _buildHTMLContent(material != null ? material!.content : '''There is no Material yet!'''),
+    return Stack(
+      children: [
+        material != null
+        ? Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                  'lib/assets/pictures/background-pattern.png'
+              ),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  SizedBox(height: 16),
+                  _buildHTMLContent(material != null ? material!.content : '''There is no Material yet!'''),
+                  progressValue >= 1.0
+                  ? Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                              ),
+                              onPressed: () {
+                                _tabController.animateTo(1);
+                              },
+                              icon: Icon(Icons.task, color: Colors.white,),
+                              label: Text(
+                                'Lanjut ke Assessment',
+                                style: TextStyle(
+                                    fontFamily: 'DIN_Next_Rounded',
+                                    color: Colors.white
+                                ),
+                              )
+                          ),
+                        ),
+                      )
+                  )
+                  : SizedBox(height: 16)
+                ],
+              ),
+            )
+          ),
         )
-    ) : Center(
-        child: Column(
-          children: [
-            Image.asset('lib/assets/empty.png', width: 100, height: 100,),
-            SizedBox(height: 20,),
-            Text('Mohon maaf belum ada materi', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-          ],
-        )
+        : Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage(
+                      'lib/assets/pictures/background-pattern.png'),
+                  fit: BoxFit.cover
+              )
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('lib/assets/pixels/material-pixel.png', height: 50,),
+                    SizedBox(height: 16,),
+                    Text(
+                      "Materi belum tersedia",
+                      style: TextStyle(fontSize: 16, color: AppColors.primaryColor, fontFamily: 'DIN_Next_Rounded', fontWeight: FontWeight.bold),
+                    ),Text(
+                      "Untuk saat ini, materi untuk Level ${widget.chapterName} belum ada.",
+                      style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                )
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _lockedContent() {
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+              'lib/assets/pictures/background-pattern.png'
+          ),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('lib/assets/pixels/lock-pixel.png', height: 50),
+              SizedBox(height: 16),
+              Text(
+                "Assessment Terkunci",
+                style: TextStyle(fontSize: 16, color: AppColors.primaryColor, fontFamily: 'DIN_Next_Rounded', fontWeight: FontWeight.bold),
+              ),Text(
+                "Selesaikan materi terlebih dahulu untuk membuka Assessment!",
+                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _lockedMaterialContent() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -448,7 +642,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           Icon(Icons.lock, size: 50, color: Colors.grey),
           SizedBox(height: 10),
           Text(
-            "Baca Materi terlebih dahulu!",
+            "Material terkunci selama Assessment berlangsung",
             style: TextStyle(fontSize: 16, color: Colors.grey, fontFamily: 'DIN_Next_Rounded'),
           ),
         ],
@@ -457,23 +651,40 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
   Widget _lockedAssignmentContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.lock, size: 50, color: Colors.grey),
-          SizedBox(height: 10),
-          Text(
-            "Kerjakan Assessment terlebih dahulu!",
-            style: TextStyle(fontSize: 16, color: Colors.grey, fontFamily: 'DIN_Next_Rounded'),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+              'lib/assets/pictures/background-pattern.png'
           ),
-        ],
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('lib/assets/pixels/lock-pixel.png', height: 50),
+              SizedBox(height: 16),
+              Text(
+                "Assignment Terkunci",
+                style: TextStyle(fontSize: 16, color: AppColors.primaryColor, fontFamily: 'DIN_Next_Rounded', fontWeight: FontWeight.bold),
+              ),Text(
+                "Selesaikan Assessment terlebih dahulu untuk membuka Assignment!",
+                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildHTMLContent(String material) {
-    return HtmlWidget(material);
+    return HtmlWidget(material, textStyle: TextStyle(fontFamily: 'DIN_Next_Rounded'),);
   }
 
   // Widget _buildAssessmentContent() {
@@ -597,117 +808,136 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       return _buildAssessmentInitial();
     } else if (!_assessmentFinished) {
       return question != null && question!.questions.isNotEmpty
-          ? Column(
-        children: [
-          // Progress Indicator
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: LinearProgressIndicator(
-              value: question!.questions
-                  .where((q) =>
-              q.selectedAnswer.isNotEmpty ||
-                  q.selectedMultAnswer.isNotEmpty)
-                  .length /
-                  question!.questions.length,
-              backgroundColor: Colors.grey.shade300,
-              valueColor:
-              AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                question!.questions.length,
-                    (index) =>
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: InkWell(
-                        onTap: () {
-                          _pageController.animateToPage(
-                            index,
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        child: CircleAvatar(
-                          radius: 12,
-                          backgroundColor: question!.questions[index]
-                              .selectedAnswer.isNotEmpty ||
-                              question!.questions[index].selectedMultAnswer
-                                  .isNotEmpty
-                              ? Colors
-                              .amber // Warna sekunder jika sudah dijawab
-                              : _currentPage == index
-                              ? AppColors.primaryColor // Warna aktif
-                              : Colors.grey.shade400, // Warna default
-                          child: Text(
-                            '${index + 1}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+          ? Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'lib/assets/pictures/background-pattern.png'
+                ),
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: question!.questions.length,
-              onPageChanged: (int page) {
-                setState(() {
-                  _currentPage = page;
-                });
-              },
-              itemBuilder: (context, count) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: _buildSingleQuestion(count),
-                );
-              },
-            ),
-          ),
-          // Tombol Back/Next
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                if (_currentPage > 0)
-                  ElevatedButton(
-                    onPressed: () {
-                      _pageController.previousPage(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: LinearProgressIndicator(
+                    value: question!.questions
+                        .where((q) =>
+                    q.selectedAnswer.isNotEmpty ||
+                        q.selectedMultAnswer.isNotEmpty)
+                        .length /
+                        question!.questions.length,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor:
+                    AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      question!.questions.length,
+                          (index) =>
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: InkWell(
+                              onTap: () {
+                                _pageController.animateToPage(
+                                  index,
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                              child: CircleAvatar(
+                                radius: 12,
+                                backgroundColor: _currentPage == index
+                                  ? AppColors.primaryColor
+                                    : question!.questions[index].selectedAnswer.isNotEmpty || question!.questions[index].selectedMultAnswer.isNotEmpty
+                                      ? AppColors.secondaryColor
+                                        : Colors.grey.shade400,
+                                child: Text(
+                                  '${index + 1}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    ),
+                  ),
+                ),
+
+                // CONTENT
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: question!.questions.length,
+                    onPageChanged: (int page) {
+                      setState(() {
+                        _currentPage = page;
+                      });
+                    },
+                    itemBuilder: (context, count) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: _buildSingleQuestion(count),
                       );
                     },
-                    child: Text('Back'),
                   ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_currentPage < question!.questions.length - 1) {
-                      _pageController.nextPage(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    } else {
-                      _showFinishConfirmation();
-                    }
-                  },
-                  child: Text(_currentPage < question!.questions.length - 1
-                      ? 'Next'
-                      : 'Finish'),
+                ),
+
+                // PAGE ACTION BUTTON
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryColor
+                          ),
+                          onPressed:
+                            _currentPage > 0
+                              ? () {
+                                _pageController.previousPage(
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut
+                                );
+                              }
+                              : null,
+                          icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white),
+                          label: Text('Back', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded'),),
+                        ),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor
+                        ),
+                        onPressed: () {
+                          if (_currentPage < question!.questions.length - 1) {
+                            _pageController.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          } else {
+                            _showFinishConfirmation();
+                          }
+                        },
+                        icon: Icon(LineAwesomeIcons.angle_right_solid, color: Colors.white),
+                        iconAlignment: IconAlignment.end,
+                        label: Text(_currentPage < question!.questions.length - 1
+                            ? 'Next'
+                            : 'Finish', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded')),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
-      )
+                  ),
+          )
           : _emptyState();
     } else {
       return _buildQuizResult(); // Widget hasil kuis
@@ -736,23 +966,31 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       case 'PG':
       case 'TF':
       case 'MC':
-        return Card(
-          child: ListTile(
-            leading: Text('${number + 1}', style: TextStyle(fontSize: 20, fontFamily: 'DIN_Next_Rounded')),
-            isThreeLine: true,
-            title: Text(question?.questions[number].question ?? 'No question available', style: TextStyle(fontSize: 12, fontFamily: 'DIN_Next_Rounded')),
-            subtitle: question?.questions[number].option.isNotEmpty ?? false
-                ? _buildChoiceAnswer(question!.questions[number], number)
-                : null,
+        return Card.outlined(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListTile(
+              leading: Text('${number + 1}', style: TextStyle(fontSize: 20, fontFamily: 'DIN_Next_Rounded', color: AppColors.primaryColor)),
+              isThreeLine: true,
+              title: Text(question?.questions[number].question ?? 'No question available', style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
+              subtitle: question?.questions[number].option.isNotEmpty ?? false
+                  ? _buildChoiceAnswer(question!.questions[number], number)
+                  : null,
+            ),
           ),
         );
       case 'EY':
-        return Card(
-          child: ListTile(
-            leading: Text('${number + 1}', style: TextStyle(fontSize: 20, fontFamily: 'DIN_Next_Rounded')),
-            isThreeLine: true,
-            title: Text(question?.questions[number].question ?? 'No question available', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-            subtitle: _buildTextAnswer(question!.questions[number]),
+        return Card.outlined(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListTile(
+              leading: Text('${number + 1}', style: TextStyle(fontSize: 20, fontFamily: 'DIN_Next_Rounded', color: AppColors.primaryColor)),
+              isThreeLine: true,
+              title: Text(question?.questions[number].question ?? 'No question available', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+              subtitle: _buildTextAnswer(question!.questions[number]),
+            ),
           ),
         );
       default:
@@ -772,8 +1010,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            question?.questions[number].question ?? 'No question available',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            question?.questions[number].question ?? 'Belum ada pertanyaan',
+            style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
           ),
           SizedBox(height: 16),
           if (question?.questions[number].type == 'TF')
@@ -781,7 +1019,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           else if (question?.questions[number].type == 'MC')
             _buildChoiceAnswer(question!.questions[number], number)
           else if (question?.questions[number].type == 'EY')
-              _buildTextAnswer(question!.questions[number]),
+            _buildTextAnswer(question!.questions[number]),
         ],
       ),
     );
@@ -821,14 +1059,14 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
             borderColor = Colors.red;
             backgroundColor = Colors.red.shade50;
           } else if (isCorrectAnswer) {
-            borderColor = Colors.green;
+            borderColor = AppColors.secondaryColor;
             backgroundColor = Colors.green.shade50;
           } else {
             borderColor = Colors.grey.shade300;
             backgroundColor = Colors.white;
           }
         } else {
-          borderColor = isSelected ? Colors.deepPurple : Colors.grey.shade300;
+          borderColor = isSelected ? AppColors.primaryColor : Colors.grey.shade300;
           backgroundColor = isSelected ? Colors.deepPurple.shade50 : Colors.white;
         }
 
@@ -859,14 +1097,14 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
               answer,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontFamily: 'DIN_Next_Rounded',
-                color: isSelected ? Colors.deepPurple : Colors.black87,
+                color: isSelected ? AppColors.primaryColor : Colors.black87,
               ),
             ),
             value: answer,
             groupValue: question.selectedAnswer,
-            activeColor: Colors.deepPurple,
+            activeColor: AppColors.primaryColor,
             contentPadding: EdgeInsets.zero,
             onChanged: tapped
                 ? null
@@ -887,47 +1125,48 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Widget _buildTextAnswer(Question question) {
     return Card(
+      color: Colors.white,
       elevation: 2,
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: EdgeInsets.all(0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Your Answer",
+              "Jawaban:",
               style: TextStyle(
-                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'DIN_Next_Rounded',
-                color: Colors.deepPurple.shade700,
+                color: AppColors.primaryColor,
               ),
             ),
-            SizedBox(height: 6),
+            SizedBox(height: 8),
             TextField(
               maxLines: 4,
               minLines: 2,
               keyboardType: TextInputType.multiline,
               style: TextStyle(
-                fontSize: 14,
                 fontFamily: 'DIN_Next_Rounded',
               ),
               decoration: InputDecoration(
-                hintText: "Enter your answer here...",
+                hintText: "Ketikkan jawaban anda...",
                 hintStyle: TextStyle(color: Colors.grey.shade500),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(color: Colors.deepPurple.shade300),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.deepPurple, width: 2),
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                contentPadding: EdgeInsets.all(16),
               ),
+              enabled: !tapped,
+              // controller: _controller,
               onChanged: (String answer) {
                 setState(() {
                   question.selectedAnswer = answer;
@@ -953,21 +1192,36 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Finish Quiz'),
-        content: Text('Are you sure you want to finish the quiz?'),
+        backgroundColor: Colors.white,
+        title: Text('Selesaikan Assessment', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: AppColors.primaryColor),),
+        content: Text('Apakah anda yakin ingin menyelesaikan assessment?', style: TextStyle(fontFamily: 'DIN_Next_Rounded')),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              updateProgressAssessment();
-              // _showQuizResults();
-            },
-            child: Text('Finish'),
-          ),
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    updateProgressAssessment();
+                    // _showQuizResults();
+                  },
+                  child: Text('Selesai', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Batal', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: AppColors.primaryColor)),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
@@ -979,12 +1233,13 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     print('Quiz finished!');
 
     if (allQuestionsAnswered && tapped) {
-      int score = 0;
+      point = getScore();
       if(!widget.status.assessmentDone && !assessmentDone){
-        score = getScore();
+        setState(() {
+          user!.points = user!.points! + point;
+        });
         assessmentDone = true;
       }
-      user!.points = user!.points! + score;
 
       if (question!.answers == null) {
         question!.answers = [];
@@ -1000,70 +1255,178 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     updateStatus();
 
     setState(() {
-      _quizFinished = true; // Set status kuis selesai
+      _quizFinished = true;
       _assessmentFinished = true;
+      _materialLocked = false;
     });
   }
 
   Widget _buildAssessmentInitial() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Instruksi Kuis',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Baca instruksi kuis dengan saksama sebelum memulai.',
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _assessmentStarted = true;
-                });
-              },
-              child: Text('Start Quiz'),
-            ),
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+              'lib/assets/pictures/background-pattern.png'
+          ),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('lib/assets/pixels/assessment-pixel.png', height: 50),
+              SizedBox(height: 16),
+              Text(
+                'Assessment',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
+              ),
+              SizedBox(height: 4),
+              Text(
+                question?.instruction ?? 'Pilihlah jawaban yang menurut anda paling benar!',
+                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _assessmentStarted = true;
+                      _materialLocked = true;
+                    });
+                  },
+                  icon: Icon(LineAwesomeIcons.paper_plane, color: Colors.white,),
+                  label: Text('Mulai', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildQuizResult() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                SizedBox(height: 8),
-                Text('Jumlah Benar: blm ada / ${question!.questions.length}'),
-                Text('Skor: blm ada'),
-                Text('Poin: blm ada'),
-              ],
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+              'lib/assets/pictures/background-pattern.png'
           ),
-          Column(
-            children: List.generate(
-              question!.questions.length,
-                  (count) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: _buildQuestion(count), // Gunakan _buildQuestion untuk menampilkan soal
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: AppColors.primaryColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Hasil Assessment', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'DIN_Next_Rounded')),
+                        SizedBox(height: 4),
+                        Table(
+                          columnWidths: {
+                            0: FlexColumnWidth(1),
+                            1: FlexColumnWidth(2),
+                          },
+                          children: [
+                            TableRow(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                 child: Text('Jumlah Benar', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: Text(': $correctAnswer / ${question!.questions.length}', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded', color: Colors.white),),
+                                ),
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: Text('Skor', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: Text(': ${((correctAnswer/question!.questions.length)*100).toStringAsFixed(2)} / ${((question!.questions.length/question!.questions.length)*100).toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: Text('Poin', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: Text(': +$point', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
-      )
+            SizedBox(height: 8),
+            Column(
+              children: List.generate(
+                question!.questions.length,
+                    (count) => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: _buildQuestion(count),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                    ),
+                    onPressed: () {
+                      _tabController.animateTo(2);
+                    },
+                    icon: Icon(Icons.file_copy, color: Colors.white,),
+                    label: Text(
+                      'Lanjut ke Assignment',
+                      style: TextStyle(
+                          fontFamily: 'DIN_Next_Rounded',
+                          color: Colors.white
+                      ),
+                    )
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+          ],
+        )
+      ),
     );
   }
 
@@ -1089,161 +1452,176 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   // }
 
   Widget _buildAssignmentContent() {
-    return Padding(
-        padding: EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          controller: ScrollController(),
-          child: Column(
-            children: [
-              assignment?.instruction == null ? CircularProgressIndicator() : _buildHTMLAssignment(),
-              assignment?.fileUrl != null && assignment?.fileUrl != "" ? ListTile(
-                  leading: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(Icons.download_rounded, size: 30, color: Colors.deepPurple.shade700),
-                      if (downloadProgress > 0.0 && downloadProgress < 1.0) // Show progress only while downloading
-                        SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: CircularProgressIndicator(
-                            value: downloadProgress,
-                            strokeWidth: 3,
-                            backgroundColor: Colors.grey[300],
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                    ],
-                  ),
-                  title: Text("Unduh file assignment disini", style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-                  onTap: () async {
-                    FileDownloader.downloadFile(
-                      url: assignment!.fileUrl!,
-                      onProgress: (name, progress) {
-                        setState(() {
-                          debugPrint("Download Progress: $progress");
-                          downloadProgress = progress / 100;
-                        });
-                      },
-                      onDownloadCompleted: (filePath) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Download Complete, saved in $filePath", style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-                            action: SnackBarAction(
-                              label: "Open",
-                              onPressed: () => _openFile(filePath),
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage(
+                  'lib/assets/pictures/background-pattern.png'),
+              fit: BoxFit.cover
+          )
+      ),
+      child: Padding(
+          padding: EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            controller: ScrollController(),
+            child: Column(
+              children: [
+                assignment?.instruction == null ? CircularProgressIndicator() : _buildHTMLAssignment(),
+                assignment?.fileUrl != null && assignment?.fileUrl != "" ? ListTile(
+                    leading: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Icon(Icons.download_rounded, size: 30, color: AppColors.primaryColor),
+                        if (downloadProgress > 0.0 && downloadProgress < 1.0) // Show progress only while downloading
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: CircularProgressIndicator(
+                              value: downloadProgress,
+                              strokeWidth: 3,
+                              backgroundColor: Colors.grey[300],
+                              color: Colors.deepPurple,
                             ),
                           ),
-                        );
-                        setState(() {
-                          downloadProgress = 0;
-                        });
-                      },
-                    );
-                  }
-              ) : SizedBox(),
-              Padding(
-                padding: EdgeInsets.all(20.0),
-                child: GestureDetector(
-                  onTap: () async {
-                    final result = await FilePicker.platform.pickFiles(
-                      type: FileType.custom,
-                      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                    );
-
-                    if (result == null) return;
-
-                    final fileSizeInMB = result.files.first.size / (1024 * 1024); // Convert bytes to MB
-
-                    if (fileSizeInMB > 5) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('File size must be 5MB or less', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),)),
-                      );
-                    } else {
-                      setState(() {
-                        file = result.files.first; // Ensure file updates
-                      });
-                    }
-                  },
-                  child: file == null
-                      ? _buildUploadBox()  // UI before file selection
-                      : _buildFilePreview(file!), // Updated file preview
-                ),
-              ),
-              lastestSubmissionUrl != '' ? _buildExistingFile(lastestSubmissionUrl) : SizedBox(),
-              file == null ? SizedBox() :
-                  !_isFileUploaded && !_isUserBadgeUpdated && !_isUserCourseUpdated ?
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 10),
-                      Text(
-                        "Mohon Tunggu, sedang mengunggah berkas",
-                        style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
-                      ),
-                    ],
-                  ) : Row(
-                    children: [
-                      ElevatedButton.icon(
-                          onPressed:() {
-                            setState(() {
-                              file = null;
-                            });
-                          },
-                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple[900])),
-                          icon: Icon(Icons.delete, size: 20, color: Colors.white,),
-                          label: Text('Delete', style: TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),)
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () async {
+                      ],
+                    ),
+                    title: Text("Unduh file assignment disini", style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                    onTap: () async {
+                      FileDownloader.downloadFile(
+                        url: assignment!.fileUrl!,
+                        onProgress: (name, progress) {
                           setState(() {
-                            _isFileUploaded = false;
-                            _isUserBadgeUpdated = false;
-                            _isUserCourseUpdated = false;
+                            debugPrint("Download Progress: $progress");
+                            downloadProgress = progress / 100;
                           });
-
-                          Duration difference = status.timeStarted.difference(status.timeFinished);
-                          user?.points = user!.points! + calculatePoint(difference.inMinutes);
-
-                          if (widget.level == uc.currentChapter) {
-                            uc.currentChapter++;
-                            uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
-                          }
-
-                          if (idBadge != 0) {
-                            createUserBadge(user!.id, idBadge);
-                            user?.badges = user!.badges! + 1;
-                          }
-                          await uploadFile(file!);
-                          await Future.wait([
-                            updateUserPointsAndBadge(),
-                            updateUserCourse(),
-                          ]);
-
-                          if (_isUserCourseUpdated && _isUserBadgeUpdated && _isFileUploaded) {
-                            Future.delayed(Duration(milliseconds: 200), () {
-                              if (complete) {
-                                Navigator.pop(context);
-                              } else {
-                                updateProgressAssignment();
-                              }
-                            });
-                          }
                         },
-                        style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.purple[900])),
-                        icon: Icon(Icons.done, size: 20, color: Colors.white),
-                        label: Text(
-                          'Submit',
-                          style: TextStyle(fontSize: 10, color: Colors.white, fontFamily: 'DIN_Next_Rounded'),
+                        onDownloadCompleted: (filePath) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Download Complete, saved in $filePath", style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
+                              action: SnackBarAction(
+                                label: "Open",
+                                onPressed: () => _openFile(filePath),
+                              ),
+                            ),
+                          );
+                          setState(() {
+                            downloadProgress = 0;
+                          });
+                        },
+                      );
+                    }
+                ) : SizedBox(),
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: GestureDetector(
+                    onTap: () async {
+                      final result = await FilePicker.platform.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+                      );
+
+                      if (result == null) return;
+
+                      final fileSizeInMB = result.files.first.size / (1024 * 1024); // Convert bytes to MB
+
+                      if (fileSizeInMB > 5) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('File size must be 5MB or less', style: TextStyle(fontFamily: 'DIN_Next_Rounded'),)),
+                        );
+                      } else {
+                        setState(() {
+                          file = result.files.first; // Ensure file updates
+                        });
+                      }
+                    },
+                    child: file == null
+                        ? _buildUploadBox()  // UI before file selection
+                        : _buildFilePreview(file!), // Updated file preview
+                  ),
+                ),
+                lastestSubmissionUrl != '' ? _buildExistingFile(lastestSubmissionUrl) : SizedBox(),
+                file == null ? SizedBox() :
+                    !_isFileUploaded && !_isUserBadgeUpdated && !_isUserCourseUpdated ?
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 10),
+                        Text(
+                          "Mohon Tunggu, sedang mengunggah berkas",
+                          style:
+                          TextStyle(fontSize: 16, fontFamily: 'DIN_Next_Rounded'),
                         ),
-                      ),
-                    ],
-                  )
-            ],
-          ),
-        )
+                      ],
+                    ) : Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              setState(() {
+                                _isFileUploaded = false;
+                                _isUserBadgeUpdated = false;
+                                _isUserCourseUpdated = false;
+                              });
+
+                              Duration difference = status.timeStarted.difference(status.timeFinished);
+                              user?.points = user!.points! + calculatePoint(difference.inMinutes);
+
+                              if (widget.level == uc.currentChapter) {
+                                uc.currentChapter++;
+                                uc.progress = (((uc.currentChapter - 1) / chLength) * 100).toInt();
+                              }
+
+                              if (idBadge != 0) {
+                                createUserBadge(user!.id, idBadge);
+                                user?.badges = user!.badges! + 1;
+                              }
+                              await uploadFile(file!);
+                              await Future.wait([
+                                updateUserPointsAndBadge(),
+                                updateUserCourse(),
+                              ]);
+
+                              if (_isUserCourseUpdated && _isUserBadgeUpdated && _isFileUploaded) {
+                                Future.delayed(Duration(milliseconds: 200), () {
+                                  if (complete) {
+                                    Navigator.pop(context);
+                                  } else {
+                                    updateProgressAssignment();
+                                  }
+                                });
+                              }
+                            },
+                            style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(AppColors.primaryColor)),
+                            icon: Icon(LineAwesomeIcons.paper_plane_solid, color: Colors.white),
+                            label: Text(
+                              'Submit',
+                              style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded'),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                              onPressed:() {
+                                setState(() {
+                                  file = null;
+                                });
+                              },
+                              style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.red)),
+                              icon: Icon(LineAwesomeIcons.trash_alt, color: Colors.white,),
+                              label: Text('Delete', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded'),)
+                          ),
+                        ),
+                      ],
+                    )
+              ],
+            ),
+          )
+      ),
     );
   }
 

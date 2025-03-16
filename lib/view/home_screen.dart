@@ -7,6 +7,8 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/course.dart';
+import '../model/user_badge.dart';
+import '../service/badge_service.dart';
 import '../service/course_service.dart';
 import '../service/user_service.dart';
 import '../utils/colors.dart';
@@ -32,6 +34,7 @@ class _HomeState extends State<Homescreen> {
   Course? lastestCourse;
   int rank = 0;
   int idUser = 0;
+  List<UserBadge>? userBadges = [];
 
   @override
   void initState() {
@@ -135,9 +138,17 @@ class _HomeState extends State<Homescreen> {
         name = prefs.getString('name') ?? '';
         user = fetchedUser;
       });
+      getUserBadges(storedIdUser);
     } else {
       logout();
     }
+  }
+
+  Future<void> getUserBadges(int userId) async {
+    final result = await BadgeService.getUserBadgeListByUserId(userId);
+    setState(() {
+      userBadges = result;
+    });
   }
 
   void logout() {
@@ -339,16 +350,16 @@ class _HomeState extends State<Homescreen> {
                           }
                           , height: 50, width: 50,),
                         title: Text(
-                          list[index].username,
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black),
+                          list[index].name,
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
                         ),
                         subtitle: Text(
                           list[index].studentId!,
-                          style: TextStyle(fontSize: 8, color: Colors.black),
+                          style: TextStyle(fontSize: 12, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
                         ),
                         trailing: Text(
-                          '${list[index].points} Point',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                          '${list[index].points} Poin',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
                         ),
                       ),
                     ),
@@ -567,7 +578,7 @@ class _HomeState extends State<Homescreen> {
                     MainAxisAlignment.start,
                     children: [
                       _buildInfoColumn(
-                          LineAwesomeIcons.medal_solid, 'Lencana', '${user?.badges ?? 0}', AppColors.accentColor),
+                          LineAwesomeIcons.medal_solid, 'Lencana', '${userBadges?.length ?? 0}', AppColors.accentColor),
                       SizedBox(width: 24),
                       _buildInfoColumn(
                           LineAwesomeIcons.user_check_solid, 'Course', '${allCourses.isNotEmpty ? allCourses.length : 0}', AppColors.accentColor),

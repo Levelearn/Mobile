@@ -4,6 +4,7 @@ import 'package:app/model/user_badge.dart';
 import 'package:app/service/badge_service.dart';
 import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/view/quick_access_screen.dart';
 import 'package:app/view/trade_screen.dart';
 import 'package:app/view/update_profile_screeen.dart';
 import 'package:flutter/material.dart';
@@ -56,15 +57,21 @@ class _ProfileState extends State<ProfileScreen> {
     }
   }
 
+  List<Student> sortUserbyPoint(List<Student> list) {
+    print(list);
+    list.sort((a, b) => b.points!.compareTo(a.points!));
+    return list;
+  }
+
   Future<void> getAllUser() async {
     final result = await UserService.getAllUser();
     setState(() {
-      list = studentRole(result);
+      list = sortUserbyPoint(studentRole(result));
     });
     for (int i = 0; i < list.length; i++) {
       if(list[i].id == user?.id){
         setState(() {
-          rank = i+1;
+          rank = i + 1;
         });
         break;
       }
@@ -108,21 +115,31 @@ class _ProfileState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return isLoading ? Scaffold(
-      body: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 10), // Space between progress bar and text
-                Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+                'lib/assets/pictures/background-pattern.png'
             ),
-          )
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10), // Space between progress bar and text
+                  Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            )
+        ),
       )
     ) : Scaffold(
       appBar: AppBar(
@@ -138,7 +155,7 @@ class _ProfileState extends State<ProfileScreen> {
             icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
         title: Text(
             "Profile",
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            style: TextStyle(
                 fontFamily: 'DIN_Next_Rounded',
                 color: Colors.white
             )),
@@ -158,21 +175,31 @@ class _ProfileState extends State<ProfileScreen> {
           isLoading 
           ? Scaffold(
             backgroundColor: Colors.transparent,
-            body: SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 10), // Space between progress bar and text
-                      Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+            body: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'lib/assets/pictures/background-pattern.png'
                   ),
-                )
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 10), // Space between progress bar and text
+                        Text("Mohon Tunggu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  )
+              ),
             )
           ) 
           : Scaffold(
@@ -202,7 +229,7 @@ class _ProfileState extends State<ProfileScreen> {
                                   height: 120,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(100),
-                                    child: user?.image != "" && user?.image != null ? Image.network(user!.image!)
+                                    child: user?.image != "" && user?.image != null ? Image.network(user!.image!, fit: BoxFit.cover,)
                                         : Icon(Icons.person, size: 100, color: Colors.white,),
                                   ),
                                 ),
@@ -255,11 +282,11 @@ class _ProfileState extends State<ProfileScreen> {
                               spacing: 24,
                               children: [
                                 _buildInfoColumn(LineAwesomeIcons.medal_solid,
-                                    'Lencana', '${user?.badges}', GlobalVar.secondaryColor),
+                                    'Lencana', '${userBadges?.length}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.user_check_solid,
                                     'Course', '${allCourses?.length}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.trophy_solid,
-                                    'Peringkat', '$rank', GlobalVar.secondaryColor),
+                                    'Peringkat', '$rank / ${list.length}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.gem_solid,
                                     'Poin', '${user?.points}', GlobalVar.secondaryColor)
                               ],
@@ -293,7 +320,7 @@ class _ProfileState extends State<ProfileScreen> {
                             height: 8,
                           ),
                           Text(
-                            'Badge Saya',
+                            'Lencana Saya',
                             textAlign: TextAlign.start,
                             style: Theme.of(context).textTheme.titleMedium!.copyWith(
                               fontWeight: FontWeight.bold,
@@ -357,7 +384,12 @@ class _ProfileState extends State<ProfileScreen> {
                       ProfileMenuWidget(
                         title: "Quick Access",
                         icon: LineAwesomeIcons.accessible,
-                        onPress: () {},
+                        onPress: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => QuickAccessScreen()),
+                          );
+                        },
                       ),
                       ProfileMenuWidget(
                         title: "App Rating",
@@ -457,13 +489,19 @@ class _ProfileState extends State<ProfileScreen> {
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Tutup',
-                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Tutup',
+                    style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white),
+                  ),
                 ),
               ),
             ],

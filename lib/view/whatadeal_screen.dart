@@ -56,7 +56,7 @@ class _WhatADealScreenState extends State<WhatADealScreen> {
                   Text(
                     widget.message,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                    style: TextStyle(fontSize: 16, color: Colors.black54, fontFamily: 'DIN_Next_Rounded'),
                   ),
                   const SizedBox(height: 30),
                     ElevatedButton(
@@ -73,8 +73,9 @@ class _WhatADealScreenState extends State<WhatADealScreen> {
           ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            shouldLoop: false,
-            colors: [Colors.red, Colors.blue, Colors.yellow, Colors.green, Colors.purple],
+            numberOfParticles: 25,
+            shouldLoop: true,
+            colors: [AppColors.primaryColor, AppColors.secondaryColor, AppColors.accentColor, Colors.blue, Colors.green, Colors.purple],
           ),
         ],
       ),

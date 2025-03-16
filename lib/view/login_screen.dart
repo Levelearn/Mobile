@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 
 import '../model/login.dart';
@@ -79,6 +80,40 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() => isLoading = false);
+  }
+
+  void _launchEmail() async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'archicosemb@gmail.com',
+      queryParameters: {
+        'subject': 'Levelearn Mobile Help Request - Authentication',
+        'body': '''
+            Saya menulis email ini untuk meminta bantuan terkait [jelaskan masalah atau pertanyaan Anda secara singkat].
+
+            Berikut adalah detail masalah yang saya alami:
+            
+            * [Deskripsi masalah dengan jelas dan detail]
+            * [Langkah-langkah yang sudah Anda coba]
+            * [Informasi perangkat atau akun jika relevan]
+            
+            Saya berharap dapat segera mendapatkan solusi atau bantuan dari tim Anda.
+            
+            Terima kasih atas perhatian dan bantuannya.
+            
+            Hormat saya,
+            
+            [Nama Anda]
+            [Kontak (opsional)]
+        ''',
+      },
+    );
+
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
+    } else {
+      throw 'Tidak dapat meluncurkan email';
+    }
   }
 
   @override
@@ -213,11 +248,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       duration: Duration(milliseconds: 1700),
                       child: Center(
                           child: TextButton(
-                              onPressed: () {},
+                              onPressed: _launchEmail,
                               child: Text(
-                                "Forgot Password?",
+                                "Butuh Bantuan?",
                                 style: TextStyle(
-                                    color: GlobalVar.primaryColor,
+                                    color: AppColors.primaryColor,
                                     fontFamily: 'DIN_Next_Rounded',
                                     fontSize: fontSize),
                               )))),
