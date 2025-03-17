@@ -72,8 +72,8 @@ class _TradeScreenState extends State<TradeScreen> {
           image: DecorationImage(
             image: AssetImage(
                 'lib/assets/pictures/background-pattern.png'
-            ), // Ganti dengan path gambar Anda
-            fit: BoxFit.cover, // Menyesuaikan gambar agar mengisi layar
+            ),
+            fit: BoxFit.cover,
           ),
         ),
         child: trades.isEmpty
