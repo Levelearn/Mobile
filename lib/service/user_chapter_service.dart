@@ -86,8 +86,6 @@ class UserChapterService {
 
   static Future<ChapterStatus> updateChapterStatus(int id, ChapterStatus user) async {
     try {
-      print(user.timeStarted);
-      print(user.timeFinished);
       late ChapterStatus status;
       Map<String, dynamic> request = {
         "isStarted": user.isStarted,
