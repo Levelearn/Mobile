@@ -32,20 +32,14 @@ class _QuickAccessScreenState extends State<QuickAccessScreen> {
   ];
 
   void _launchURL(String url) async {
-    try {
-      final Uri uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
-        throw Exception('Tidak dapat membuka URL: $url');
-      }
-    } catch (e) {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Tidak dapat membuka URL: $url')),
       );
-      print('Error launching URL: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

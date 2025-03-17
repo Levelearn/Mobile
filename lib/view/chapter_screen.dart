@@ -1237,7 +1237,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       if(!widget.status.assessmentDone && !assessmentDone){
         setState(() {
           user!.points = user!.points! + point;
-          status.assessmentGrade = status.assessmentGrade + point;
         });
         assessmentDone = true;
       }
