@@ -276,69 +276,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        // return AlertDialog(
-        //   title: Text(
-        //     !allQuestionsAnswered && isAssessment ? "Progress Not Completed!" : "Progress Completed!",
-        //     style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
-        //     textAlign: TextAlign.center, // Center the title
-        //   ),
-        //   content: Center(
-        //     child: Text(
-        //       message,
-        //       style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
-        //       textAlign: TextAlign.center, // Center the message
-        //     ),
-        //   ),
-        //   actions: [
-        //     Center(
-        //       child: TextButton(
-        //         onPressed: () {
-        //           if (isAssignment) {
-        //             Future.delayed(Duration(milliseconds: 100), () {
-        //               if (context.mounted) {
-        //                 Navigator.push(
-        //                   context,
-        //                   MaterialPageRoute(
-        //                     builder: (context) => CongratulationsScreen(
-        //                       message: "You have successfully completed this assignment!",
-        //                       onContinue: () {
-        //                         Navigator.pushReplacement(
-        //                           context,
-        //                           MaterialPageRoute(
-        //                             builder: (context) => Mainscreen(navIndex: 2),
-        //                           ),
-        //                         );
-        //                       },
-        //                       idBadge: idBadge,
-        //                     ),
-        //                   ),
-        //                 );
-        //               }
-        //             });
-        //           }
-        //           else if (isAssessment) {
-        //             if(allQuestionsAnswered) {
-        //               setState(() {
-        //                 tapped = true;
-        //               });
-        //               _showQuizResults();
-        //               Navigator.pop(context);
-        //             } else {
-        //               Navigator.pop(context);
-        //             }
-        //           }
-        //           else {
-        //             Navigator.pop(context);
-        //           }
-        //         },
-        //         child: Text(
-        //           "OK",
-        //           style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // );
         return AlertDialog(
           backgroundColor: Colors.white,
           title: Text(
@@ -687,122 +624,6 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     return HtmlWidget(material, textStyle: TextStyle(fontFamily: 'DIN_Next_Rounded'),);
   }
 
-  // Widget _buildAssessmentContent() {
-  //   return question != null
-  //       ? question!.questions.isNotEmpty
-  //         ? Column(
-  //           children: [
-  //             // Progress Indicator
-  //             Padding(
-  //               padding: const EdgeInsets.all(16.0),
-  //               child: LinearProgressIndicator(
-  //                 value: question!.questions
-  //                     .where((q) =>
-  //                 q.selectedAnswer.isNotEmpty ||
-  //                     q.selectedMultAnswer.isNotEmpty)
-  //                     .length /
-  //                     question!.questions.length,
-  //                 backgroundColor: Colors.grey.shade300,
-  //                 valueColor:
-  //                 AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-  //               ),
-  //             ),
-  //             Expanded(
-  //               child: ListView.builder(
-  //                 itemCount: question?.questions.length,
-  //                 itemBuilder: (context, count) {
-  //                   return Padding(
-  //                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-  //                     child: _buildQuestion(count),
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //             // Submit Button with Feedback
-  //             Padding(
-  //               padding: const EdgeInsets.all(15.0),
-  //               child: Column(
-  //                 children: [
-  //                   ElevatedButton.icon(
-  //                     onPressed: () {
-  //                       setState(() {
-  //                         tapped = true;
-  //                         isSubmitted = true;
-  //                         allQuestionsAnswered = question!.questions.every(
-  //                               (q) => q.selectedAnswer.isNotEmpty || q.selectedMultAnswer.isNotEmpty,
-  //                         );
-  //                       });
-  //
-  //                       if (allQuestionsAnswered && tapped) {
-  //                         int score = 0;
-  //                         if(!widget.status.assessmentDone){
-  //                           score = getScore();
-  //                         }
-  //                         user!.points = user!.points! + score;
-  //
-  //                         if (question!.answers == null) {
-  //                           question!.answers = [];
-  //                         }
-  //                         for (var q in question!.questions) {
-  //                           question!.answers!.add(q.selectedAnswer);
-  //                         }
-  //                         status.assessmentDone = true;
-  //                         status.assessmentAnswer = question!.answers!;
-  //                         updateUserPoints();
-  //                         updateProgressAssessment();
-  //                       }
-  //
-  //                       updateStatus();
-  //                     },
-  //                     style: ButtonStyle(
-  //                       backgroundColor: WidgetStatePropertyAll(
-  //                           allQuestionsAnswered
-  //                               ? Colors.green
-  //                               : Colors.purple[900]),
-  //                       padding: WidgetStatePropertyAll(
-  //                           EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
-  //                       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(20),
-  //                       )),
-  //                     ),
-  //                     icon: Icon(Icons.check, color: Colors.white),
-  //                     label: Text(
-  //                       'Submit',
-  //                       style: TextStyle(
-  //                           fontSize: 18,
-  //                           color: Colors.white,
-  //                           fontFamily: 'DIN_Next_Rounded'),
-  //                     ),
-  //                   ),
-  //                   SizedBox(height: 10),
-  //                   allQuestionsAnswered && tapped
-  //                       ? Text(
-  //                     '🎉 Great! You’ve answered all questions!',
-  //                     style: TextStyle(
-  //                         color: Colors.green,
-  //                         fontSize: 14,
-  //                         fontWeight: FontWeight.bold,
-  //                         fontFamily: 'DIN_Next_Rounded'),
-  //                   )
-  //                       : tapped
-  //                       ? Text(
-  //                     '⚠️ You missed some questions, check again!',
-  //                     style: TextStyle(
-  //                         color: Colors.red,
-  //                         fontSize: 14,
-  //                         fontWeight: FontWeight.bold,
-  //                         fontFamily: 'DIN_Next_Rounded'),
-  //                   )
-  //                       : SizedBox()
-  //                 ],
-  //               ),
-  //             )
-  //           ],
-  //   )
-  //       : _emptyState()
-  //       : _emptyState();
-  // }
-
   Widget _buildNewAssessmentContent() {
     if (!_assessmentStarted) {
       return _buildAssessmentInitial();
@@ -1122,8 +943,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     );
   }
 
-
   Widget _buildTextAnswer(Question question) {
+    TextEditingController controller = TextEditingController(text: question.selectedAnswer ?? '');
+
     return Card(
       color: Colors.white,
       elevation: 2,
@@ -1146,9 +968,11 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
             ),
             SizedBox(height: 8),
             TextField(
+              controller: controller, // ✅ Always initializes with selectedAnswer
               maxLines: 4,
               minLines: 2,
               keyboardType: TextInputType.multiline,
+              readOnly: allQuestionsAnswered && tapped ? true : false,
               style: TextStyle(
                 fontFamily: 'DIN_Next_Rounded',
               ),
@@ -1166,10 +990,9 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
                 contentPadding: EdgeInsets.all(16),
               ),
               enabled: !tapped,
-              // controller: _controller,
               onChanged: (String answer) {
                 setState(() {
-                  question.selectedAnswer = answer;
+                  question.selectedAnswer = answer; // ✅ Saves the answer
                 });
               },
             ),

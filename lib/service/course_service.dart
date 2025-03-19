@@ -32,6 +32,7 @@ class CourseService {
         courseName: result['name'],
         codeCourse: result['code'],
         description: result['description'],
+        image: result['image'],
         createdAt: DateTime.parse(result['createdAt']),
         updatedAt: DateTime.parse(result['updatedAt']),
         progress: 0

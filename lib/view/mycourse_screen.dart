@@ -227,7 +227,9 @@ class _CourseDetail extends State<MycourseScreen> {
         margin: EdgeInsets.all(10),
         child:  Column(
           children: [
-            Image.network(url, height: 100, width: double.infinity, fit: BoxFit.cover),
+            course.image != null && course.image != '' ?
+            Image.network(course.image, height: 100, width: double.infinity, fit: BoxFit.cover)
+                : Image.network(url, height: 100, width: double.infinity, fit: BoxFit.cover),
             ListTile(
               title: Text(course.codeCourse.toUpperCase(), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.accentColor, fontFamily: 'DIN_Next_Rounded'),),
               subtitle: Column(

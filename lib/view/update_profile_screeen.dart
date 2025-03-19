@@ -109,7 +109,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
     final compressedFile = await FlutterImageCompress.compressAndGetFile(
       file.path!,
       targetPath,
-      quality: 80,
+      quality: 50,
       format: CompressFormat.jpeg,
     );
 
