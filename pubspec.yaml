@@ -137,6 +137,12 @@ flutter:
     - lib/assets/pixels/material-pixel.png
     - lib/assets/pixels/star.png
     - lib/assets/pixels/time-pixel.png
+    - lib/assets/leaderboards/banner-bronze.png
+    - lib/assets/leaderboards/banner-bronze-vertical.png
+    - lib/assets/leaderboards/banner-gold.png
+    - lib/assets/leaderboards/banner-gold-vertical.png
+    - lib/assets/leaderboards/banner-silver.png
+    - lib/assets/leaderboards/banner-silver-vertical.png
   fonts:
     - family: DIN_Next_Rounded
       fonts:

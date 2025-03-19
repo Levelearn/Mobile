@@ -282,7 +282,7 @@ class _HomeState extends State<Homescreen> {
                       ),
                     ),
                     child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(0),
                         child: Column(
                           children: [
                             SizedBox(height: 30,),
@@ -305,7 +305,7 @@ class _HomeState extends State<Homescreen> {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -328,17 +328,26 @@ class _HomeState extends State<Homescreen> {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [(switch (index) {
-                            0 => Colors.amber.shade300,
-                            1 => Colors.blueGrey.shade400,
-                            2 => Colors.orange.shade400,
-                            _ => Colors.transparent
-                          }), Colors.transparent],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                        // gradient: LinearGradient(
+                        //   colors: [(switch (index) {
+                        //     0 => Colors.amber.shade300,
+                        //     1 => Colors.blueGrey.shade400,
+                        //     2 => Colors.orange.shade400,
+                        //     _ => Colors.transparent
+                        //   }), Colors.transparent],
+                        //   begin: Alignment.topLeft,
+                        //   end: Alignment.bottomRight,
+                        // ),
+                        image: DecorationImage(
+                          image: (switch (index) {
+                              0 => AssetImage('lib/assets/leaderboards/banner-gold-vertical.png'),
+                              1 => AssetImage('lib/assets/leaderboards/banner-silver-vertical.png'),
+                              2 => AssetImage('lib/assets/leaderboards/banner-bronze-vertical.png'),
+                              _ => AssetImage('lib/assets/leaderboards/banner-silver.png'),
+                            }),
+                          fit: BoxFit.fitWidth,
                         ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: ListTile(
                         leading: Image.asset(
@@ -351,7 +360,14 @@ class _HomeState extends State<Homescreen> {
                           , height: 50, width: 50,),
                         title: Text(
                           list[index].name,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded'),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded',
+                              // shadows: <Shadow>[r
+                              //   Shadow(offset: Offset(1.0, 1.0), blurRadius: 3.0, color: Colors.white),
+                              //   Shadow(offset: Offset(1.0, -1.0), blurRadius: 3.0, color: Colors.white),
+                              //   Shadow(offset: Offset(-1.0, 1.0), blurRadius: 3.0, color: Colors.white),
+                              //   Shadow(offset: Offset(-1.0, -1.0), blurRadius: 3.0, color: Colors.white),
+                              // ],
+                          ),
                         ),
                         subtitle: Text(
                           list[index].studentId!,
@@ -383,175 +399,181 @@ class _HomeState extends State<Homescreen> {
 
   Widget _buildMyProgress() {
     double screenWidth = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      onTap: (){
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Mainscreen(navIndex: 2)),
-        );
-      },
-      child: Stack(
-        children: [
-          Positioned(
-              top: 30,
-              right: 30,
-              width: 60,
-              height: 60,
-              child: Image.asset('lib/assets/check.png')
-          ),
-          SizedBox(
-            width: double.infinity,
-            // height: 180,
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Progress Saya',
-                      style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'DIN_Next_Rounded'
-                      )),
-                  Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: lastestCourse == null
-                      ? SizedBox(
-                        height: 80,
-                        width: double.infinity,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Center(
-                            child: Text(
-                                'Akses Course untuk menampilkan Progress Bar!',
-                              style: TextStyle(
-                                fontFamily: "DIN_Next_Rounded",
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: GestureDetector(
+        onTap: (){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Mainscreen(navIndex: 2)),
+          );
+        },
+        child: Stack(
+          children: [
+            Positioned(
+                top: 30,
+                right: 30,
+                width: 60,
+                height: 60,
+                child: Image.asset('lib/assets/check.png')
+            ),
+            SizedBox(
+              width: double.infinity,
+              // height: 180,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Progress Saya',
+                        style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'DIN_Next_Rounded'
+                        )),
+                    Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: lastestCourse == null
+                        ? SizedBox(
+                          height: 80,
+                          width: double.infinity,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [Center(
+                              child: Text(
+                                  'Akses Course untuk menampilkan Progress Bar!',
+                                style: TextStyle(
+                                  fontFamily: "DIN_Next_Rounded",
+                                ),
                               ),
-                            ),
-                          )],
-                        ),
-                      )
-                      : Row(
-                        children: [
-                          SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: Stack(
-                              children: <Widget>[
-                                Center(
-                                  child: SizedBox(
-                                    width: 70,
-                                    height: 70,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 10,
-                                      value: lastestCourse!.progress! / 100,
-                                      strokeCap: StrokeCap.round,
-                                      color: AppColors.primaryColor,
-                                      backgroundColor: AppColors.accentColor,
+                            )],
+                          ),
+                        )
+                        : Row(
+                          children: [
+                            SizedBox(
+                              width: 80,
+                              height: 80,
+                              child: Stack(
+                                children: <Widget>[
+                                  Center(
+                                    child: SizedBox(
+                                      width: 70,
+                                      height: 70,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 10,
+                                        value: lastestCourse!.progress! / 100,
+                                        strokeCap: StrokeCap.round,
+                                        color: AppColors.primaryColor,
+                                        backgroundColor: AppColors.accentColor,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),)),
-                              ],
+                                  Center(child: Text('${lastestCourse!.progress!}%', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),)),
+                                ],
+                              ),
                             ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(left: 16),
-                            width: (screenWidth / 9) * 5,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(lastestCourse!.courseName,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                        color: AppColors.primaryColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'DIN_Next_Rounded'
-                                    )),
-                                Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                    color: AppColors.primaryColor,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'DIN_Next_Rounded'
-                                )),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                  ),
-                  SizedBox(height: 8)
-                ],
+                            Container(
+                              margin: EdgeInsets.only(left: 16),
+                              width: (screenWidth / 9) * 5,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(lastestCourse!.courseName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium!
+                                          .copyWith(
+                                          color: AppColors.primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'DIN_Next_Rounded'
+                                      )),
+                                  Text('Sudah ${lastestCourse!.progress!}%! Lanjutkan Pengerjaan Course', style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                      color: AppColors.primaryColor,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'DIN_Next_Rounded'
+                                  )),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                    ),
+                    SizedBox(height: 8)
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildProfile() {
     const title = 'Halo! Selamat Belajar';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
-          children: [
-            Text(
-                title,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: AppColors.primaryColor,
-                    fontFamily: 'DIN_Next_Rounded'
-                )),
-            Text(
-                name,
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                    color: AppColors.primaryColor,
-                    // fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'DIN_Next_Rounded'
-                )),
-          ],
-        ),
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.blue, // Background color
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+            children: [
+              Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: AppColors.primaryColor,
+                      fontFamily: 'DIN_Next_Rounded'
+                  )),
+              Text(
+                  name,
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                      color: AppColors.primaryColor,
+                      // fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'DIN_Next_Rounded'
+                  )),
+            ],
           ),
-          child: ClipOval(
-            child: user?.image != null && user?.image != ""
-                ? Image.network(
-              user!.image!,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover, // Ensures the image fills the container
-            )
-                : Center(
-              child: Icon(
-                Icons.person,
-                size: 30,
-                color: Colors.white,
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blue, // Background color
+            ),
+            child: ClipOval(
+              child: user?.image != null && user?.image != ""
+                  ? Image.network(
+                user!.image!,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover, // Ensures the image fills the container
+              )
+                  : Center(
+                child: Icon(
+                  Icons.person,
+                  size: 30,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildStats() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: Card(
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -685,19 +707,22 @@ class _HomeState extends State<Homescreen> {
 
   Widget _buildMore() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Jelajahi Course',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall!
-                .copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.primaryColor,
-              fontFamily: 'DIN_Next_Rounded',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Jelajahi Course',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall!
+                  .copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primaryColor,
+                fontFamily: 'DIN_Next_Rounded',
+              ),
             ),
           ),
           SizedBox(height: 16),

@@ -365,7 +365,7 @@ class _ProfileState extends State<ProfileScreen> {
                         title: "Trades",
                         icon: LineAwesomeIcons.coins_solid,
                         onPress: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => TradeScreen(user: user!,)),
                           );
@@ -375,7 +375,7 @@ class _ProfileState extends State<ProfileScreen> {
                         title: "Update Profile",
                         icon: LineAwesomeIcons.person_booth_solid,
                         onPress: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => UpdateProfile(user: user!,)),
                           );
@@ -385,7 +385,7 @@ class _ProfileState extends State<ProfileScreen> {
                         title: "Quick Access",
                         icon: LineAwesomeIcons.accessible,
                         onPress: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => QuickAccessScreen()),
                           );

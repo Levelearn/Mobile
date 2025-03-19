@@ -90,7 +90,7 @@ class _TradeScreenState extends State<TradeScreen> {
               itemBuilder: (context, index) {
                 final trade = trades[index];
                 return ListTile(
-                  leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.asset(trade.image)),
+                  leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(trade.image)),
                   title: Text(
                       trade.title,
                       style: TextStyle(

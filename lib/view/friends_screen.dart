@@ -116,6 +116,10 @@ class _FriendsScreen extends State<FriendsScreen> {
               }), Colors.transparent],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
+              stops: [
+                0.5,
+                0.8,
+              ],
             ),
             borderRadius: BorderRadius.circular(16),
           ),
@@ -183,7 +187,10 @@ class _FriendsScreen extends State<FriendsScreen> {
                 width: 75,
                 height: 120,
                 decoration: BoxDecoration(
-                    color: Colors.blueGrey.shade400,
+                  image: DecorationImage(
+                    image: AssetImage('lib/assets/leaderboards/banner-silver.png'),
+                    fit: BoxFit.fitWidth,
+                  ),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(0),
@@ -191,7 +198,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                     bottomRight: Radius.circular(0),
                   ),
                 ),
-                child: Center(child: Text('#2', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
+                // child: Center(child: Text('#2', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
               )
             ],
           ),
@@ -224,7 +231,10 @@ class _FriendsScreen extends State<FriendsScreen> {
                 width: 75,
                 height: 150,
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade300,
+                  image: DecorationImage(
+                    image: AssetImage('lib/assets/leaderboards/banner-gold.png'),
+                    fit: BoxFit.fitWidth,
+                  ),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
@@ -232,7 +242,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                     bottomRight: Radius.circular(0),
                   ),
                 ),
-                child: Center(child: Text('#1', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
+                // child: Center(child: Text('#1', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
               )
             ],
           ),
@@ -265,7 +275,10 @@ class _FriendsScreen extends State<FriendsScreen> {
                 width: 75,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade400,
+                  image: DecorationImage(
+                    image: AssetImage('lib/assets/leaderboards/banner-bronze.png'),
+                    fit: BoxFit.fitWidth,
+                  ),
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(0),
                       topRight: Radius.circular(16),
@@ -273,7 +286,7 @@ class _FriendsScreen extends State<FriendsScreen> {
                       bottomRight: Radius.circular(0),
                   ),
                 ),
-                child: Center(child: Text('#3', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
+                // child: Center(child: Text('#3', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded', fontSize: 24, fontWeight: FontWeight.w900)),),
               )
             ],
           ),

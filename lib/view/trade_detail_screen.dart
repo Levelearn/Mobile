@@ -168,7 +168,7 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.asset(widget.trade.image)),
+                ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(widget.trade.image)),
                 SizedBox(height: 16),
                 Text(
                   widget.trade.title,
