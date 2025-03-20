@@ -311,11 +311,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             }
 
                             if (hasChanges) {
-                              await updateUser();
                               if (passwordHasChanges){
-                                print('executed');
                                 await updatePassword();
                               }
+                              await updateUser();
                               await updateUserPhoto();
                               showSuccessDialog(context);
                             }
