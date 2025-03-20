@@ -105,10 +105,7 @@ class _ProfileState extends State<ProfileScreen> {
   }
 
   void logout() {
-    prefs.remove('userId');
-    prefs.remove('name');
-    prefs.remove('role');
-    prefs.remove('token');
+    prefs.clear();
   }
 
   @override
