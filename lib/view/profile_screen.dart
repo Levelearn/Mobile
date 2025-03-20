@@ -281,7 +281,7 @@ class _ProfileState extends State<ProfileScreen> {
                                 _buildInfoColumn(LineAwesomeIcons.medal_solid,
                                     'Lencana', '${userBadges?.length}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.user_check_solid,
-                                    'Course', '${allCourses?.length}', GlobalVar.secondaryColor),
+                                    'Course', '${allCourses != null ? allCourses?.length : '0'}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.trophy_solid,
                                     'Peringkat', '$rank / ${list.length}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.gem_solid,

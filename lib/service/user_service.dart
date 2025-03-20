@@ -75,7 +75,6 @@ class UserService {
       Map<String, dynamic> request = {
         "name": user.name,
         "username": user.username,
-        "password": user.password,
         "role": user.role,
         "studentId": user.studentId,
         "points": user.points,
@@ -97,6 +96,26 @@ class UserService {
       Student users = Student.fromJson(result['user']);
       return users;
     } catch(e){
+      throw Exception(e.toString());
+    }
+  }
+
+  static Future<void> updatePassword(Student user) async {
+    try {
+      Map<String, dynamic> request = {
+        "password": user.password,
+      };
+      final response =
+          await http.put(Uri.parse('${GlobalVar.baseUrl}/user/${user.id}'),
+              headers: {
+                'Content-type': 'application/json; charset=utf-8',
+                'Accept': 'application/json',
+              },
+              body: jsonEncode(request));
+
+      final body = response.body;
+      // print(body);
+    } catch (e) {
       throw Exception(e.toString());
     }
   }

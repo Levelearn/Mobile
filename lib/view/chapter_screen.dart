@@ -254,14 +254,14 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
     for(Question i in question!.questions){
       if(i.type == 'PG' || i.type == 'TF' || i.type == 'MC') {
         if(i.isCorrect){
-          score += rangeScore.toInt();
+          score += rangeScore.toInt().ceil();
           setState(() {
             correctAnswer++;
           });
         }
       } else if (i.type == 'EY'){
         if(i.selectedAnswer.length >= 50){
-          score += rangeScore.toInt();
+          score += rangeScore.toInt().ceil();
           setState(() {
             correctAnswer++;
           });
@@ -572,17 +572,36 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
   }
 
   Widget _lockedMaterialContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.lock, size: 50, color: Colors.grey),
-          SizedBox(height: 10),
-          Text(
-            "Material terkunci selama Assessment berlangsung",
-            style: TextStyle(fontSize: 16, color: Colors.grey, fontFamily: 'DIN_Next_Rounded'),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('lib/assets/pictures/background-pattern.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('lib/assets/pixels/lock-pixel.png', height: 50),
+              SizedBox(height: 16),
+              Text(
+                "Material Terkunci",
+                style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.primaryColor,
+                    fontFamily: 'DIN_Next_Rounded',
+                    fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Anda sedang dalam pengerjaan assessment. Selesaikan terlebih dahulu assessment untuk mengakses kembali Material!",
+                style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -608,7 +627,8 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
               Text(
                 "Assignment Terkunci",
                 style: TextStyle(fontSize: 16, color: AppColors.primaryColor, fontFamily: 'DIN_Next_Rounded', fontWeight: FontWeight.bold),
-              ),Text(
+              ),
+              Text(
                 "Selesaikan Assessment terlebih dahulu untuk membuka Assignment!",
                 style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
                 textAlign: TextAlign.center,
@@ -945,6 +965,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
 
   Widget _buildTextAnswer(Question question) {
     TextEditingController controller = TextEditingController(text: question.selectedAnswer ?? '');
+    controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
 
     return Card(
       color: Colors.white,
@@ -1062,6 +1083,7 @@ class _ChapterScreen extends State<Chapterscreen> with TickerProviderStateMixin 
           user!.points = user!.points! + point;
         });
         assessmentDone = true;
+        status.assessmentGrade = ((correctAnswer/question!.questions.length)*100).toInt();
       }
 
       if (question!.answers == null) {

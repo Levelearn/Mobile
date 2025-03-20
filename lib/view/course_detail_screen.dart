@@ -163,7 +163,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
             ),
           ),
         ),
-        idCourse != 0 || courseDetail != null
+        idCourse != 0 && courseDetail != null
         ? Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(

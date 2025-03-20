@@ -33,6 +33,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool hasChanges = false;
+  bool passwordHasChanges = false;
   FilePickerResult? result;
 
   @override
@@ -100,6 +101,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
   Future<void> updateUserPhoto() async {
     await UserService.updateUserPhoto(user!);
+  }
+
+  Future<void> updatePassword() async {
+    await UserService.updatePassword(user!);
   }
 
   Future<XFile?> compressImage(PlatformFile file) async {
@@ -280,14 +285,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if(photo != null) {
-                              hasChanges = true;
                               final filename = '${photo?.name.split('.').first}_${user!.studentId}_${DateTime.now().millisecondsSinceEpoch}.${photo?.extension}';
                               final compressedXFile = await compressImage(photo!);
 
                               if (compressedXFile != null) {
-                                uploadPhotoProfile(compressedXFile, filename).then((_) {
-                                  updateUserPhoto();
-                                });
+                                uploadPhotoProfile(compressedXFile, filename);
                               }
                             }
                             String newName = nameController.text.trim();
@@ -303,13 +305,18 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               hasChanges = true;
                             }
                             if (newPassword.isNotEmpty && newPassword != user?.password) {
-                              print(newPassword);
                               user?.password = newPassword;
                               hasChanges = true;
+                              passwordHasChanges = true;
                             }
 
                             if (hasChanges) {
                               await updateUser();
+                              if (passwordHasChanges){
+                                print('executed');
+                                await updatePassword();
+                              }
+                              await updateUserPhoto();
                               showSuccessDialog(context);
                             }
                           },
