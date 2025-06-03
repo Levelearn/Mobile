@@ -314,7 +314,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               if (passwordHasChanges){
                                 await updatePassword();
                               }
-                              await updateUser();
                               await updateUserPhoto();
                               await updateUser();
                               showSuccessDialog(context);
