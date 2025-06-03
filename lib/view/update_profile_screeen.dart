@@ -289,7 +289,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               final compressedXFile = await compressImage(photo!);
 
                               if (compressedXFile != null) {
-                                uploadPhotoProfile(compressedXFile, filename);
+                                await uploadPhotoProfile(compressedXFile, filename);
                               }
                             }
                             String newName = nameController.text.trim();
@@ -311,12 +311,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             }
 
                             if (hasChanges) {
-                              await updateUser();
                               if (passwordHasChanges){
-                                print('executed');
                                 await updatePassword();
                               }
                               await updateUserPhoto();
+                              await updateUser();
                               showSuccessDialog(context);
                             }
                           },

@@ -98,4 +98,28 @@ class ChapterService {
       throw Exception("Error fetching assessment: ${e.toString()}");
     }
   }
+
+  static Future<double> checkSimiliarity (String reference, String answer) async {
+    Map<String, dynamic> request = {
+      'reference': reference,
+      'essay': answer
+    };
+    try {
+      final response = await http.post(Uri.parse(GlobalVar.similiarityEssayUrl), headers: {
+        'Content-type' : 'application/json',
+        'Accept': 'application/json',
+      } , body: jsonEncode(request));
+      final result = jsonDecode(response.body);
+
+      if (result.isEmpty) {
+        throw Exception("No Chapter found");
+      }
+
+      double similiarity = result['similarity_score'];
+
+      return similiarity;
+    } catch (e) {
+      throw Exception("Error get Response Essay Similiarity: ${e.toString()}");
+    }
+  }
 }

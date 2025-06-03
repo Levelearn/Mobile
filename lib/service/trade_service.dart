@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:app/global_var.dart';
 import 'package:app/model/trade.dart';
+import 'package:app/model/user_trade.dart';
 import 'package:http/http.dart' as http;
 
 class TradeService {
@@ -35,6 +36,28 @@ class TradeService {
       final body = response.body;
       final result = jsonDecode(body);
       print(result['message']);
+    } catch(e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  static Future<List<UserTrade>> getUserTrade(int userId) async{
+    try {
+      List<UserTrade> filteredUserTrade = [];
+      final response = await http.get(Uri.parse('${GlobalVar.baseUrl}/usertrade'));
+      final body = response.body;
+      final result = jsonDecode(body);
+      List<UserTrade> trades = List<UserTrade>.from(
+        result.map(
+                (result) => UserTrade.fromJson(result)
+        ),
+      );
+      for(UserTrade ut in trades){
+        if(ut.userId == userId) {
+          filteredUserTrade.add(ut);
+        }
+      }
+      return filteredUserTrade;
     } catch(e) {
       throw Exception(e.toString());
     }

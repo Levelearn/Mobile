@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 class ChapterStatus {
   int id;
   int userId;
@@ -13,6 +15,8 @@ class ChapterStatus {
   String? submission;
   DateTime timeStarted;
   DateTime timeFinished;
+  int assignmentScore;
+  String assignmentFeedback;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -30,28 +34,57 @@ class ChapterStatus {
     this.submission,
     required this.timeStarted,
     required this.timeFinished,
+    required this.assignmentScore,
+    required this.assignmentFeedback,
     required this.createdAt,
     required this.updatedAt
   });
 
   factory ChapterStatus.fromJson(Map<String, dynamic> json) {
-    return ChapterStatus(
-      id: json['id'],
-      userId: json['userId'],
-      chapterId: json['chapterId'],
-      isStarted: json['isStarted'],
-      isCompleted: json['isCompleted'],
-      materialDone: json['materialDone'],
-      assessmentDone: json['assessmentDone'],
-      assignmentDone: json['assignmentDone'],
-      assessmentAnswer: json['assessmentAnswer'],
-      assessmentGrade: json['assessmentGrade'],
-      submission: json['submission'],
-      timeStarted: DateTime.parse(json['timeStarted']),
-      timeFinished: DateTime.parse(json['timeFinished']),
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-    );
+    if (json['assessmentAnswer'].runtimeType == String) {
+      final resultListAnswer = (jsonDecode(json['assessmentAnswer']) as List)
+          .map((item) => item.toString()) // Convert each item to String
+          .toList();
+      return ChapterStatus(
+        id: json['id'],
+        userId: json['userId'],
+        chapterId: json['chapterId'],
+        isStarted: json['isStarted'],
+        isCompleted: json['isCompleted'],
+        materialDone: json['materialDone'],
+        assessmentDone: json['assessmentDone'],
+        assignmentDone: json['assignmentDone'],
+        assessmentAnswer: resultListAnswer,
+        assessmentGrade: json['assessmentGrade'],
+        submission: json['submission'],
+        timeStarted: DateTime.parse(json['timeStarted']),
+        timeFinished: DateTime.parse(json['timeFinished']),
+        assignmentScore: json['assignmentScore'] ?? 0,
+        assignmentFeedback: json['assignmentFeedback'] ?? '',
+        createdAt: DateTime.parse(json['createdAt']),
+        updatedAt: DateTime.parse(json['updatedAt']),
+      );
+    } else {
+      return ChapterStatus(
+        id: json['id'],
+        userId: json['userId'],
+        chapterId: json['chapterId'],
+        isStarted: json['isStarted'],
+        isCompleted: json['isCompleted'],
+        materialDone: json['materialDone'],
+        assessmentDone: json['assessmentDone'],
+        assignmentDone: json['assignmentDone'],
+        assessmentAnswer: json['assessmentAnswer'],
+        assessmentGrade: json['assessmentGrade'],
+        submission: json['submission'],
+        timeStarted: DateTime.parse(json['timeStarted']),
+        timeFinished: DateTime.parse(json['timeFinished']),
+        assignmentScore: json['assignmentScore'] ?? 0,
+        assignmentFeedback: json['assignmentFeedback'] ?? '',
+        createdAt: DateTime.parse(json['createdAt']),
+        updatedAt: DateTime.parse(json['updatedAt']),
+      );
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -69,6 +102,8 @@ class ChapterStatus {
       'submission': submission,
       'timeStarted': timeStarted.toUtc().toIso8601String(),
       'timeFinished': timeFinished.toUtc().toIso8601String(),
+      'assignmentScore': assignmentScore,
+      'assignmentFeedback': assignmentFeedback,
       'createdAt': createdAt.toUtc().toIso8601String(),
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };

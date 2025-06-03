@@ -6,6 +6,7 @@ class TradeModel {
   final String requiredBadgeType;
   final DateTime createdAt;
   final DateTime updatedAt;
+  bool hasTrade = false;
 
   TradeModel({
     required this.id,

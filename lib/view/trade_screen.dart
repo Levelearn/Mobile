@@ -1,4 +1,5 @@
 import 'package:app/model/trade.dart';
+import 'package:app/model/user_trade.dart';
 import 'package:app/service/trade_service.dart';
 import 'package:app/utils/colors.dart';
 import 'package:app/view/main_screen.dart';
@@ -21,16 +22,22 @@ class _TradeScreenState extends State<TradeScreen> {
 
   late SharedPreferences pref;
   List<TradeModel> trades = [];
+  List<UserTrade> userTrade = [];
 
   @override
   void initState() {
     super.initState();
-    getAllTrades();
+    fetchTrades();
 
     trades = trades;
   }
 
-  void getAllTrades() async {
+  Future<void> fetchTrades() async {
+    await getAllTrades(); // Wait until all trades are fetched
+    await getUserTrade(); // Then fetch user-specific trades
+  }
+
+  Future<void> getAllTrades() async {
     try {
       final result = await TradeService.getAllTrades();
       if (!mounted) return;
@@ -43,6 +50,22 @@ class _TradeScreenState extends State<TradeScreen> {
     }
   }
 
+  Future<void> getUserTrade() async {
+    final result = await TradeService.getUserTrade(widget.user.id);
+    setState(() {
+      userTrade = result;
+    });
+
+    if (trades.isNotEmpty && userTrade.isNotEmpty) {
+      final tradeIds = userTrade.map((trade) => trade.tradeId).toSet();
+
+      for (var trade in trades) {
+        trade.hasTrade = tradeIds.contains(trade.id);
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +77,7 @@ class _TradeScreenState extends State<TradeScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Mainscreen()),
+                    builder: (context) => Mainscreen(navIndex : 4)),
               );
             },
             icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
@@ -108,7 +131,7 @@ class _TradeScreenState extends State<TradeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TradeDetailScreen(trade: trade),
+                        builder: (context) => TradeDetailScreen(trade: trade, user: widget.user,),
                       ),
                     );
                   },

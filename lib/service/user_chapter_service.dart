@@ -13,26 +13,10 @@ class UserChapterService {
       final body = response.body;
       final result = jsonDecode(body);
       if (result is List && result.isNotEmpty) {
-        final resultListAnswer = (jsonDecode(result[0]['assessmentAnswer']) as List)
-            .map((item) => item.toString()) // Convert each item to String
-            .toList();
-        status = ChapterStatus(
-          id: result[0]['id'],
-          userId: result[0]['userId'],
-          chapterId: result[0]['chapterId'],
-          isCompleted: result[0]['isCompleted'],
-          isStarted: result[0]['isStarted'],
-          materialDone: result[0]['materialDone'],
-          assessmentDone: result[0]['assessmentDone'],
-          assignmentDone: result[0]['assignmentDone'],
-          assessmentAnswer: resultListAnswer,
-          assessmentGrade: result[0]['assessmentGrade'],
-          submission: result[0]['submission'],
-          timeStarted: DateTime.parse(result[0]['timeStarted']),
-          timeFinished: DateTime.parse(result[0]['timeFinished']),
-          createdAt: DateTime.parse(result[0]['createdAt']),
-          updatedAt: DateTime.parse(result[0]['updatedAt']),
-        );
+        // final resultListAnswer = (jsonDecode(result[0]['assessmentAnswer']) as List)
+        //     .map((item) => item.toString()) // Convert each item to String
+        //     .toList();
+        status = ChapterStatus.fromJson(result[0]);
       } else {
          Map<String, dynamic> request = {
            "userId": idUser,
@@ -56,26 +40,10 @@ class UserChapterService {
          if (responsePost.statusCode == 201) {
            final body = responsePost.body;
            final resultPost = jsonDecode(body);
-           final resultListAnswer = (jsonDecode(resultPost['userChapter']['assessmentAnswer']) as List)
-               .map((item) => item.toString()) // Convert each item to String
-               .toList();
-           status = ChapterStatus(
-               id: resultPost['userChapter']['id'],
-               userId: resultPost['userChapter']['userId'],
-               chapterId: resultPost['userChapter']['chapterId'],
-               isCompleted: resultPost['userChapter']['isCompleted'],
-               isStarted: resultPost['userChapter']['isStarted'],
-               materialDone: resultPost['userChapter']['materialDone'],
-               assessmentDone: resultPost['userChapter']['assessmentDone'],
-               assignmentDone: resultPost['userChapter']['assignmentDone'],
-               assessmentAnswer: resultListAnswer,
-               assessmentGrade: resultPost['userChapter']['assessmentGrade'],
-               submission: resultPost['userChapter']['submission'],
-               timeStarted: DateTime.parse(resultPost['userChapter']['timeStarted']),
-               timeFinished: DateTime.parse(resultPost['userChapter']['timeFinished']),
-               createdAt: DateTime.parse(resultPost['userChapter']['createdAt']),
-               updatedAt: DateTime.parse(resultPost['userChapter']['updatedAt'])
-           );
+           // final resultListAnswer = (jsonDecode(resultPost['userChapter']['assessmentAnswer']) as List)
+           //     .map((item) => item.toString()) // Convert each item to String
+           //     .toList();
+           status = ChapterStatus.fromJson(resultPost['userChapter']);
          }
       }
       return status;
@@ -107,26 +75,10 @@ class UserChapterService {
       if (responsePut.statusCode == 200) {
         final body = responsePut.body;
         final result = jsonDecode(body);
-        final resultListAnswer = (jsonDecode(result['data']['assessmentAnswer']) as List)
-            .map((item) => item.toString()) // Convert each item to String
-            .toList();
-        status = ChapterStatus(
-          id: result['data']['id'],
-          userId: result['data']['userId'],
-          chapterId: result['data']['chapterId'],
-          isCompleted: result['data']['isCompleted'],
-          isStarted: result['data']['isStarted'],
-          materialDone: result['data']['materialDone'],
-          assessmentDone: result['data']['assessmentDone'],
-          assignmentDone: result['data']['assignmentDone'],
-          assessmentAnswer: resultListAnswer,
-          assessmentGrade: result['data']['assessmentGrade'],
-          submission: result['data']['submission'],
-          timeStarted: DateTime.parse(result['data']['timeStarted']),
-          timeFinished: DateTime.parse(result['data']['timeFinished']),
-          createdAt: DateTime.parse(result['data']['createdAt']),
-          updatedAt: DateTime.parse(result['data']['updatedAt']),
-        );
+        // final resultListAnswer = (jsonDecode(result['data']['assessmentAnswer']) as List)
+        //     .map((item) => item.toString()) // Convert each item to String
+        //     .toList();
+        status = ChapterStatus.fromJson(result['data']);
       }
 
       return status;

@@ -14,6 +14,7 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isFirstLaunch = prefs.getBool('firstLaunch') ?? true;
   final bool isLoggedIn = await checkLoginStatus();
+  // final bool isLoggedIn = true;
 
   await Supabase.initialize(
       url: "https://kfxaanhuccwjokmkdtho.supabase.co",

@@ -120,6 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     double fontSize = width * 0.035;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -129,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               height: 16,
             ),
-            SizedBox(
+            !isLandscape ? SizedBox(
               height: 400,
               child: Stack(
                 children: <Widget>[
@@ -161,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   )
                 ],
               ),
-            ),
+            ) : SizedBox(),
             Padding(
               padding: EdgeInsets.all(16),
               child: Column(

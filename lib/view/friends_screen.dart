@@ -43,6 +43,7 @@ class _FriendsScreen extends State<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     return Stack(
       children: [
         Container(
@@ -55,31 +56,74 @@ class _FriendsScreen extends State<FriendsScreen> {
             ),
           ),
         ),
+         !isLandscape ?
+           Scaffold(
+             backgroundColor: Colors.transparent,
+             appBar: AppBar(
+               toolbarHeight: 450,
+               backgroundColor: AppColors.primaryColor,
+               automaticallyImplyLeading: false,
+               shape: const RoundedRectangleBorder(
+                 borderRadius: BorderRadius.only(
+                   bottomLeft: Radius.circular(16),
+                   bottomRight: Radius.circular(16),
+                 ),
+               ),
+               title: Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 0),
+                 child: Column(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     Text('Papan Peringkat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 24, fontFamily: 'DIN_Next_Rounded'),),
+                     _buildLeaderBoard(user),
+                   ],
+                 ),
+               ),
+             ),
+             body: _listFriends(),
+           ) :
          Scaffold(
            backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            toolbarHeight: 450,
-            backgroundColor: AppColors.primaryColor,
-            automaticallyImplyLeading: false,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              ),
-            ),
-            title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Papan Peringkat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 24, fontFamily: 'DIN_Next_Rounded'),),
-                  _buildLeaderBoard(user),
-                ],
-              ),
-            ),
-          ),
-          body: _listFriends(),
-        )
+           body: SingleChildScrollView(
+             child: Column(
+               children: [
+                 // Custom AppBar as a Container
+                 Container(
+                   height: 450,
+                   width: double.infinity,
+                   decoration: BoxDecoration(
+                     color: AppColors.primaryColor,
+                     borderRadius: BorderRadius.only(
+                       bottomLeft: Radius.circular(16),
+                       bottomRight: Radius.circular(16),
+                     ),
+                   ),
+                   child: SafeArea(
+                     child: Padding(
+                       padding: const EdgeInsets.symmetric(horizontal: 16),
+                       child: Column(
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         children: [
+                           Text(
+                             'Papan Peringkat',
+                             style: TextStyle(
+                                 fontWeight: FontWeight.bold,
+                                 color: Colors.white,
+                                 fontSize: 24,
+                                 fontFamily: 'DIN_Next_Rounded'
+                             ),
+                           ),
+                           _buildLeaderBoard(user),
+                         ],
+                       ),
+                     ),
+                   ),
+                 ),
+                 _listFriendsForLandscape(),
+               ],
+             ),
+           ),
+         )
       ],
     );
   }
@@ -92,6 +136,25 @@ class _FriendsScreen extends State<FriendsScreen> {
         itemCount: user.length,
         itemBuilder: (context, count) {
           return _listFriendsItem(user[count], count,  count == 0 ? 0 : count == user.length - 1 ? 2 : 1);
+        },
+      ),
+    );
+  }
+
+  Widget _listFriendsForLandscape() {
+    user = sortUserbyPoint(user);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: ListView.builder(
+        shrinkWrap: true, // This makes ListView take only the space it needs
+        physics: NeverScrollableScrollPhysics(), // This disables ListView's own scrolling
+        itemCount: user.length,
+        itemBuilder: (context, count) {
+          return _listFriendsItem(
+              user[count],
+              count,
+              count == 0 ? 0 : count == user.length - 1 ? 2 : 1
+          );
         },
       ),
     );

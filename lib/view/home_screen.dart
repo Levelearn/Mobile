@@ -16,7 +16,8 @@ import 'login_screen.dart';
 import 'main_screen.dart';
 
 class Homescreen extends StatefulWidget {
-  const Homescreen({super.key});
+  final Function(int) updateIndex;
+  const Homescreen({super.key, required this.updateIndex});
 
   @override
   State<Homescreen> createState() => _HomeState();
@@ -86,7 +87,6 @@ class _HomeState extends State<Homescreen> {
   }
 
   List<Student> sortUserbyPoint(List<Student> list) {
-    print(list);
     list.sort((a, b) => b.points!.compareTo(a.points!));
     return list;
   }
@@ -328,16 +328,6 @@ class _HomeState extends State<Homescreen> {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        // gradient: LinearGradient(
-                        //   colors: [(switch (index) {
-                        //     0 => Colors.amber.shade300,
-                        //     1 => Colors.blueGrey.shade400,
-                        //     2 => Colors.orange.shade400,
-                        //     _ => Colors.transparent
-                        //   }), Colors.transparent],
-                        //   begin: Alignment.topLeft,
-                        //   end: Alignment.bottomRight,
-                        // ),
                         image: DecorationImage(
                           image: (switch (index) {
                               0 => AssetImage('lib/assets/leaderboards/banner-gold-vertical.png'),
@@ -361,12 +351,6 @@ class _HomeState extends State<Homescreen> {
                         title: Text(
                           list[index].name,
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'DIN_Next_Rounded',
-                              // shadows: <Shadow>[r
-                              //   Shadow(offset: Offset(1.0, 1.0), blurRadius: 3.0, color: Colors.white),
-                              //   Shadow(offset: Offset(1.0, -1.0), blurRadius: 3.0, color: Colors.white),
-                              //   Shadow(offset: Offset(-1.0, 1.0), blurRadius: 3.0, color: Colors.white),
-                              //   Shadow(offset: Offset(-1.0, -1.0), blurRadius: 3.0, color: Colors.white),
-                              // ],
                           ),
                         ),
                         subtitle: Text(
@@ -402,12 +386,8 @@ class _HomeState extends State<Homescreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0),
       child: GestureDetector(
-        onTap: (){
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Mainscreen(navIndex: 2)),
-          );
+        onTap: () {
+          widget.updateIndex(2);
         },
         child: Stack(
           children: [
@@ -541,30 +521,33 @@ class _HomeState extends State<Homescreen> {
                   )),
             ],
           ),
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.blue, // Background color
-            ),
-            child: ClipOval(
-              child: user?.image != null && user?.image != ""
-                  ? Image.network(
-                user!.image!,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover, // Ensures the image fills the container
-              )
-                  : Center(
-                child: Icon(
-                  Icons.person,
-                  size: 30,
-                  color: Colors.white,
+          GestureDetector(
+            onTap: () => widget.updateIndex(4),
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blue, // Background color
+              ),
+              child: ClipOval(
+                child: user?.image != null && user?.image != ""
+                    ? Image.network(
+                  user!.image!,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover, // Ensures the image fills the container
+                )
+                    : Center(
+                  child: Icon(
+                    Icons.person,
+                    size: 30,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -765,12 +748,7 @@ class _HomeState extends State<Homescreen> {
     return GestureDetector(
       onTap: () async {
         await pref.setInt('lastestSelectedCourse', course.id);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Mainscreen(navIndex: 2,)
-          ),
-        );
+        widget.updateIndex(2);
       },
       child: Container(
         width: MediaQuery.of(context).size.width *
@@ -793,10 +771,7 @@ class _HomeState extends State<Homescreen> {
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  'lib/assets/pictures/imk-picture.jpg',
-                  fit: BoxFit.cover,
-                ),
+                child: course.image != "" ? Image.network(course.image): Image.asset('lib/assets/pictures/imk-picture.jpg', fit: BoxFit.cover),
               ),
             ),
             Positioned(
@@ -826,7 +801,7 @@ class _HomeState extends State<Homescreen> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Deskripsi dari mata kuliah ini',
+                      course.description != null ? course.description! : '',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,

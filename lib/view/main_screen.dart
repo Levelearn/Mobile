@@ -26,37 +26,49 @@ class _MainState extends State<Mainscreen> {
   int navIndex = 0;
 
   void getCourseDetail() async {
-    setState(() {
-      idCourse = pref.getInt('getCourseDetail') ?? 0;
+    int storedId = pref.getInt('getCourseDetail') ?? 0;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        idCourse = storedId;
+      });
     });
   }
 
   @override
   void initState() {
-    super.initState();
     navIndex = widget.navIndex;
     _initPreferences();
+    super.initState();
   }
 
   void _initPreferences() async {
     pref = await SharedPreferences.getInstance();
-    getCourseDetail(); // Now pref is initialized before calling this
+    if (mounted) {
+      getCourseDetail();
+    }
+  }
+
+
+  void updateIndex(int index) {
+    setState(() {
+      navIndex = index;
+    });
   }
 
   Widget _buildPage(int index) {
     switch (index) {
       case 0:
-        return const Homescreen();
+        return Homescreen(updateIndex: updateIndex,);
       case 1:
-        return const MycourseScreen();
+        return MycourseScreen();
       case 2:
         return CourseDetailScreen(id: idCourse);
       case 3:
-        return const FriendsScreen();
+        return FriendsScreen();
       case 4:
-        return const ProfileScreen();
+        return ProfileScreen();
       default:
-        return const Homescreen();
+        return Homescreen(updateIndex: updateIndex);
     }
   }
 

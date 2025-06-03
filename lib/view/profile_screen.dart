@@ -4,6 +4,7 @@ import 'package:app/model/user_badge.dart';
 import 'package:app/service/badge_service.dart';
 import 'package:app/service/chapter_service.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/view/about_app.dart';
 import 'package:app/view/quick_access_screen.dart';
 import 'package:app/view/trade_screen.dart';
 import 'package:app/view/update_profile_screeen.dart';
@@ -285,7 +286,7 @@ class _ProfileState extends State<ProfileScreen> {
                                 _buildInfoColumn(LineAwesomeIcons.trophy_solid,
                                     'Peringkat', '$rank / ${list.length}', GlobalVar.secondaryColor),
                                 _buildInfoColumn(LineAwesomeIcons.gem_solid,
-                                    'Poin', '${user?.points}', GlobalVar.secondaryColor)
+                                    'Poin', '${user?.points != null ? user?.points : 0}', GlobalVar.secondaryColor)
                               ],
                             ),
                           ),
@@ -342,7 +343,7 @@ class _ProfileState extends State<ProfileScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: userBadges?[index].badge.image != null  ?
+                                      child: userBadges?[index].badge.image != null && userBadges?[index].badge.image != '' ?
                                       Image.network(userBadges![index].badge.image!, fit: BoxFit.cover) : Image.asset('lib/assets/pictures/icon.png', fit: BoxFit.cover)
                                     ),
                                   ),
@@ -396,7 +397,12 @@ class _ProfileState extends State<ProfileScreen> {
                       ProfileMenuWidget(
                         title: "About App",
                         icon: LineAwesomeIcons.info_circle_solid,
-                        onPress: () {},
+                        onPress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AboutAppScreen()),
+                          );
+                        },
                       ),
                       SizedBox(
                           height: 16

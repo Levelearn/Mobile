@@ -8,13 +8,17 @@ import 'package:app/view/whatadeal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 
+import '../model/user.dart';
+import '../service/user_service.dart';
 import '../utils/colors.dart';
 
 class TradeDetailScreen extends StatefulWidget {
   final TradeModel trade;
+  final Student user;
 
-  const TradeDetailScreen({super.key, required this.trade});
+  const TradeDetailScreen({super.key, required this.trade, required this.user});
 
   @override
   State<TradeDetailScreen> createState() => _TradeDetailScreenState();
@@ -29,10 +33,11 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
 
   List<UserBadge> selectedBadges = [];
   String errorMessage = '';
+  Student? user;
 
   @override
   void initState() {
-
+    user = widget.user;
     getUserBadges();
     getUserBadgesWithStatus();
     super.initState();
@@ -72,14 +77,23 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
     }
   }
 
-  Future<void> _purchase() async {
+  Future<void> updateUserPoints() async {
+    await UserService.updateUserPoints(user!);
+  }
+
+  Future<void> _purchase(int reqPoint) async {
     if(_isPurchaseValid()) {
       pref = await SharedPreferences.getInstance();
       int? id = pref.getInt('userId');
+      setState(() {
+        user!.points = user!.points! - reqPoint;
+      });
 
       try {
         await createUserTrade(id!, widget.trade.id, selectedBadges.first.id);
         await updateUserBadgeStatus(selectedBadges.first.id, true);
+        getUserBadges();
+        updateUserPoints();
 
         print('Pembelian berhasil!');
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,6 +118,15 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
     }
     for (var badge in selectedBadges) {
       if (badge.badge.type != widget.trade.requiredBadgeType) {
+        return false;
+      }
+      if( badge.badge.type.toUpperCase() == 'BEGINNER' && user!.points! < 100){
+        return false;
+      }
+      if( badge.badge.type.toUpperCase() == 'INTERMEDIATE' && user!.points! < 300){
+        return false;
+      }
+      if( badge.badge.type.toUpperCase() == 'ADVANCE' && user!.points! < 500){
         return false;
       }
     }
@@ -135,7 +158,18 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    int reqPoint = 0;
+    switch (widget.trade.requiredBadgeType.toUpperCase()) {
+      case 'BEGINNER' :
+        reqPoint = 300;
+      case 'INTERMEDIATE' :
+        reqPoint = 500;
+      case 'ADVANCE' :
+        reqPoint = 800;
+      default :
+        reqPoint = 0;
+    }
+    return !widget.trade.hasTrade ? Scaffold(
       appBar: AppBar(
         title: Text("Trade Detail"),
         backgroundColor: AppColors.primaryColor,
@@ -168,6 +202,12 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text("Pointku : ${user?.points != null ? user!.points : 0}", style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'DIN_Next_Rounded',
+                ),),
+                SizedBox(height: 12,),
                 ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(widget.trade.image)),
                 SizedBox(height: 16),
                 Text(
@@ -196,7 +236,7 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
                   ),
                 ),
                 Text(
-                  'Tukarkan satu buah badge dengan tipe ${widget.trade.requiredBadgeType} untuk mendapatkan penawaran ini!',
+                  'Tukarkan satu buah badge dengan tipe ${widget.trade.requiredBadgeType} dan tukarkan point sebanyak ${reqPoint} untuk mendapatkan penawaran ini!',
                   style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
                 ),
                 SizedBox(height: 16),
@@ -209,19 +249,22 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
                     return ChoiceChip(
                       selectedColor: AppColors.accentColor,
                       backgroundColor: Colors.white,
-                      label: Text(badge.badge.name, style: TextStyle(fontFamily: 'DIN_Next_Rounded'),),
-                      selected: selectedBadges.contains(badge),
-                      onSelected: !badge.isPurchased ? (selected) {
-                        print(badge.isPurchased);
+                      label: Text(
+                        badge.badge.name,
+                        style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                      ),
+                      selected: selectedBadges.contains(badge), // Checks if this is selected
+                      onSelected: !badge.isPurchased
+                          ? (selected) {
                         setState(() {
                           if (selected) {
-                            selectedBadges.add(badge);
-                          } else {
-                            selectedBadges.remove(badge);
+                            selectedBadges.clear(); // Clears previous selection
+                            selectedBadges.add(badge); // Adds new selection
                           }
                           errorMessage = '';
                         });
-                      } : null,
+                      }
+                          : null,
                     );
                   }).toList(),
                 ),
@@ -229,7 +272,7 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isPurchaseValid() ? _purchase : null,
+                    onPressed: _isPurchaseValid() ? () => _purchase(reqPoint) : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
                     ),
@@ -255,6 +298,86 @@ class _TradeDetailScreenState extends State<TradeDetailScreen> {
           ),
         ),
       )
+    ) :  Scaffold(
+      appBar: AppBar(
+        title: const Text("Trade Redeemed", style: TextStyle(fontFamily: 'DIN_Next_Rounded',),),
+        backgroundColor: Colors.deepPurple,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white),
+        ),
+        titleTextStyle: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 🎉 Success Message
+              const Text(
+                "Congratulations!",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                  fontFamily: 'DIN_Next_Rounded',
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              const Text(
+                "You have successfully redeemed this trade.",
+                style: TextStyle(fontSize: 18, color: Colors.black54, fontFamily: 'DIN_Next_Rounded',),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 20),
+
+              // 📌 Trade Details
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(widget.trade.image, height: 180, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 16),
+
+              Text(
+                widget.trade.title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'DIN_Next_Rounded',
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+
+              Text(
+                widget.trade.description,
+                style: const TextStyle(fontSize: 16, color: Colors.grey, fontFamily: 'DIN_Next_Rounded',),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 30),
+
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                label: const Text("Back to Trades", style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white),),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

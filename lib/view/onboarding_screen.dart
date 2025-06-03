@@ -127,36 +127,62 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            color: Colors.white,
-            height: 128,
-          ),
-          Image.asset(model.image),
-          SizedBox(height: 20),
-          Text(
-            model.title,
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'DIN_Next_Rounded',
-                color: AppColors.primaryColor
-            ),
-          ),
-          SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              model.description,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontFamily: 'DIN_Next_Rounded'
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: screenHeight, // Ensure minimum height for proper centering
+        ),
+        child: IntrinsicHeight(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Top spacer
+              Spacer(flex: isLandscape ? 1 : 2),
+
+              Container(
+                color: Colors.white,
+                height: isLandscape ? 80 : 128,
               ),
-            ),
+
+              Image.asset(
+                model.image,
+                height: isLandscape ? screenHeight * 0.25 : null,
+              ),
+
+              SizedBox(height: 20),
+
+              Text(
+                model.title,
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'DIN_Next_Rounded',
+                  color: AppColors.primaryColor,
+                  fontSize: isLandscape ? 18 : null,
+                ),
+              ),
+
+              SizedBox(height: 10),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  model.description,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontFamily: 'DIN_Next_Rounded',
+                    fontSize: isLandscape ? 14 : null,
+                  ),
+                ),
+              ),
+
+              // Bottom spacer to push content up from navigation buttons
+              Spacer(flex: isLandscape ? 2 : 3),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

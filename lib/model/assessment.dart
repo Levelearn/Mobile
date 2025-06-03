@@ -37,6 +37,7 @@ class Question {
   String correctedAnswer;
   String type;
   String _selectedAnswer = '';
+  int score = 0;
   List<String> _selectedMultiAnswer = [];
   bool isCorrect = false;
 

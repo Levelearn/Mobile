@@ -65,12 +65,14 @@ class _CourseDetail extends State<CourseDetailScreen> {
     if(idUser != null) {
       getUser(idUser);
     }
-    final  result = await CourseService.getCourse(idCourse);
-    setState(() {
-      courseDetail = result;
-    });
-    getChapter(idCourse);
-    await getListBadge(idCourse);
+    if(idCourse != 0){
+      final result = await CourseService.getCourse(idCourse);
+      setState(() {
+        courseDetail = result;
+      });
+      getChapter(idCourse);
+      await getListBadge(idCourse);
+    }
   }
 
   void getUserCourse() async {
@@ -167,6 +169,7 @@ class _CourseDetail extends State<CourseDetailScreen> {
         ? Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             centerTitle: true,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.center ,
@@ -180,11 +183,6 @@ class _CourseDetail extends State<CourseDetailScreen> {
               ],
             ),
             backgroundColor: AppColors.primaryColor,
-            leading: IconButton(
-                onPressed: (){
-                  Navigator.pop(context);
-                },
-                icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
             titleTextStyle: TextStyle(
                 fontFamily: 'DIN_Next_Rounded',
                 fontSize: 24,
