@@ -142,22 +142,24 @@ class _ProfileState extends State<ProfileScreen> {
     ) : Scaffold(
       appBar: AppBar(
         backgroundColor: GlobalVar.primaryColor,
-        leading: IconButton(
-            onPressed: (){
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Mainscreen()),
-              );
-            },
-            icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)),
+        // leading: IconButton(
+        //     onPressed: (){
+        //       Navigator.pushReplacement(
+        //         context,
+        //         MaterialPageRoute(
+        //             builder: (context) => Mainscreen()),
+        //       );
+        //     },
+        //     icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white,)
+        // ),
+        automaticallyImplyLeading: false,
         title: Text(
             "Profile",
             style: TextStyle(
                 fontFamily: 'DIN_Next_Rounded',
                 color: Colors.white
             )),
-        actions: [IconButton(onPressed: (){}, icon: Icon(isDark ? LineAwesomeIcons.sun : LineAwesomeIcons.moon))],
+        // actions: [IconButton(onPressed: (){}, icon: Icon(isDark ? LineAwesomeIcons.sun : LineAwesomeIcons.moon))],
       ),
       body:  Stack(
         children: [

@@ -160,7 +160,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
     Uint8List bytes = file.bytes ?? await File(file.path!).readAsBytes();
 
     try {
-      await Supabase.instance.client.storage.from('assigment').uploadBinary(path, bytes);
+      await Supabase.instance.client.storage.from('assignment').uploadBinary(path, bytes);
       final publicUrl = getPublicUrl(path);
       status.timeFinished = DateTime.now();
       setState(() {

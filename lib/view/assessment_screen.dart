@@ -271,8 +271,10 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (!_assessmentStarted && !widget.status.assessmentDone) {
-      return _buildAssessmentInitial();
+      return _buildAssessmentInitial(isLandscape: isLandscape);
     } else if (!_assessmentFinished && !widget.status.assessmentDone ) {
       return question != null && question!.questions.isNotEmpty
           ? Container(
@@ -287,7 +289,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: !isLandscape ? const EdgeInsets.all(16.0) : const EdgeInsets.all(0.0),
               child: LinearProgressIndicator(
                 value: question!.questions
                     .where((q) =>
@@ -301,7 +303,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: !isLandscape ? const EdgeInsets.all(8.0) : const EdgeInsets.all(1.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
@@ -358,7 +360,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
             ),
 
             // PAGE ACTION BUTTON
-            Padding(
+            !isLandscape ? Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -401,6 +403,46 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                   ),
                 ],
               ),
+            ) : Row (
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor
+                  ),
+                  onPressed:
+                  _currentPage > 0
+                      ? () {
+                    _pageController.previousPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut
+                    );
+                  }
+                      : null,
+                  icon: Icon(LineAwesomeIcons.angle_left_solid, color: Colors.white),
+                  label: Text('Back', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded'),),
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor
+                  ),
+                  onPressed: () {
+                    if (_currentPage < question!.questions.length - 1) {
+                      _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      _showFinishConfirmation();
+                    }
+                  },
+                  icon: Icon(LineAwesomeIcons.angle_right_solid, color: Colors.white),
+                  iconAlignment: IconAlignment.end,
+                  label: Text(_currentPage < question!.questions.length - 1
+                      ? 'Next'
+                      : 'Finish', style: TextStyle(color: Colors.white, fontFamily: 'DIN_Next_Rounded')),
+                ),
+              ],
             ),
           ],
         ),
@@ -416,7 +458,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
     }
   }
 
-  Widget _buildAssessmentInitial() {
+  Widget _buildAssessmentInitial({bool isLandscape = false}) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -429,7 +471,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: !isLandscape ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset('lib/assets/pixels/assessment-pixel.png', height: 50),
@@ -464,7 +506,43 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
                 ),
               ),
             ],
-          ),
+          ) : SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('lib/assets/pixels/assessment-pixel.png', height: 50),
+                SizedBox(height: 16),
+                Text(
+                  'Assessment',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'DIN_Next_Rounded'),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  question?.instruction ?? 'Pilihlah jawaban yang menurut anda paling benar!',
+                  style: TextStyle(fontFamily: 'DIN_Next_Rounded'),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _assessmentStarted = true;
+                        widget.updateAssessmentStarted(_assessmentStarted);
+                        widget.updateMaterialLocked(true);
+                      });
+                    },
+                    icon: Icon(LineAwesomeIcons.paper_plane, color: Colors.white,),
+                    label: Text('Mulai', style: TextStyle(fontFamily: 'DIN_Next_Rounded', color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          )
         ),
       ),
     );
